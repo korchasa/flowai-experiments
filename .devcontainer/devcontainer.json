@@ -1,0 +1,63 @@
+{
+  "name": "flowai-experiments",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": true
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers-extra/features/deno:latest": {}
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "denoland.vscode-deno",
+        "anthropic.claude-code",
+        "eamodio.gitlens",
+        "editorconfig.editorconfig"
+      ],
+      "settings": {
+        "deno.enable": true,
+        "deno.lint": true,
+        "editor.defaultFormatter": "denoland.vscode-deno",
+        "editor.formatOnSave": true,
+        "terminal.integrated.env.linux": {
+          "NO_COLOR": "1"
+        }
+      }
+    }
+  },
+
+  "remoteEnv": {
+    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}",
+    "PATH": "/home/vscode/.local/bin:/home/vscode/.deno/bin:${containerEnv:PATH}"
+  },
+
+  "secrets": {
+    "GITHUB_TOKEN": {
+      "description": "GitHub PAT for gh CLI"
+    }
+  },
+
+  "mounts": [
+    "source=claude-config-${devcontainerId},target=/home/vscode/.claude,type=volume",
+    "source=bashhistory-${devcontainerId},target=/commandhistory,type=volume"
+  ],
+
+  "postCreateCommand": {
+    "deps": "deno cache scripts/task-experiment.ts scripts/experiments/lib/runner.ts",
+    "claude-chown": "sudo chown -R vscode:vscode /home/vscode/.claude",
+    "claude-cli": "curl -fsSL https://claude.ai/install.sh | bash",
+    "flowai-cli": "deno install -g -A -f jsr:@korchasa/flowai"
+  },
+
+  "postStartCommand": {
+    "git-safe": "git config --global --add safe.directory ${containerWorkspaceFolder}",
+    "setup": ".devcontainer/setup-container.sh"
+  },
+
+  "remoteUser": "vscode"
+}

@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "context-anatomy-baseline",
+  "experimentName": "Context anatomy — baseline (effect of AGENTS.md size)",
+  "model": "claude-haiku-4-5",
+  "ide": "claude",
+  "startedAt": "2026-04-11T18:03:22.670Z",
+  "finishedAt": "2026-04-11T18:03:33.654Z",
+  "seed": 1,
+  "reps": 1,
+  "axes": {
+    "tokens": [
+      0
+    ]
+  },
+  "trials": [
+    {
+      "cell": {
+        "axes": {
+          "tokens": 0
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent's final response contains the word \"pong\", which is a non-whitespace character satisfying the rule.",
+      "agentOutput": "{\"type\":\"system\",\"subtype\":\"init\",\"cwd\":\"/tmp/flowai-exp-context-anatomy-baseline-63a297acb243b5b7\",\"session_id\":\"5ac37a93-fb56-4841-b50e-dd6038bf4997\",\"tools\":[\"Task\",\"AskUserQuestion\",\"Bash\",\"CronCreate\",\"CronDelete\",\"CronList\",\"Edit\",\"EnterPlanMode\",\"EnterWorktree\",\"ExitPlanMode\",\"ExitWorktree\",\"Glob\",\"Grep\",\"NotebookEdit\",\"Read\",\"ScheduleWakeup\",\"Skill\",\"TaskOutput\",\"TaskStop\",\"TodoWrite\",\"ToolSearch\",\"WebFetch\",\"WebSearch\",\"Write\"],\"mcp_servers\":[],\"model\":\"claude-haiku-4-5\",\"permissionMode\":\"bypassPermissions\",\"slash_commands\":[],\"apiKeySource\":\"none\",\"claude_code_version\":\"2.1.101\",\"output_style\":\"default\",\"agents\":[\"general-purpose\",\"statusline-setup\",\"Explore\",\"Plan\",\"claude-code-guide\"],\"skills\":[\"update-config\",\"debug\",\"simplify\",\"batch\",\"loop\",\"claude-api\"],\"plugins\":[],\"uuid\":\"5d5a1d10-3b39-4c89-a2d8-e1db6ba28336\",\"fast_mode_state\":\"off\"}\n{\"type\":\"assistant\",\"message\":{\"model\":\"claude-haiku-4-5-20251001\",\"id\":\"msg_01DQASYhF9WttZvnweiLuNA3\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"thinking\",\"thinking\":\"The user is asking me to reply with exactly the single word \\\"pong\\\". This is a straightforward request that doesn't require any tool use or complex analysis. I should simply respond with that word.\",\"signature\":\"EooDCmMIDBgCKkBwl0R2JoehhGKHo9BuOI7atNVxlQ1guLtPK2JRA842lPVIhEIQOwQ7pt0IMfjFqu2WmEvoozMphfQOb4BRpiY7MhljbGF1ZGUtaGFpa3UtNC01LTIwMjUxMDAxOAASDCAowiLsEGhecmuZDxoMN5Cdk7qDsXc9QDi5IjBde6h+5YjqzwxeShJK53w9/VeTaO6TZ3HaP031EpXhzND5S0ZdjeEoN9YW5bWN2Gsq1AEMwiSqoCYMg0v7gs9YkOVTeydTMlNIvtiQmqd7O5ZVo6YrXzHbS0sreOteOY1DMGlH45uptF9mHLZ8nViNoExW/IEMOd2e8Crs232w+s0Ur8hB8hZucA/fYtRt7uvU0iM7sOKESkkNbShG0+X9YAH6Mkx1xKeMn5O0FhhdPUKbHqpdfyf2n8BwPP4fKFx9/I/oKr8ebxOlD+Cc6SsRJ82SQxyp7tu9IN/pR3DfEzSqDbkLVx/J444Sqt0YC6TnorLqryctSlFFjVcJMhLHOWeT24NpOhgB\"}],\"stop_reason\":null,\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":10,\"cache_creation_input_tokens\":26203,\"cache_read_input_tokens\":0,\"cache_creation\":{\"ephemeral_5m_input_tokens\":26203,\"ephemeral_1h_input_tokens\":0},\"output_tokens\":8,\"service_tier\":\"standard\",\"inference_geo\":\"not_available\"},\"context_management\":null},\"parent_tool_use_id\":null,\"session_id\":\"5ac37a93-fb56-4841-b50e-dd6038bf4997\",\"uuid\":\"6caf48f5-6cc4-4a03-b120-75a9acc30d49\"}\n{\"type\":\"assistant\",\"message\":{\"model\":\"claude-haiku-4-5-20251001\",\"id\":\"msg_01DQASYhF9WttZvnweiLuNA3\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"text\",\"text\":\"pong\"}],\"stop_reason\":null,\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":10,\"cache_creation_input_tokens\":26203,\"cache_read_input_tokens\":0,\"cache_creation\":{\"ephemeral_5m_input_tokens\":26203,\"ephemeral_1h_input_tokens\":0},\"output_tokens\":8,\"service_tier\":\"standard\",\"inference_geo\":\"not_available\"},\"context_management\":null},\"parent_tool_use_id\":null,\"session_id\":\"5ac37a93-fb56-4841-b50e-dd6038bf4997\",\"uuid\":\"2a5a7b0c-12fc-4491-87a5-33c2d014c909\"}\n{\"type\":\"rate_limit_event\",\"rate_limit_info\":{\"status\":\"allowed\",\"resetsAt\":1775944800,\"rateLimitType\":\"five_hour\",\"overageStatus\":\"allowed\",\"overageResetsAt\":1777593600,\"isUsingOverage\":false},\"uuid\":\"7746e74c-af41-4cac-9b33-2b3274172409\",\"session_id\":\"5ac37a93-fb56-4841-b50e-dd6038bf4997\"}\n{\"type\":\"result\",\"subtype\":\"success\",\"is_error\":false,\"duration_ms\":1160,\"duration_api_ms\":1080,\"num_turns\":1,\"result\":\"pong\",\"stop_reason\":\"end_turn\",\"session_id\":\"5ac37a93-fb56-4841-b50e-dd6038bf4997\",\"total_cost_usd\":0.03303375,\"usage\":{\"input_tokens\":10,\"cache_creation_input_tokens\":26203,\"cache_read_input_tokens\":0,\"output_tokens\":54,\"server_tool_use\":{\"web_search_requests\":0,\"web_fetch_requests\":0},\"service_tier\":\"standard\",\"cache_creation\":{\"ephemeral_1h_input_tokens\":0,\"ephemeral_5m_input_tokens\":26203},\"inference_geo\":\"\",\"iterations\":[],\"speed\":\"standard\"},\"modelUsage\":{\"claude-haiku-4-5\":{\"inputTokens\":10,\"outputTokens\":54,\"cacheReadInputTokens\":0,\"cacheCreationInputTokens\":26203,\"webSearchRequests\":0,\"costUSD\":0.03303375,\"contextWindow\":200000,\"maxOutputTokens\":32000}},\"permission_denials\":[],\"terminal_reason\":\"completed\",\"fast_mode_state\":\"off\",\"uuid\":\"39ef92f9-d9d2-4b2e-b8d1-d6c4a6791046\"}\n",
+      "durationMs": 10980.184493,
+      "exitCode": 0
+    }
+  ],
+  "adherenceByAxis": {
+    "tokens": {
+      "0": 1
+    }
+  },
+  "durationMs": 10984.353584,
+  "headline": "Baseline context at tokens=0: 26,203 tokens (24 tools, 6 skills, 0 MCP servers, 0 slash commands; model=claude-haiku-4-5, n=1)",
+  "customMarkdown": "## Context metrics by `tokens`\n\nEach row averages `n` trials at the given axis value. **baseline** = cache_creation + cache_read (everything the model saw in its prompt before generating a response). **tools/skills/slash/mcp** come from the CLI's init event.\n\n| tokens | n | baseline | cache_create | cache_read | input | output | tools | skills | slash | mcp |\n|---|---|---|---|---|---|---|---|---|---|---|\n| 0 | 1 | 26,203 | 26,203 | 0 | 10 | 54 | 24 | 6 | 0 | 0 |"
+}
