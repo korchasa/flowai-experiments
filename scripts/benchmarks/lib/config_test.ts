@@ -3,17 +3,14 @@ import { getIdeConfig, loadConfig } from "./llm.ts";
 import { join } from "@std/path";
 
 Deno.test("loadConfig - should load valid config", async () => {
-  const tempConfig = join(Deno.cwd(), "benchmarks.config.json.test");
+  const tempConfig = join(Deno.cwd(), "config.json.test");
   const configData = {
-    default_ides: ["claude"],
     ides: {
       cursor: {
-        agent_models: ["gemini-3-flash"],
         default_agent_model: "gemini-3-flash",
         judge: { model: "google/gemini-2.5-flash", temperature: 0 },
       },
       claude: {
-        agent_models: ["sonnet"],
         default_agent_model: "sonnet",
         judge: { model: "google/gemini-2.5-flash", temperature: 0 },
       },
@@ -24,8 +21,6 @@ Deno.test("loadConfig - should load valid config", async () => {
 
   try {
     const config = await loadConfig(tempConfig);
-
-    assertEquals(config.default_ides, ["claude"]);
 
     const cursorConfig = getIdeConfig(config, "cursor");
     assertEquals(cursorConfig.default_agent_model, "gemini-3-flash");
@@ -41,10 +36,8 @@ Deno.test("loadConfig - should load valid config", async () => {
 
 Deno.test("getIdeConfig - should throw for unknown IDE", () => {
   const config = {
-    default_ides: ["cursor"],
     ides: {
       cursor: {
-        agent_models: ["model"],
         default_agent_model: "model",
         judge: { model: "judge", temperature: 0 },
       },

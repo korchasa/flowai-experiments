@@ -1,8 +1,6 @@
 {
-  "default_ides": ["claude"],
   "ides": {
     "cursor": {
-      "agent_models": ["gemini-3-flash"],
       "default_agent_model": "gemini-3-flash",
       "judge": {
         "model": "claude-haiku-4-5-20251001",
@@ -10,7 +8,6 @@
       }
     },
     "claude": {
-      "agent_models": ["claude-sonnet-4-6"],
       "default_agent_model": "claude-sonnet-4-6",
       "judge": {
         "model": "claude-sonnet-4-6",

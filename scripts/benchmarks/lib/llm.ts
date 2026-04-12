@@ -14,13 +14,11 @@ export interface ModelConfig {
 }
 
 export interface IdeConfig {
-  agent_models: string[];
   default_agent_model: string;
   judge: ModelConfig;
 }
 
 export interface BenchmarkConfig {
-  default_ides: string[];
   ides: Record<string, IdeConfig>;
 }
 
@@ -41,7 +39,7 @@ export function getIdeConfig(
 }
 
 export async function loadConfig(
-  path = "benchmarks/config.json",
+  path = "config.json",
 ): Promise<BenchmarkConfig> {
   try {
     const content = await Deno.readTextFile(path);

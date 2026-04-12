@@ -151,7 +151,7 @@ it or simulate a zero-baseline idealized model:
   they are counted and reported as part of the baseline.
 - **Stub judge**: one LLM call per trial is "wasted" on a vacuous
   pass-check. At 10 trials and cheap judge (`claude-sonnet-4-6` per
-  `benchmarks/config.json`) this is a negligible cost, but be aware.
+  `config.json`) this is a negligible cost, but be aware.
 - **Token estimation in setupCell**: AGENTS.md sizes are approximated
   via the same ±15% 4-char heuristic used by `claude-md-length`. The
   axis labels are not exact token counts.

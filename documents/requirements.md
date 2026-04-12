@@ -20,7 +20,7 @@
   - Deno 2.x runtime, TypeScript only.
   - Experiments run on developer machines — CI runs only `deno task check`. Live `claude` CLI is required for real runs; the CLI must be authorized externally (`claude login` → `~/.claude/.credentials.json`) before the run, and the claude adapter mirrors that one file into an otherwise-empty cleanroom config dir. Cross-platform (Linux devcontainer and macOS both work); no more macOS-keychain dependency.
   - Results are committed to the repo under `scripts/experiments/<name>/results/` and form the historical record. They must not be deleted or rewritten.
-  - All tasks are invoked from the repo root; `benchmarks/config.json` is resolved CWD-relative.
+  - All tasks are invoked from the repo root; `config.json` is resolved CWD-relative.
 
 ## 3. Functional Reqs
 
@@ -36,11 +36,11 @@
 
 ### 3.2 FR-EXP-JUDGE
 
-- **Desc:** Binary pass/fail judgment of one specific rule per trial, via an LLM judge (`judge` model configured in `benchmarks/config.json`).
+- **Desc:** Binary pass/fail judgment of one specific rule per trial, via an LLM judge (`judge` model configured in `config.json`).
 - **Scenario:** Runner passes `{rule, userQuery, agentOutput}` to `judge.ts`. Judge returns `{pass: bool, reason: string}`. Runner stores verdict in `TrialResult`.
 - **Acceptance:**
   - [x] Judge receives rule + query + output and returns a binary verdict with a reason. Evidence: `scripts/experiments/lib/judge.ts`, `scripts/experiments/lib/judge_test.ts`.
-  - [x] Judge model is configurable via `benchmarks/config.json`. Evidence: `benchmarks/config.json`.
+  - [x] Judge model is configurable via `config.json`. Evidence: `config.json`.
 
 ### 3.3 FR-EXP-NOISE
 
@@ -108,7 +108,7 @@
 ## 5. Interfaces
 
 - **CLI:** `deno task experiment <name> --variant <v> [--model <m>] [--ide <id>] [--reps <n>] [--axis <name>=<csv>]… [--seed <n>] [--dry-run]`. `--axis` is the sole axis-override mechanism: repeatable, accepts any axis declared by the variant, rejects unknown names. No axis-specific flag (e.g. `--sizes`, `--rules`) is hard-coded at the engine level.
-- **Config:** `benchmarks/config.json` — IDE defaults (`agent_model`, `judge` model). Resolved CWD-relative.
+- **Config:** `config.json` — IDE defaults (`default_agent_model`, `judge` model). Resolved CWD-relative.
 - **Memory files:** adapters write per-trial `CLAUDE.md` / `AGENTS.md` (claude) or `.cursorrules` (cursor) into the sandbox.
 - **Env isolation (claude adapter):** `CLAUDE_CONFIG_DIR=<cleanroom temp dir containing only a mirrored copy of ~/.claude/.credentials.json>`, `CLAUDECODE=""`. Spawn args include `--strict-mcp-config --disable-slash-commands` to strip account-level MCP and slash commands. Built-in tools/skills/agents embedded in the `claude` binary still contribute ~26k baseline on haiku — this is the measurement target, not a leak.
 - **Experiment extension point:** `scripts/experiments/lib/types.ts` exports the `Experiment` interface — new experiments implement `{id, name, description, axes, defaults, setupCell, query, judgePrompt, headline}` plus optional `renderCustom?(report)` for experiments whose payload is not pass/fail adherence (e.g. metric tables extracted from raw agent output — see FR-EXP.CONTEXT-ANATOMY).

@@ -13,7 +13,7 @@ Sister repository: [`flow`](https://github.com/korchasa/flow) holds the AssistFl
 - Keep formatter/linter output clean. A broken baseline blocks all future work.
 - Write documentation in English, compressed style. Brevity preserves context window.
 - Do not add fallbacks or error-recovery hacks silently — if unsure, ask first.
-- All tasks must be invoked from the repo root. `benchmarks/config.json` is resolved CWD-relative; this is intentional.
+- All tasks must be invoked from the repo root. `config.json` is resolved CWD-relative; this is intentional.
 - Do not use tables in chat output — use two-level lists instead (portable, terminal-friendly).
 - Provide evidence for claims — link to code, docs, or tool output.
 - Use standard tools (`jq`, `yq`, `jc`) to process structured output.
@@ -33,7 +33,7 @@ Sister repository: [`flow`](https://github.com/korchasa/flow) holds the AssistFl
 - `scripts/experiments/<name>/` — per-experiment directory with `README.md`, variant files, `shared.ts`, committed static inputs, `results/`.
 - `scripts/benchmarks/lib/` — minimal agent runtime (adapters, llm, spawned_agent, usage). Name is a historical artifact from the split; a Phase-3 rename is planned.
 - `scripts/task-experiment.ts` — CLI entry point.
-- `benchmarks/config.json` — IDE defaults.
+- `config.json` — IDE defaults (agent model + judge model per IDE).
 - `documents/rnd/` — R&D writeups that motivate experiments.
 
 ## Key Decisions

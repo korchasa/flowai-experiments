@@ -39,7 +39,7 @@ deno task experiment claude-md-length --variant single-file --model claude-opus-
 
 See [`scripts/experiments/claude-md-length/README.md`](scripts/experiments/claude-md-length/README.md) for the experiment methodology.
 
-All tasks **must be invoked from the repo root** — `benchmarks/config.json` is resolved CWD-relative (intentional, matches flow).
+All tasks **must be invoked from the repo root** — `config.json` is resolved CWD-relative (intentional, matches flow).
 
 ## Running locally vs CI
 

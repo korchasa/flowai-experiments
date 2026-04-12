@@ -18,7 +18,7 @@
 
 ## Detected Commands
 
-All commands are defined as Deno tasks in [`deno.json`](../deno.json) and must be invoked from the repo root (`benchmarks/config.json` is resolved CWD-relative, intentional).
+All commands are defined as Deno tasks in [`deno.json`](../deno.json) and must be invoked from the repo root (`config.json` is resolved CWD-relative, intentional).
 
 - `deno task check` — format check + lint + unit tests. The canonical gate: run before every commit.
 - `deno task test` — unit tests only (`deno test -A --ignore=scripts/experiments/*/results`). Use during TDD loops.
@@ -38,7 +38,7 @@ All commands are defined as Deno tasks in [`deno.json`](../deno.json) and must b
 ## Running experiments — prerequisites
 
 - `claude` CLI installed and authenticated. On macOS, OAuth credentials live in keychain entry `Claude Code-credentials`. If missing or expired, the runner fails with a clear error — STOP and ask the user, do not invent replacements.
-- `benchmarks/config.json` present at repo root — holds IDE defaults (`agent_model`, `judge` model).
+- `config.json` present at repo root — holds IDE defaults (`default_agent_model`, `judge` model per IDE).
 - Invoke all tasks from the repo root. Running from `scripts/` breaks config resolution.
 
 ## CI Scope
