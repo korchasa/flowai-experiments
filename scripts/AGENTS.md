@@ -22,7 +22,7 @@ All commands are defined as Deno tasks in [`deno.json`](../deno.json) and must b
 
 - `deno task check` — format check + lint + unit tests. The canonical gate: run before every commit.
 - `deno task test` — unit tests only (`deno test -A --ignore=scripts/experiments/*/results`). Use during TDD loops.
-- `deno task experiment <name> --variant <v> [flags]` — run an experiment variant. Flags: `--dry-run`, `--reps`, `--sizes`, `--rules`, `--model`, `--ide`.
+- `deno task experiment <name> --variant <v> [flags]` — run an experiment variant. Flags: `--dry-run`, `--reps`, `--axis <name>=<csv>` (repeatable; axis names are experiment-specific — see the experiment's README), `--model`, `--ide`, `--seed`.
 
 ## Command Scripts
 

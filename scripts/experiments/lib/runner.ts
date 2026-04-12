@@ -64,7 +64,7 @@ export interface RunnerOptions {
   reps: number;
   /** Base seed for deterministic trial setup. */
   seed: number;
-  /** Optional filter — override experiment.axes (e.g. from CLI --sizes 500,1000). */
+  /** Optional filter — override experiment.axes (e.g. from CLI --axis tokens=500,1000). */
   axesFilter?: Record<string, ReadonlyArray<string | number>>;
   /** Judge model config. */
   judgeConfig: ModelConfig;

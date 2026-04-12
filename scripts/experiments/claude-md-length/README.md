@@ -99,7 +99,7 @@ deno task experiment claude-md-length --variant single-file --model claude-opus-
 deno task experiment claude-md-length --variant tree-sum --model claude-opus-4-6
 
 # Smoke test (one cell, one rep)
-deno task experiment claude-md-length --variant single-file --reps 1 --sizes 500 --rules format
+deno task experiment claude-md-length --variant single-file --reps 1 --axis tokens=500 --axis rule=format
 
 # Dry run (print plan, don't execute)
 deno task experiment claude-md-length --variant single-file --dry-run
@@ -111,9 +111,13 @@ Flags:
 - `--ide <id>` — IDE adapter (default: `claude`; `cursor` supports
   single-file only because it lacks hierarchical memory).
 - `--reps <n>` — override trials per cell.
-- `--sizes <csv>` — override the tokens axis.
-- `--rules <csv>` — override the rule axis.
+- `--axis tokens=<csv>` — override the tokens axis (e.g. `500,1000,2000`).
+- `--axis rule=<csv>` — override the rule axis (e.g. `format,language`).
 - `--seed <n>` — change the base seed.
+
+The `--axis` flag is repeatable and generic — any axis declared in the
+variant (`tokens`, `rule`) can be overridden this way. Unknown axis
+names are rejected at CLI parse time.
 
 ## How to read results
 

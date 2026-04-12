@@ -28,7 +28,7 @@ documents/rnd/                  R&D writeups
 deno task experiment claude-md-length --variant single-file --dry-run
 
 # smoke test (one trial, requires live claude CLI + macOS keychain auth)
-deno task experiment claude-md-length --variant single-file --reps 1 --sizes 500 --rules format
+deno task experiment claude-md-length --variant single-file --reps 1 --axis tokens=500 --axis rule=format
 
 # full sweep
 deno task experiment claude-md-length --variant single-file --model claude-opus-4-6

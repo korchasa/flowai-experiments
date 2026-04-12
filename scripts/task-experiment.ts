@@ -10,8 +10,10 @@
  *   -m, --model <id>        Agent model (default: IDE default from config)
  *   -i, --ide <id>          IDE adapter (default: claude)
  *   -r, --reps <n>          Repetitions per cell (default: experiment default)
- *   --sizes <csv>           Override tokens axis (e.g. "500,1000,2000")
- *   --rules <csv>           Override rule axis (e.g. "format,language")
+ *   --axis <name>=<csv>     Override one axis (repeatable). Axis names and
+ *                           values are experiment-specific — check the
+ *                           experiment's README. Example:
+ *                             --axis tokens=500,1000 --axis rule=format
  *   --seed <n>              Base seed (default: 1)
  *   --dry-run               Print plan without running trials
  *   --help                  Show usage
@@ -48,15 +50,16 @@ Options:
     SUPPORTED_IDES.join(", ")
   }) (default: claude)
   -r, --reps <n>          Repetitions per cell
-  --sizes <csv>           Override tokens axis (e.g. "500,1000,2000")
-  --rules <csv>           Override rule axis (e.g. "format,language")
+  --axis <name>=<csv>     Override one axis (repeatable). Axis names and
+                          values are experiment-specific — check the
+                          experiment's README.
   --seed <n>              Base seed (default: 1)
   --dry-run               Print plan without running trials
   --help                  Show this help
 
 Examples:
   deno task experiment claude-md-length --variant single-file --model claude-opus-4-6
-  deno task experiment claude-md-length --variant tree-sum --reps 3 --sizes 1500,3000
+  deno task experiment claude-md-length --variant tree-sum --reps 3 --axis tokens=1500,3000
   deno task experiment claude-md-length --variant single-file --dry-run
 `);
 }
@@ -89,26 +92,49 @@ async function loadExperiment(
   throw new Error(`No Experiment export found in ${file}`);
 }
 
-function parseCsvNumbers(csv: string | undefined): number[] | undefined {
-  if (!csv) return undefined;
-  return csv.split(",").map((s) => s.trim()).filter((s) => s.length > 0).map(
-    (s) => {
+/**
+ * Parses repeated `--axis name=v1,v2,...` flags into an override map.
+ *
+ * Each value is coerced to a number when it parses as one, else kept as a
+ * string — so numeric axes (e.g. `tokens`) and string axes (e.g. `rule`)
+ * share the same flag. The runner treats unknown keys as a hard error at
+ * expand time, so typos surface immediately.
+ */
+function parseAxisOverrides(
+  raw: readonly string[],
+): Record<string, Array<string | number>> | undefined {
+  if (raw.length === 0) return undefined;
+  const out: Record<string, Array<string | number>> = {};
+  for (const spec of raw) {
+    const eq = spec.indexOf("=");
+    if (eq <= 0) {
+      throw new Error(
+        `Invalid --axis value ${
+          JSON.stringify(spec)
+        } — expected "<name>=<csv>"`,
+      );
+    }
+    const name = spec.slice(0, eq).trim();
+    const csv = spec.slice(eq + 1);
+    const values = csv.split(",").map((s) => s.trim()).filter((s) =>
+      s.length > 0
+    ).map((s) => {
       const n = Number(s);
-      if (Number.isNaN(n)) throw new Error(`Invalid number in --sizes: ${s}`);
-      return n;
-    },
-  );
-}
-
-function parseCsvStrings(csv: string | undefined): string[] | undefined {
-  if (!csv) return undefined;
-  return csv.split(",").map((s) => s.trim()).filter((s) => s.length > 0);
+      return Number.isFinite(n) && s !== "" ? n : s;
+    });
+    if (values.length === 0) {
+      throw new Error(`--axis ${name} has no values`);
+    }
+    out[name] = values;
+  }
+  return out;
 }
 
 async function main() {
   const args = parse(Deno.args, {
-    string: ["variant", "model", "ide", "reps", "sizes", "rules", "seed"],
+    string: ["variant", "model", "ide", "reps", "seed", "axis"],
     boolean: ["help", "dry-run"],
+    collect: ["axis"],
     alias: {
       m: "model",
       i: "ide",
@@ -156,14 +182,24 @@ async function main() {
   const reps = args.reps ? parseInt(args.reps, 10) : experiment.defaults.reps;
   const seed = args.seed ? parseInt(args.seed, 10) : 1;
 
-  // Build axesFilter from --sizes / --rules
+  // Build axesFilter from repeated --axis name=v1,v2 flags. Unknown axis
+  // names are rejected here so typos don't silently produce an empty sweep.
+  const axisFlags = (args.axis as string[] | undefined) ?? [];
+  const overrides = parseAxisOverrides(axisFlags);
   let axesFilter: Record<string, ReadonlyArray<string | number>> | undefined;
-  const sizes = parseCsvNumbers(args.sizes);
-  const rules = parseCsvStrings(args.rules);
-  if (sizes || rules) {
-    axesFilter = { ...experiment.axes };
-    if (sizes) axesFilter.tokens = sizes;
-    if (rules) axesFilter.rule = rules;
+  if (overrides) {
+    for (const axisName of Object.keys(overrides)) {
+      if (!(axisName in experiment.axes)) {
+        console.error(
+          `Unknown axis "${axisName}" for experiment "${experiment.id}". ` +
+            `Known axes: ${
+              Object.keys(experiment.axes).join(", ") || "(none)"
+            }`,
+        );
+        Deno.exit(1);
+      }
+    }
+    axesFilter = { ...experiment.axes, ...overrides };
   }
 
   const effectiveAxes = axesFilter ?? experiment.axes;

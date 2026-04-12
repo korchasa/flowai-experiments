@@ -36,7 +36,7 @@ flowchart LR
 
 ### 3.1 CLI (`scripts/task-experiment.ts`)
 
-- **Purpose:** Entry point. Parses flags (`--variant`, `--model`, `--ide`, `--reps`, `--sizes`, `--rules`, `--seed`, `--dry-run`), loads the variant file dynamically, invokes the runner.
+- **Purpose:** Entry point. Parses flags (`--variant`, `--model`, `--ide`, `--reps`, `--axis <name>=<csv>` repeatable, `--seed`, `--dry-run`), loads the variant file dynamically, invokes the runner. Axis-override keys are validated against `experiment.axes` — unknown names fail fast. No experiment-specific flag (e.g. `--sizes`, `--rules`) is hard-coded at the CLI level; those belong inside each variant.
 - **Interfaces:** `deno task experiment <name> [flags]`.
 - **Deps:** `runner`, variant module, `benchmarks/config.json`.
 

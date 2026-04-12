@@ -44,7 +44,7 @@ deno task experiment context-anatomy --variant baseline --model claude-haiku-4-5
 
 # Smoke — single cell, single rep
 deno task experiment context-anatomy --variant baseline --model claude-haiku-4-5 \
-    --reps 1 --sizes 0
+    --reps 1 --axis tokens=0
 
 # Dry run — print plan, don't spend LLM calls
 deno task experiment context-anatomy --variant baseline --dry-run
@@ -56,7 +56,9 @@ Flags:
 - `--ide <id>` — IDE adapter (currently claude only; the experiment
   relies on `claude`'s stream-json init event format).
 - `--reps <n>` — override trials per cell (default 2).
-- `--sizes <csv>` — override the tokens axis (e.g. `0,1000,8000`).
+- `--axis tokens=<csv>` — override the tokens axis (e.g. `0,1000,8000`).
+  The `--axis` flag is the generic axis-override interface; repeat it to
+  override multiple axes. This experiment only declares `tokens`.
 - `--seed <n>` — base seed for deterministic noise.
 
 ## How to read results

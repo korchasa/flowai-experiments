@@ -107,7 +107,7 @@
 
 ## 5. Interfaces
 
-- **CLI:** `deno task experiment <name> --variant <v> [--model <m>] [--ide <id>] [--reps <n>] [--sizes <csv>] [--rules <csv>] [--seed <n>] [--dry-run]`.
+- **CLI:** `deno task experiment <name> --variant <v> [--model <m>] [--ide <id>] [--reps <n>] [--axis <name>=<csv>]… [--seed <n>] [--dry-run]`. `--axis` is the sole axis-override mechanism: repeatable, accepts any axis declared by the variant, rejects unknown names. No axis-specific flag (e.g. `--sizes`, `--rules`) is hard-coded at the engine level.
 - **Config:** `benchmarks/config.json` — IDE defaults (`agent_model`, `judge` model). Resolved CWD-relative.
 - **Memory files:** adapters write per-trial `CLAUDE.md` / `AGENTS.md` (claude) or `.cursorrules` (cursor) into the sandbox.
 - **Env isolation (claude adapter):** `CLAUDE_CONFIG_DIR=<cleanroom temp dir containing only a mirrored copy of ~/.claude/.credentials.json>`, `CLAUDECODE=""`. Spawn args include `--strict-mcp-config --disable-slash-commands` to strip account-level MCP and slash commands. Built-in tools/skills/agents embedded in the `claude` binary still contribute ~26k baseline on haiku — this is the measurement target, not a leak.
