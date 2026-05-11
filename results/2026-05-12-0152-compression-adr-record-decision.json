@@ -1,0 +1,130 @@
+{
+  "createdAt": "2026-05-11T22:53:38.543Z",
+  "scenarios": [
+    {
+      "id": "adr-record-decision--compressed-style--claude",
+      "metrics": {
+        "original": {
+          "chars": 1708,
+          "words": 229,
+          "sentences": 8,
+          "avgSentenceWords": 28.6,
+          "newAbbreviations": [],
+          "undefinedAbbreviations": []
+        },
+        "compressed": {
+          "chars": 1218,
+          "words": 150,
+          "sentences": 8,
+          "avgSentenceWords": 18.8,
+          "newAbbreviations": [],
+          "undefinedAbbreviations": []
+        },
+        "restored": {
+          "chars": 2792,
+          "words": 370,
+          "sentences": 9,
+          "avgSentenceWords": 41.1,
+          "newAbbreviations": [],
+          "undefinedAbbreviations": []
+        },
+        "compressionRatio": 0.7131147540983607,
+        "decompressionRatio": 1.6346604215456675,
+        "totalCostUsd": 0.18707100000000002,
+        "totalDurationMs": 29210
+      },
+      "judge": {
+        "factRetention": [
+          {
+            "itemId": "adr-id",
+            "pass": true,
+            "reason": "Title states ADR-0007.",
+            "evidenceQuote": "ADR-0007: Deno + TypeScript for the Benchmark Runner"
+          },
+          {
+            "itemId": "status-accepted",
+            "pass": true,
+            "reason": "Status field shows Accepted.",
+            "evidenceQuote": "**Status:** Accepted"
+          },
+          {
+            "itemId": "date",
+            "pass": true,
+            "reason": "Date is given as 2026-04-12.",
+            "evidenceQuote": "Date:** 2026-04-12"
+          },
+          {
+            "itemId": "chosen-stack",
+            "pass": true,
+            "reason": "Decision section names Deno 2.x with TypeScript.",
+            "evidenceQuote": "The chosen runtime and language are **Deno 2.x** with **TypeScript**."
+          },
+          {
+            "itemId": "import-prefix",
+            "pass": true,
+            "reason": "Import map with @bench/ prefix declared in deno.json.",
+            "evidenceQuote": "The project uses an import map with the `@bench/` prefix, declared in `deno.json`."
+          },
+          {
+            "itemId": "test-command",
+            "pass": true,
+            "reason": "Test command stated explicitly.",
+            "evidenceQuote": "The test suite is executed with `deno test -A`"
+          },
+          {
+            "itemId": "fmt-line-width",
+            "pass": true,
+            "reason": "Formatting command with line-width 100 stated.",
+            "evidenceQuote": "code formatting is enforced with `deno fmt --line-width=100`"
+          },
+          {
+            "itemId": "candidates",
+            "pass": true,
+            "reason": "Three candidates listed.",
+            "evidenceQuote": "Three implementation candidates were evaluated: Node.js + TypeScript, Deno + TypeScript, and Go."
+          },
+          {
+            "itemId": "rejected-node",
+            "pass": true,
+            "reason": "Node.js rejection cited onboarding cost.",
+            "evidenceQuote": "This option was **rejected** due to the onboarding cost."
+          },
+          {
+            "itemId": "rejected-go",
+            "pass": true,
+            "reason": "Go rejection cites TypeScript expertise and easier LLM judge prompts.",
+            "evidenceQuote": "the team's existing expertise is stronger in TypeScript, and authoring large-language-model judge prompts is considerably easier in TypeScript"
+          },
+          {
+            "itemId": "required-cli-spawn",
+            "pass": true,
+            "reason": "Requirement explicitly lists the three CLIs and isolated HOME.",
+            "evidenceQuote": "Spawn command-line interface tools (`claude`, `codex`, and `gemini`) with a per-run isolated `HOME` directory"
+          },
+          {
+            "itemId": "required-platforms",
+            "pass": true,
+            "reason": "Requirement names macOS and Linux without global package install.",
+            "evidenceQuote": "Run on both macOS and Linux developer laptops without requiring any global package installation."
+          },
+          {
+            "itemId": "acceptance-check",
+            "pass": true,
+            "reason": "Acceptance criterion is stated.",
+            "evidenceQuote": "The command `deno task check` passes on a clean checkout of the repository."
+          },
+          {
+            "itemId": "acceptance-onboarding",
+            "pass": true,
+            "reason": "Five-minute onboarding criterion stated.",
+            "evidenceQuote": "A new contributor is able to run `deno task bench` successfully within five minutes of cloning the repository."
+          }
+        ],
+        "invented": [],
+        "factRetentionPct": 100,
+        "criticalRetentionPct": 100,
+        "inventionCount": 0
+      }
+    }
+  ]
+}

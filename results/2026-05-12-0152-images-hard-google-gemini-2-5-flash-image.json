@@ -1,0 +1,40 @@
+{
+  "createdAt": "2026-05-11T22:52:16.556Z",
+  "models": [
+    {
+      "modelId": "google/gemini-2.5-flash-image",
+      "modelInfo": {
+        "id": "google/gemini-2.5-flash-image",
+        "name": "google/gemini-2.5-flash-image",
+        "object": "model"
+      },
+      "results": [
+        {
+          "promptId": "TC-01",
+          "promptName": "Text & Typography Poster (Cyrillic + Latin, long text)",
+          "results": [
+            {
+              "success": true,
+              "revisedPrompt": "Here's your photorealistic A3 advertising poster with all the specified text and details: ",
+              "imagePath": "/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-images-hard-12820afdaff801b1/google_gemini_2_5_flash_image_TC_01.png"
+            }
+          ],
+          "createdAt": "2026-05-11T22:52:16.556Z"
+        }
+      ],
+      "stats": {
+        "totalPrompts": 1,
+        "successfulGenerations": 1,
+        "errors": []
+      }
+    }
+  ],
+  "summary": {
+    "totalModels": 1,
+    "processedModels": 1,
+    "modelsWithErrors": 0,
+    "totalPrompts": 1,
+    "totalSuccessfulGenerations": 1,
+    "totalErrors": 0
+  }
+}
