@@ -1,4 +1,12 @@
 tmp/
 .DS_Store
+.env
 .claude/
-documents/tasks/
+
+# compression-decompression runtime artifacts
+scripts/experiments/compression-decompression/runs/
+scripts/experiments/compression-decompression/cache/
+
+# tokenizers and images-hard runtime artifacts
+scripts/experiments/tokenizers/public/results/
+scripts/experiments/images-hard/public/results/

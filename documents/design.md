@@ -3,7 +3,7 @@
 ## 1. Intro
 
 - **Purpose:** Describe the architecture of the `flowai-experiments` harness — how the runner composes adapters, judge, noise, tokens, and report libs to drive a parameterized empirical sweep and commit reproducible evidence.
-- **Rel to SRS:** Implements FR-EXP-RUN, FR-EXP-JUDGE, FR-EXP-NOISE, FR-EXP-TOKENS, FR-EXP-REPORT, FR-EXP.MEMORY-LENGTH, FR-EXP.CONTEXT-ANATOMY, FR-EXP-ADAPTERS.
+- **Rel to SRS:** Implements FR-EXP-RUN, FR-EXP-JUDGE, FR-EXP-NOISE, FR-EXP-TOKENS, FR-EXP-REPORT, FR-EXP.MEMORY-LENGTH, FR-EXP.CONTEXT-ANATOMY, FR-EXP-ADAPTERS, FR-EXP.TOKENIZERS, FR-EXP.COMPRESSION, FR-EXP.IMAGES-HARD.
 
 ## 2. Arch
 
@@ -24,6 +24,12 @@ flowchart LR
   Adapter --> Spawn[benchmarks/lib/spawned_agent.ts]
   Report --> Results[(results/*.json+md)]
   Config[(config.json)] --> Runner
+  ShimTok[experiments/tokenizers/run.ts] --> BenchTok[bench.ts via subprocess]
+  ShimComp[experiments/compression-decompression/run.ts] --> BenchComp[scripts/bench.ts via subprocess]
+  ShimImg[experiments/images-hard/run.ts] --> BenchImg[bench.ts via subprocess]
+  BenchTok --> Results
+  BenchComp --> Results
+  BenchImg --> Results
 ```
 
 - **Subsystems:**
@@ -31,6 +37,7 @@ flowchart LR
   - **Runner lib** — `scripts/experiments/lib/`: `runner`, `judge`, `noise`, `tokens`, `report`, `types`.
   - **Experiment variants** — `scripts/experiments/<name>/<variant>.ts`: implement the `Experiment` interface.
   - **Minimal agent runtime** — `scripts/benchmarks/lib/`: `adapters/*`, `llm`, `spawned_agent`, `usage`, `utils`. Name is a historical artifact from the `flow` split; Phase-3 rename planned.
+  - **Standalone benchmarks** — `scripts/experiments/{tokenizers,compression-decompression,images-hard}/`: self-contained codebases with own runners; each has a thin `run.ts` shim that spawns the underlying `bench.ts` as a subprocess and normalises output into `results/`.
 
 ## 3. Components
 
@@ -96,6 +103,16 @@ flowchart LR
   - Behavior (tree-sum): splits the total budget evenly across `AGENTS.md`, `documents/AGENTS.md`, `scripts/AGENTS.md`. Sweeps the sum.
 - **`context-anatomy/`** — `baseline.ts`, `shared.ts`, `README.md`. Implements FR-EXP.CONTEXT-ANATOMY.
   - Behavior (baseline): sweeps `tokens` axis only, uses a vacuous stub judge (non-empty response), extracts `cache_creation_input_tokens` / `cache_read_input_tokens` / init-event counts from `TrialResult.agentOutput` NDJSON via `shared.extractContextMetrics`, and renders the per-axis metric table in `renderCustom`. Measures the CLI-intrinsic baseline that `claude-md-length` numbers are relative to.
+
+### 3.9 Standalone Benchmarks
+
+- **Purpose:** Self-contained measurement tools that call external APIs directly (no agent spawning). Each lives under `scripts/experiments/<name>/` with its own `deno.json`, assets, and runner. A thin `run.ts` shim (~80 LOC) serves as the entry point.
+- **Shim contract:** accepts `--dry-run` (print plan, exit 0), `--model <id>`, experiment-specific flags; spawns the underlying `bench.ts` as a subprocess with `cwd: EXPERIMENT_DIR` and `Deno.execPath()` to preserve the sub-project import map; copies output to `results/<YYYY-MM-DD>-<HHMM>-<name>-<model-slug>.{json,md}`.
+- **`tokenizers/`** — measures tokens/char across 40+ UDHR language corpora. Uses `OPENROUTER_API_KEY`. Smoke test: `tokenizers_test.ts::smoke`.
+- **`compression-decompression/`** — two-stage compress→decompress pipeline for 4 technical document scenarios. Uses Claude CLI via spawned subprocess. Has its own `deno.json` with `@bench/` import alias; root `check` ignores it; `check:compression` runs it with `BENCH_HEALTH_DISABLE=1` (health gate is for live runs, not CI). Smoke test: `lib/runner_test.ts::runs_two_stages_and_emits_artefacts`.
+- **`images-hard/`** — text-to-image benchmark; 12 hard test cases (typography, anatomy, geometry, schematics). Uses `OPENROUTER_API_KEY`. Smoke test: `images_test.ts::smoke`.
+- **Deps:** `@std/fs`, `@std/path` (root import map for tokenizers/images-hard; sub-project import map for compression-decompression).
+- **Env:** `OPENROUTER_API_KEY` in `.env` at repo root (loaded via `--env-file=.env` in `experiment:tokenizers` and `experiment:images-hard` tasks).
 
 ## 4. Data
 

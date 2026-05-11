@@ -1,0 +1,159 @@
+- id: prd-id
+  fact: "The document ID is PRD-2026-Q2-014."
+  critical: true
+
+- id: epic
+  fact: "Engineering tracking is JIRA epic SBF-410."
+  critical: false
+
+- id: ga-date
+  fact: "Target launch (general availability) date is 2026-06-30."
+  critical: true
+
+- id: tldr-promise
+  fact: "The product lets a non-developer Slack admin describe a bot in natural language and receive a working, deployed Slack app within five minutes."
+  critical: true
+
+- id: tldr-conv-baseline
+  fact: "The current trial-to-first-bot conversion baseline is 19% over a 30-day window in 2026-Q1."
+  critical: true
+
+- id: tldr-conv-target
+  fact: "The 90-day post-GA target for trial-to-first-bot conversion is at least 45%."
+  critical: true
+
+- id: tldr-time-target
+  fact: "The target median time-to-first-deployed-bot is under 8 minutes, down from 38 minutes at baseline."
+  critical: true
+
+- id: oauth-baseline
+  fact: "The OAuth-redirect failure mode currently accounts for 41% of trial drop-offs."
+  critical: true
+
+- id: nongoal-sso
+  fact: "Enterprise SSO (Okta, Azure AD, OneLogin) is explicitly out of scope and tracked as PRD-2026-Q3-005."
+  critical: true
+
+- id: nongoal-migration
+  fact: "Existing onboarded workspaces will not be migrated; the redesign applies only to new sign-ups starting on the GA date."
+  critical: true
+
+- id: revert-conv-threshold
+  fact: "The launch will be reverted if trial-to-first-bot conversion is below 30% over a rolling 7-day window during the first 14 days post-GA."
+  critical: true
+
+- id: revert-bot-failure
+  fact: "The launch will be reverted if more than 0.5% of completed onboardings produce a bot that fails its first message."
+  critical: true
+
+- id: revert-sentry
+  fact: "The launch will be reverted if Sentry rate for `slack.api.unauthorised` exceeds 1.5x the 7-day pre-launch baseline."
+  critical: true
+
+- id: persona-primary
+  fact: "Primary persona is a Slack admin who is not a developer, managing a workspace of 20–500 people."
+  critical: false
+
+- id: fr-1
+  fact: "FR-1: a new Slack admin must be able to install the app from the Slack App Directory and complete onboarding without leaving the Slack web client."
+  critical: true
+
+- id: fr-1-1
+  fact: "FR-1.1: the OAuth handshake must complete in a Slack-native modal using the slack_app_oauth_v2 flow, not a third-party browser tab."
+  critical: true
+
+- id: fr-2-templates
+  fact: "FR-2: the onboarding wizard offers three pre-built templates: standup-bot, kudos-bot, and deploy-watcher; each must deploy in under 60 seconds."
+  critical: true
+
+- id: fr-2-1-flag
+  fact: "FR-2.1: the deploy-watcher template is feature-gated behind the `deploy-watcher-template` flag, rolled out at 10% on day 0 and ramping to 100% by day 14."
+  critical: true
+
+- id: fr-3-kv-key
+  fact: "FR-3: wizard progress must be persisted to Deno KV keyed by workspace_id."
+  critical: true
+
+- id: fr-4-health
+  fact: "FR-4: a diagnostic endpoint GET /onboarding/health/:workspace_id must return JSON with completed, in-progress, or blocked steps."
+  critical: true
+
+- id: fr-5-recover
+  fact: "FR-5: a self-serve recovery flow at https://slack-bots-flow.app/recover accepts only the workspace_id and an admin OAuth re-confirmation."
+  critical: true
+
+- id: fr-6-otel
+  fact: "FR-6: all onboarding events must be emitted to OpenTelemetry under the trace name onboarding.<stepname>."
+  critical: true
+
+- id: nfr-1-latency
+  fact: "NFR-1: median onboarding API latency must be under 200 ms; p99 under 1 s."
+  critical: true
+
+- id: nfr-2-idempotency
+  fact: "NFR-2: all onboarding writes must be idempotent on the tuple (workspace_id, step_name)."
+  critical: true
+
+- id: nfr-3-pii
+  fact: "NFR-3: no personal data beyond the Slack admin's email address may be persisted server-side; workspace member lists must not leave the Slack API surface."
+  critical: true
+
+- id: nfr-4-platforms
+  fact: "NFR-4: the flow must work on Slack desktop, Slack web, and Slack iOS; Slack Android is best-effort for v1."
+  critical: true
+
+- id: nfr-5-rate-limit
+  fact: "NFR-5: the recovery endpoint must be rate-limited to 10 requests per workspace_id per hour."
+  critical: true
+
+- id: oq-1
+  fact: "Open question OQ-1 asks whether to deprecate /onboarding/legacy on the GA date or run it in parallel for 30 days; decision owner Stanislav K. by 2026-05-15."
+  critical: true
+
+- id: rollout-staging-soak
+  fact: "Staging soak begins on 2026-05-29 and runs for a 14-day window."
+  critical: true
+
+- id: rollout-internal
+  fact: "Internal-only cohort enabled on 2026-06-15 in Slack workspace 4ra-internal.slack.com."
+  critical: false
+
+- id: rollout-public-5pct
+  fact: "On 2026-06-22, a 5% public rollout starts via the `onboarding-v2` feature flag."
+  critical: true
+
+- id: rollout-sunset
+  fact: "Hard sunset of /onboarding/legacy is 2026-07-30; the route then returns HTTP 410 with a redirect to /onboarding/."
+  critical: true
+
+- id: acceptance-tests
+  fact: "Acceptance criterion 1: all FR-* and NFR-* requirements pass automated tests under tests/onboarding/ and the Cypress suite cypress/e2e/onboarding-v2.cy.ts."
+  critical: true
+
+- id: acceptance-soak-zero-sentry
+  fact: "Acceptance criterion 2: a 14-day staging soak produces zero Sentry errors tagged `oauth.failure-mode=redirect-loss`."
+  critical: true
+
+- id: acceptance-mixpanel
+  fact: "Acceptance criterion 3: Mixpanel funnel onboarding-v2-staging shows trial-to-first-bot above 50% on synthetic traffic with at least 200 simulated workspaces."
+  critical: true
+
+- id: acceptance-privacy
+  fact: "Acceptance criterion 5: privacy review issue PRIV-118 is closed with verdict `approved with no caveats`."
+  critical: true
+
+- id: risk-r2-fallback
+  fact: "Risk R-2 mitigation: on Deno KV regional outage, fall back to read-only mode with an in-app banner and cache the last 100 onboarding states in memory per node."
+  critical: true
+
+- id: risk-r1-pin
+  fact: "Risk R-1 mitigation: pin to Slack API version 2026-02-01."
+  critical: false
+
+- id: stakeholder-sre
+  fact: "SRE stakeholder is Marek P."
+  critical: false
+
+- id: stakeholder-privacy
+  fact: "Privacy stakeholder is Lena G."
+  critical: false

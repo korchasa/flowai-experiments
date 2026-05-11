@@ -1,0 +1,50 @@
+{
+  "name": "text-to-image-benchmark",
+  "version": "1.0.0",
+  "description": "Text to image benchmark",
+  "lock": {
+    "path": "./deno.lock",
+    "frozen": false
+  },
+  "vendor": true,
+  "nodeModulesDir": "auto",
+  "compilerOptions": {
+    "lib": ["ES2022", "dom", "dom.iterable", "deno.ns"],
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "types": [
+      "deno.ns"
+    ]
+  },
+  "exclude": ["dist/**", "node_modules/**"],
+  "fmt": {
+    "lineWidth": 100,
+    "indentWidth": 2,
+    "semiColons": true,
+    "exclude": ["documents/**", "dist/**", "node_modules/**"]
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended"],
+      "exclude": []
+    }
+  },
+  "exports": {
+    ".": "./bench.ts"
+  },
+  "imports": {
+    "@openrouter/sdk": "npm:@openrouter/sdk",
+    "@std/fs": "jsr:@std/fs@^1.0.17",
+    "@std/path": "jsr:@std/path@^1.1.4"
+  }
+}

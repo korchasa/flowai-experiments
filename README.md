@@ -10,40 +10,56 @@ scripts/
   experiments/
     lib/                        runner, judge, noise, report, tokens, types
     claude-md-length/           variants single-file + tree-sum (rule adherence vs file size)
-      single-file.ts
-      tree-sum.ts
-      shared.ts
-      noise-corpus.md
     context-anatomy/            variant baseline (CLI-intrinsic context floor + slope)
-      baseline.ts
-      shared.ts
+    tokenizers/                 tokens/char across models × 40+ UDHR languages (OpenRouter)
+    compression-decompression/  compress→decompress fact-retention benchmark (Claude CLI)
+    images-hard/                text-to-image: 12 hard test cases (OpenRouter)
   benchmarks/lib/               minimal agent-runtime subset (adapters, llm, spawned_agent, usage)
-benchmarks/
-  config.json                   IDE defaults (agent_model, judge model)
+config.json                     IDE defaults (agent_model, judge model)
 results/                        committed JSON + Markdown evidence (one pair per run)
 documents/rnd/                  R&D writeups
+.env.example                    env var template (copy to .env, fill OPENROUTER_API_KEY)
 ```
 
 ## Running locally
 
+**Agent-spawning experiments** (claude CLI required — macOS keychain auth):
+
 ```bash
-# dry run (no CLI spawn)
+# dry run
 deno task experiment claude-md-length --variant single-file --dry-run
 
-# smoke test (one trial, requires live claude CLI + macOS keychain auth)
+# one trial
 deno task experiment claude-md-length --variant single-file --reps 1 --axis tokens=500 --axis rule=format
 
 # full sweep
 deno task experiment claude-md-length --variant single-file --model claude-opus-4-6
 ```
 
-See [`scripts/experiments/claude-md-length/README.md`](scripts/experiments/claude-md-length/README.md) for the experiment methodology.
+**API-based experiments** (require `OPENROUTER_API_KEY` in `.env`):
 
-All tasks **must be invoked from the repo root** — `config.json` is resolved CWD-relative (intentional, matches flow).
+```bash
+# copy and fill the template once
+cp .env.example .env   # then add your key
+
+# dry run (no API calls)
+deno task experiment:tokenizers --dry-run
+deno task experiment:images-hard --dry-run
+deno task experiment:compression --dry-run
+
+# live runs
+deno task experiment:tokenizers --model anthropic/claude-haiku-4-5
+deno task experiment:images-hard --model google/gemini-2-5-flash-preview
+deno task experiment:compression
+```
+
+See each experiment's `README.md` for flags and methodology.
+
+All tasks **must be invoked from the repo root** — `config.json` is resolved CWD-relative (intentional).
 
 ## Running locally vs CI
 
-CI runs `deno task check` (format + lint + test). CI does **NOT** run `deno task experiment` — experiments need a live `claude` CLI with real OAuth authentication (macOS keychain entry `Claude Code-credentials`). Run experiments manually on a developer machine.
+CI runs `deno task check` (format + lint + test). CI does **NOT** run `deno task experiment*` — agent experiments need a live `claude` CLI with OAuth auth; API experiments need `OPENROUTER_API_KEY`. Run all experiments manually on a developer machine.
 
 ## Concepts
 

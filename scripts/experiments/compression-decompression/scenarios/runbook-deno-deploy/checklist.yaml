@@ -1,0 +1,95 @@
+- id: service-name
+  fact: "The runbook covers the tldrist-digester service."
+  critical: true
+
+- id: project-id
+  fact: "The Deno Deploy project ID is tldrist-digester-prod."
+  critical: true
+
+- id: not-for-hotfix
+  fact: "This runbook must NOT be used for hot-fix rollouts; those follow runbook-tldrist-hotfix.md and require explicit on-call SRE approval."
+  critical: true
+
+- id: preflight-ci
+  fact: "Pre-flight check 1 requires CI on the merge commit to be green, including `deno task check` and the integration suite under tests/integration/."
+  critical: true
+
+- id: preflight-canary-soak
+  fact: "Pre-flight check 2 requires the news-digester-canary environment to have been live for at least 30 minutes with no error spikes."
+  critical: true
+
+- id: preflight-blockers
+  fact: "Pre-flight check 3 requires no open issues tagged `release-blocker` in the GitHub project."
+  critical: true
+
+- id: preflight-token-rotation
+  fact: "Pre-flight check 4 requires the Telegram bot token rotation date to be at least 7 days away, verified via the BOT_TOKEN_ROTATION_AT env var."
+  critical: true
+
+- id: preflight-cost-ceiling
+  fact: "Pre-flight check 5 requires the OpenRouter trailing 24-hour spend to be below the 18 USD daily ceiling."
+  critical: true
+
+- id: promote-tool
+  fact: "Promotion is performed with `deployctl deployments promote --project=tldrist-digester-prod --deployment=<canary-id> --to=production`."
+  critical: true
+
+- id: promote-atomic
+  fact: "Promotion is atomic and traffic shifts to the new revision in under 10 seconds."
+  critical: true
+
+- id: log-watch-window
+  fact: "After promotion, watch logs for 5 minutes via `deployctl logs follow`."
+  critical: true
+
+- id: abort-conditions
+  fact: "Abort and roll back if more than 3 OPENROUTER_RATE_LIMITED per minute, any `panic`/`Uncaught (in promise)`/`KV write failed` line, or a drop in `digest_items_processed_total` versus the trailing 1-hour rate."
+  critical: true
+
+- id: confirm-digest
+  fact: "Within 10 minutes of promotion, confirm the digest pipeline by checking the Telegram channel @tldrist_news and the `last_digest_at` KV key, which must be within the last cron interval (15 minutes)."
+  critical: true
+
+- id: rollback-retention
+  fact: "The previous production deploy ID is preserved by Deno Deploy for at least 30 days."
+  critical: true
+
+- id: rollback-pagerduty
+  fact: "If the rollback is in response to SEV-2 or higher, page the SRE on-call via PagerDuty service tldrist-prod-sev2."
+  critical: true
+
+- id: rollback-ticket
+  fact: "After a rollback, file a GitHub issue labelled `rollback` documenting the symptom, the rollback timestamp, and next investigation steps."
+  critical: false
+
+- id: failure-deploy-not-found
+  fact: "The error `deployctl: deployment not found` means the deploy ID was mistyped or the canary was overwritten by a newer build."
+  critical: false
+
+- id: failure-throttle-backup-key
+  fact: "Under `openrouter: 429 Too Many Requests`, swap to the backup key stored in the Deno Deploy secret OPENROUTER_API_KEY_BACKUP."
+  critical: true
+
+- id: failure-kv-timeout
+  fact: "On `kv write failed: timeout`, check https://status.deno.com and consider deferring the rollout."
+  critical: false
+
+- id: approval-promotion
+  fact: "Promotion requires a second pair of eyes from #tldrist-eng (informal LGTM in chat is sufficient)."
+  critical: true
+
+- id: approval-rollback
+  fact: "Rollback requires no approval; safety wins."
+  critical: true
+
+- id: digest-cron-default
+  fact: "DIGEST_CRON has a default value of `*/15 * * * *`."
+  critical: false
+
+- id: cost-ceiling-default
+  fact: "DAILY_COST_CEILING_USD has a default value of 18 USD."
+  critical: false
+
+- id: out-of-scope-postgres
+  fact: "Schema migrations on the analytics Postgres instance are out of scope; they have a separate runbook runbook-tldrist-postgres-migration.md."
+  critical: false

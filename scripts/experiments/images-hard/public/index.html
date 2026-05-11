@@ -1,0 +1,886 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Images-hard: Prompts & Results Viewer</title>
+    <style>
+      :root {
+        --bg: rgb(245, 245, 245);
+        --fg: rgb(10, 10, 10);
+        --muted: rgb(113, 113, 113);
+        --card: rgb(255, 255, 255);
+        --border: rgb(229, 229, 229);
+        --accent: #3b82f6;
+        --danger: #ef4444;
+        --ok: #22c55e;
+        --font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 20px;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--font);
+        line-height: 1.5;
+      }
+
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+
+      .container {
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      header {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      h1 {
+        font-size: 18px;
+        margin: 0;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 10px;
+      }
+
+      .section-title {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 10px;
+        font-weight: normal;
+      }
+
+      .sub {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 6px;
+      }
+
+      header .controls {
+        margin-bottom: 0;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        justify-content: flex-end;
+      }
+
+      select,
+      input[type="search"],
+      button {
+        background: var(--card);
+        color: var(--fg);
+        border: 1px solid var(--border);
+        border-radius: 0rem;
+        padding: 8px 10px;
+        font-family: var(--font);
+        font-size: 12px;
+      }
+
+      input[type="checkbox"] {
+        transform: translateY(1px);
+      }
+
+      .pill {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        padding: 6px 10px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: var(--secondary);
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .status {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .card {
+        background: var(--card);
+        border-radius: 0rem;
+        padding: 20px;
+        box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.05);
+      }
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+      }
+
+      .card-title {
+        display: flex;
+        gap: 10px;
+        align-items: baseline;
+        flex-wrap: wrap;
+      }
+
+      .id {
+        font-weight: 700;
+        letter-spacing: 0.2px;
+      }
+
+      .name {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+
+      pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+        background: rgba(0, 0, 0, 0.02);
+        border: 1px solid var(--border);
+        border-radius: 0rem;
+        padding: 10px;
+        overflow: auto;
+        margin: 10px 0 0 0;
+        font-size: 12px;
+        color: var(--fg);
+      }
+
+      .checklist {
+        margin: 10px 0 0 0;
+        padding-left: 18px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .results-grid {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        margin-top: 12px;
+      }
+
+      .model {
+        border-radius: 0rem;
+        padding: 10px;
+        background: var(--card);
+        box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-height: 120px;
+      }
+
+      .model-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        align-items: baseline;
+      }
+
+      .model-name {
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .tag {
+        font-size: 11px;
+        color: var(--muted);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 2px 8px;
+      }
+
+      .thumbs {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 8px;
+      }
+
+      .thumb {
+        border: 1px solid var(--border);
+        border-radius: 0rem;
+        overflow: hidden;
+        background: var(--card);
+      }
+
+      .thumb img {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .error {
+        color: var(--danger);
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .ok {
+        color: var(--ok);
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .loading {
+        padding: 50px 0;
+        text-align: center;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div>
+          <h1>images-hard: viewer</h1>
+          <div class="sub">
+            Loads <code>config.yaml</code> (prompts) and <code>results/*.json</code>
+            (results). Open via local HTTP server (not <code>file://</code>).
+          </div>
+        </div>
+        <div class="controls">
+          <label class="pill">
+            Report
+            <select id="reportSelect"></select>
+          </label>
+          <label class="pill">
+            Models
+            <select id="modelSelect" multiple size="1" title="Multiple models can be selected"></select>
+          </label>
+          <label class="pill">
+            Search
+            <input id="search" type="search" placeholder="TC-01 / word from name…" />
+          </label>
+          <label class="pill" title="Hide cards that have no successful images in selected models">
+            <input id="onlyWithImages" type="checkbox" />
+            only with images
+          </label>
+          <button id="reset">Reset</button>
+        </div>
+      </header>
+
+      <div id="status" class="status"></div>
+      <div id="root" class="cards"></div>
+      <div id="loading" class="loading">Loading…</div>
+      <div id="error" class="loading" style="display: none"></div>
+    </div>
+
+    <script>
+      const PATHS = {
+        configYaml: "./config.yaml",
+        reportsIndex: "./results/reports.json",
+        reportsDir: "./results/",
+      };
+
+      const state = {
+        config: null,
+        promptsById: new Map(),
+        promptOrder: [],
+        indexEntries: [],
+        reportsByFilename: new Map(),
+        mergedReport: null,
+        selectedReport: "__merged__",
+        selectedModels: new Set(),
+        search: "",
+        onlyWithImages: false,
+      };
+
+      function escapeHtml(s) {
+        return String(s)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function stripQuotes(s) {
+        const v = String(s).trim();
+        if (
+          (v.startsWith('"') && v.endsWith('"')) ||
+          (v.startsWith("'") && v.endsWith("'"))
+        ) {
+          return v.slice(1, -1);
+        }
+        return v;
+      }
+
+      function parseScalar(s) {
+        const v = stripQuotes(s);
+        if (v === "true") return true;
+        if (v === "false") return false;
+        if (v === "null") return null;
+        if (/^-?\d+(\.\d+)?$/.test(v)) return Number(v);
+        return v;
+      }
+
+      // Mini YAML parser for the structure of `config.yaml` in this repo (not a general YAML parser).
+      function parseConfigYaml(yamlText) {
+        const lines = yamlText.replaceAll("\r\n", "\n").split("\n");
+        const config = { models: [], prompts: [] };
+
+        let i = 0;
+
+        function currentLine() {
+          return lines[i] ?? "";
+        }
+
+        function indentOf(line) {
+          const m = line.match(/^(\s*)/);
+          return m ? m[1].length : 0;
+        }
+
+        function isBlank(line) {
+          return !line || /^\s*$/.test(line);
+        }
+
+        function findRootKey(key) {
+          for (let j = 0; j < lines.length; j++) {
+            if (lines[j].trim() === `${key}:`) return j;
+          }
+          return -1;
+        }
+
+        const modelsAt = findRootKey("models");
+        if (modelsAt === -1) throw new Error("config.yaml: no `models:` key");
+        i = modelsAt + 1;
+        while (i < lines.length) {
+          const line = currentLine();
+          if (isBlank(line)) {
+            i++;
+            continue;
+          }
+          if (indentOf(line) === 0) break;
+          const m = line.match(/^\s{2}-\s*(.+)\s*$/);
+          if (m) config.models.push(stripQuotes(m[1]));
+          i++;
+        }
+
+        const promptsAt = findRootKey("prompts");
+        if (promptsAt === -1) throw new Error("config.yaml: no `prompts:` key");
+        i = promptsAt + 1;
+
+        function isPromptItemStart(line) {
+          return /^\s{2}-\s+id:\s*(.+)\s*$/.test(line);
+        }
+
+        while (i < lines.length) {
+          const line = currentLine();
+          if (isBlank(line)) {
+            i++;
+            continue;
+          }
+          if (indentOf(line) === 0) break;
+          if (!isPromptItemStart(line)) {
+            i++;
+            continue;
+          }
+
+          const id = stripQuotes(line.replace(/^\s{2}-\s+id:\s*/, "").trim());
+          const prompt = { id, name: "", prompt: "", checklist: [], params: null };
+          i++;
+
+          while (i < lines.length) {
+            const l = currentLine();
+            if (isBlank(l)) {
+              i++;
+              continue;
+            }
+            if (indentOf(l) <= 2) break;
+            if (isPromptItemStart(l)) break;
+
+            const nameMatch = l.match(/^\s{4}name:\s*(.*)\s*$/);
+            if (nameMatch) {
+              prompt.name = stripQuotes(nameMatch[1] ?? "");
+              i++;
+              continue;
+            }
+
+            const promptMatch = l.match(/^\s{4}prompt:\s*\|[+-]?\s*$/);
+            if (promptMatch) {
+              i++;
+              let block = [];
+              let baseIndent = null;
+              while (i < lines.length) {
+                const bl = currentLine();
+                if (isBlank(bl)) {
+                  block.push("");
+                  i++;
+                  continue;
+                }
+                const ind = indentOf(bl);
+                if (baseIndent == null) baseIndent = ind;
+                if (ind < baseIndent) break;
+                block.push(bl.slice(baseIndent));
+                i++;
+              }
+              prompt.prompt = block.join("\n").replace(/\s+$/g, "");
+              continue;
+            }
+
+            const checklistMatch = l.match(/^\s{4}checklist:\s*$/);
+            if (checklistMatch) {
+              i++;
+              const items = [];
+              while (i < lines.length) {
+                const cl = currentLine();
+                if (isBlank(cl)) {
+                  i++;
+                  continue;
+                }
+                if (indentOf(cl) <= 4) break;
+                const itemMatch = cl.match(/^\s{6}-\s*(.*)\s*$/);
+                if (itemMatch) items.push(stripQuotes(itemMatch[1]));
+                i++;
+              }
+              prompt.checklist = items;
+              continue;
+            }
+
+            const paramsMatch = l.match(/^\s{4}params:\s*$/);
+            if (paramsMatch) {
+              i++;
+              const params = {};
+              while (i < lines.length) {
+                const pl = currentLine();
+                if (isBlank(pl)) {
+                  i++;
+                  continue;
+                }
+                if (indentOf(pl) <= 4) break;
+                const kv = pl.match(/^\s{6}([A-Za-z0-9_]+):\s*(.*)\s*$/);
+                if (kv) params[kv[1]] = parseScalar(kv[2] ?? "");
+                i++;
+              }
+              prompt.params = params;
+              continue;
+            }
+
+            i++;
+          }
+
+          config.prompts.push(prompt);
+        }
+
+        return config;
+      }
+
+      function normalizeImagePath(imagePath) {
+        if (!imagePath) return null;
+        let p = String(imagePath).trim();
+        if (!p) return null;
+
+        // Normalize Windows paths.
+        p = p.replaceAll("\\", "/");
+
+        // Keep URLs/data URIs as-is.
+        if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(p)) return p;
+
+        // Make paths relative to `public/index.html`.
+        while (p.startsWith("./")) p = p.slice(2);
+        while (p.startsWith("/")) p = p.slice(1);
+
+        // Reports may store filesystem-ish paths like `./public/results/...`.
+        if (p.startsWith("public/")) p = p.slice("public/".length);
+
+        // If we still have a nested `.../results/...`, keep only the tail.
+        const marker = "/results/";
+        if (!p.startsWith("results/")) {
+          const idx = p.lastIndexOf(marker);
+          if (idx !== -1) p = "results/" + p.slice(idx + marker.length);
+        }
+
+        return p ? "./" + p : null;
+      }
+
+      function parseTimestampFromFilename(filename) {
+        const m = String(filename).match(/^(\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}-\d{3})_/);
+        return m ? m[1] : "";
+      }
+
+      function buildMergedReport(reportsInChronologicalOrder) {
+        const modelMap = new Map(); // modelId -> { modelId, modelInfo, resultsByPromptId: Map }
+        for (const report of reportsInChronologicalOrder) {
+          if (!report || !Array.isArray(report.models)) continue;
+          for (const model of report.models) {
+            if (!model || !model.modelId) continue;
+            if (!modelMap.has(model.modelId)) {
+              modelMap.set(model.modelId, {
+                modelId: model.modelId,
+                modelInfo: model.modelInfo ?? null,
+                resultsByPromptId: new Map(),
+              });
+            }
+            const existing = modelMap.get(model.modelId);
+            if (model.modelInfo) existing.modelInfo = model.modelInfo;
+            for (const pr of model.results ?? []) {
+              if (!pr || !pr.promptId) continue;
+              existing.resultsByPromptId.set(pr.promptId, pr);
+            }
+          }
+        }
+
+        return {
+          createdAt: reportsInChronologicalOrder.at(-1)?.createdAt ?? null,
+          models: Array.from(modelMap.values()).map((m) => ({
+            modelId: m.modelId,
+            modelInfo: m.modelInfo,
+            results: Array.from(m.resultsByPromptId.values()),
+          })),
+        };
+      }
+
+      function reportToLookup(report) {
+        const byModel = new Map();
+        for (const model of report?.models ?? []) {
+          const byPrompt = new Map();
+          for (const pr of model.results ?? []) byPrompt.set(pr.promptId, pr);
+          byModel.set(model.modelId, { model, byPrompt });
+        }
+        return byModel;
+      }
+
+      function getPromptNameFromReport(byModel, promptId) {
+        for (const m of byModel.values()) {
+          const pr = m?.byPrompt?.get(promptId);
+          if (pr?.promptName) return String(pr.promptName);
+        }
+        return "";
+      }
+
+      function formatModelLabel(modelId) {
+        return String(modelId || "").replaceAll("/", " / ");
+      }
+
+      function countImagesForPrompt(byModel, promptId, modelIds) {
+        let count = 0;
+        for (const modelId of modelIds) {
+          const m = byModel.get(modelId);
+          const pr = m?.byPrompt?.get(promptId);
+          for (const r of pr?.results ?? []) {
+            if (r?.success && r?.imagePath) count++;
+          }
+        }
+        return count;
+      }
+
+      function setStatusPills(pills) {
+        document.getElementById("status").innerHTML = pills
+          .map((p) => `<span class="pill">${p}</span>`)
+          .join("");
+      }
+
+      function getSelectedValues(selectEl) {
+        return Array.from(selectEl.selectedOptions).map((o) => o.value);
+      }
+
+      function ensureModelSelectionDefaults(modelIds) {
+        if (state.selectedModels.size > 0) return;
+        for (const id of modelIds) state.selectedModels.add(id);
+      }
+
+      function render() {
+        const root = document.getElementById("root");
+
+        const activeReport =
+          state.selectedReport === "__merged__"
+            ? state.mergedReport
+            : state.reportsByFilename.get(state.selectedReport);
+
+        if (!activeReport) {
+          root.innerHTML = "";
+          setStatusPills([`no data`]);
+          return;
+        }
+
+        const byModel = reportToLookup(activeReport);
+        const modelIds = state.config.models.filter(modelId => byModel.has(modelId));
+        ensureModelSelectionDefaults(modelIds);
+
+        const selectedModelIds = modelIds.filter((id) => state.selectedModels.has(id));
+        const shownPrompts = [];
+
+        const promptIdsInReport = new Set();
+        for (const m of byModel.values()) {
+          for (const id of m?.byPrompt?.keys?.() ?? []) promptIdsInReport.add(id);
+        }
+
+        const extraPromptIds = Array.from(promptIdsInReport)
+          .filter((id) => !state.promptsById.has(id))
+          .sort((a, b) => String(a).localeCompare(String(b)));
+
+        const allPromptIds = [...state.promptOrder, ...extraPromptIds];
+
+        for (const promptId of allPromptIds) {
+          const reportName = getPromptNameFromReport(byModel, promptId);
+          const fromConfig = state.promptsById.get(promptId);
+          const def = fromConfig ?? { id: promptId, name: reportName, prompt: "", checklist: [] };
+
+          const hay = `${def.id} ${def.name} ${reportName}`.toLowerCase();
+          if (state.search && !hay.includes(state.search.toLowerCase())) continue;
+
+          const imgCount = countImagesForPrompt(byModel, promptId, selectedModelIds);
+          if (state.onlyWithImages && imgCount === 0) continue;
+
+          shownPrompts.push({ def, imgCount });
+        }
+
+        setStatusPills([
+          `models: <span class="ok">${escapeHtml(String(selectedModelIds.length))}</span> / ${escapeHtml(String(modelIds.length))}`,
+          `prompts: <span class="ok">${escapeHtml(String(shownPrompts.length))}</span> / ${escapeHtml(String(allPromptIds.length))}`,
+          `mode: ${escapeHtml(state.selectedReport === "__merged__" ? "merged" : state.selectedReport)}`,
+        ]);
+
+        root.innerHTML = shownPrompts
+          .map(({ def, imgCount }) => {
+            const promptText = def.prompt ? `<pre>${escapeHtml(def.prompt)}</pre>` : `<div class="muted">no prompt text (not found in config.yaml)</div>`;
+            const checklist =
+              def.checklist && def.checklist.length
+                ? `<ul class="checklist">${def.checklist.map((x) => `<li>${escapeHtml(x)}</li>`).join("")}</ul>`
+                : "";
+
+            const modelsHtml = selectedModelIds
+              .map((modelId) => {
+                const m = byModel.get(modelId);
+                const pr = m?.byPrompt?.get(def.id);
+                const results = pr?.results ?? [];
+
+                const okImages = results
+                  .filter((r) => r?.success && r?.imagePath)
+                  .map((r) => normalizeImagePath(r.imagePath))
+                  .filter(Boolean);
+
+                const errors = results
+                  .filter((r) => !r?.success)
+                  .map((r) => r?.error)
+                  .filter(Boolean);
+
+                const tag =
+                  okImages.length > 0
+                    ? `<span class="tag ok">ok: ${escapeHtml(String(okImages.length))}</span>`
+                    : errors.length > 0
+                      ? `<span class="tag" style="color: var(--danger)">err: ${escapeHtml(String(errors.length))}</span>`
+                      : `<span class="tag">—</span>`;
+
+                const thumbs =
+                  okImages.length > 0
+                    ? `<div class="thumbs">${okImages
+                        .map(
+                          (src) =>
+                            `<a class="thumb" href="${escapeHtml(src)}" target="_blank" rel="noreferrer"><img loading="lazy" src="${escapeHtml(src)}" alt="${escapeHtml(modelId)} ${escapeHtml(def.id)}" /></a>`
+                        )
+                        .join("")}</div>`
+                    : `<div class="muted">no successful images</div>`;
+
+                const errBlock =
+                  errors.length > 0 ? `<div class="error">${escapeHtml(errors.join("\n"))}</div>` : "";
+
+                return `
+                  <div class="model">
+                    <div class="model-head">
+                      <div class="model-name">${escapeHtml(formatModelLabel(modelId))}</div>
+                      ${tag}
+                    </div>
+                    ${thumbs}
+                    ${errBlock}
+                  </div>
+                `;
+              })
+              .join("");
+
+            const href = `#${encodeURIComponent(def.id)}`;
+            return `
+              <section class="card" id="${escapeHtml(def.id)}">
+                <div class="card-header">
+                  <div class="card-title">
+                    <a class="id" href="${escapeHtml(href)}">${escapeHtml(def.id)}</a>
+                    <span class="name">${escapeHtml(def.name || "")}</span>
+                  </div>
+                  <span class="tag">${imgCount > 0 ? `<span class="ok">img: ${escapeHtml(String(imgCount))}</span>` : `img: 0`}</span>
+                </div>
+                <div>
+                  <div class="section-title">Prompt</div>
+                  ${promptText}
+                  ${checklist ? `<div class="section-title">Checklist</div>${checklist}` : ""}
+                </div>
+                <div class="results-grid">
+                  ${modelsHtml}
+                </div>
+              </section>
+            `;
+          })
+          .join("");
+      }
+
+      async function loadJson(url) {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status} when loading ${url}`);
+        return await res.json();
+      }
+
+      async function loadText(url) {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status} when loading ${url}`);
+        return await res.text();
+      }
+
+      async function init() {
+        const dateHash = new Date().toISOString().slice(0, 13).replace(/[-T]/g, ""); // YYYYMMDDHH
+        const [yamlText, indexData] = await Promise.all([
+          loadText(`${PATHS.configYaml}?t=${dateHash}`),
+          loadJson(`${PATHS.reportsIndex}?t=${dateHash}`),
+        ]);
+
+        state.config = parseConfigYaml(yamlText);
+        state.promptsById = new Map(state.config.prompts.map((p) => [p.id, p]));
+        state.promptOrder = state.config.prompts.map((p) => p.id);
+
+        state.indexEntries = Array.isArray(indexData)
+          ? indexData
+          : indexData?.models
+            ? [{ filename: null, timestamp: null, summary: null, embedded: indexData }]
+            : [];
+
+        const entries = state.indexEntries
+          .filter((e) => e && (e.filename || e.embedded))
+          .map((e) => ({
+            ...e,
+            timestamp: e.timestamp || (e.filename ? parseTimestampFromFilename(e.filename) : ""),
+          }))
+          .sort((a, b) => String(a.timestamp).localeCompare(String(b.timestamp)));
+
+        const reports = [];
+        for (const entry of entries) {
+          if (entry.embedded) {
+            state.reportsByFilename.set("__embedded__", entry.embedded);
+            reports.push(entry.embedded);
+            continue;
+          }
+          const r = await loadJson(`${PATHS.reportsDir}${entry.filename}?t=${dateHash}`);
+          state.reportsByFilename.set(entry.filename, r);
+          reports.push(r);
+        }
+
+        state.mergedReport = buildMergedReport(reports);
+
+        wireUi(entries);
+        render();
+      }
+
+      function wireUi(sortedEntries) {
+        const reportSelect = document.getElementById("reportSelect");
+        const modelSelect = document.getElementById("modelSelect");
+        const searchEl = document.getElementById("search");
+        const onlyWithImagesEl = document.getElementById("onlyWithImages");
+        const resetBtn = document.getElementById("reset");
+
+        reportSelect.innerHTML = [
+          `<option value="__merged__">Merged (latest per model/prompt)</option>`,
+          ...sortedEntries
+            .filter((e) => e.filename)
+            .map((e) => {
+              const ts = e.timestamp || e.filename;
+              const sum = e.summary
+                ? ` • ${e.summary.totalModels}m ${e.summary.totalPrompts}p ${e.summary.totalErrors}e`
+                : "";
+              return `<option value="${escapeHtml(e.filename)}">${escapeHtml(ts)}${escapeHtml(sum)}</option>`;
+            }),
+        ].join("");
+
+        reportSelect.value = state.selectedReport;
+        reportSelect.addEventListener("change", () => {
+          state.selectedReport = reportSelect.value;
+          render();
+        });
+
+        // Models are taken from the merged report: it contains the combined list.
+        const byModel = reportToLookup(state.mergedReport);
+        const modelIds = state.config.models.filter(modelId => byModel.has(modelId));
+        modelSelect.innerHTML = modelIds
+          .map((id) => `<option value="${escapeHtml(id)}" selected>${escapeHtml(formatModelLabel(id))}</option>`)
+          .join("");
+        state.selectedModels = new Set(modelIds);
+
+        modelSelect.addEventListener("change", () => {
+          state.selectedModels = new Set(getSelectedValues(modelSelect));
+          render();
+        });
+
+        searchEl.addEventListener("input", () => {
+          state.search = searchEl.value.trim();
+          render();
+        });
+
+        onlyWithImagesEl.addEventListener("change", () => {
+          state.onlyWithImages = !!onlyWithImagesEl.checked;
+          render();
+        });
+
+        resetBtn.addEventListener("click", () => {
+          state.selectedReport = "__merged__";
+          state.search = "";
+          state.onlyWithImages = false;
+          state.selectedModels = new Set(modelIds);
+
+          reportSelect.value = state.selectedReport;
+          searchEl.value = "";
+          onlyWithImagesEl.checked = false;
+          for (const opt of modelSelect.options) opt.selected = true;
+
+          render();
+        });
+      }
+
+      (async () => {
+        try {
+          document.getElementById("loading").style.display = "block";
+          await init();
+          document.getElementById("loading").style.display = "none";
+        } catch (e) {
+          console.error(e);
+          document.getElementById("loading").style.display = "none";
+          const errEl = document.getElementById("error");
+          errEl.style.display = "block";
+          errEl.innerHTML = `Error: <pre>${escapeHtml(e?.message || String(e))}</pre>
+          <div class="sub">Check that <code>${escapeHtml(PATHS.configYaml)}</code> and <code>${escapeHtml(PATHS.reportsIndex)}</code> are available, and that the page is opened via HTTP server.</div>`;
+        }
+      })();
+    </script>
+  </body>
+</html>

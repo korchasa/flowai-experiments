@@ -1,0 +1,55 @@
+- id: adr-id
+  fact: "The decision is recorded as ADR-0007."
+  critical: true
+
+- id: status-accepted
+  fact: "Status of the ADR is Accepted."
+  critical: true
+
+- id: date
+  fact: "The decision date is 2026-04-12."
+  critical: false
+
+- id: chosen-stack
+  fact: "The chosen stack is Deno 2.x with TypeScript."
+  critical: true
+
+- id: import-prefix
+  fact: "Source files use the @bench/ import map prefix defined in deno.json."
+  critical: true
+
+- id: test-command
+  fact: "Tests are executed via `deno test -A`."
+  critical: true
+
+- id: fmt-line-width
+  fact: "Formatting is enforced with deno fmt at line-width 100."
+  critical: false
+
+- id: candidates
+  fact: "Three stacks were evaluated: Node.js with TypeScript, Deno with TypeScript, and Go."
+  critical: true
+
+- id: rejected-node
+  fact: "Node.js was rejected primarily because of onboarding cost (npm install, ts-node setup, lockfile policy)."
+  critical: true
+
+- id: rejected-go
+  fact: "Go was rejected because the team has stronger TypeScript fluency and judge prompts are easier to iterate in TypeScript."
+  critical: true
+
+- id: required-cli-spawn
+  fact: "The runner must spawn external CLIs (claude, codex, gemini) with a per-run isolated HOME directory."
+  critical: true
+
+- id: required-platforms
+  fact: "The runner must work on macOS and Linux developer laptops without a global package install step."
+  critical: false
+
+- id: acceptance-check
+  fact: "Acceptance requires `deno task check` to pass on a clean checkout."
+  critical: true
+
+- id: acceptance-onboarding
+  fact: "A new contributor must be able to run `deno task bench` within five minutes of cloning."
+  critical: false

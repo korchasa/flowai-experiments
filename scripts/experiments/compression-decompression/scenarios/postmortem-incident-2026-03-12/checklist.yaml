@@ -1,0 +1,107 @@
+- id: incident-id
+  fact: "Incident ID is INC-2026-0312-01."
+  critical: true
+
+- id: severity
+  fact: "Severity is SEV-2."
+  critical: true
+
+- id: duration
+  fact: "Total duration is 47 minutes, from 14:03 UTC to 14:50 UTC on 2026-03-12."
+  critical: true
+
+- id: affected-service-region
+  fact: "The affected service is payments-api in the eu-west-1 region."
+  critical: true
+
+- id: error-rate
+  fact: "Approximately 38% of requests in eu-west-1 returned HTTP 503 during the window."
+  critical: true
+
+- id: conversion-drop
+  fact: "Checkout flows for crore.com and starkbet.com saw a 12.4% conversion drop."
+  critical: true
+
+- id: revenue-impact
+  fact: "Estimated revenue impact is 41,200 EUR."
+  critical: false
+
+- id: data-loss
+  fact: "No customer data was lost and there were 0 data corruption events."
+  critical: true
+
+- id: bad-commit
+  fact: "The faulty deploy was payments-api v2.78.0, commit f3a91d4."
+  critical: true
+
+- id: rollback-target
+  fact: "Mitigation was a rollback to v2.77.4, commit 9c11ee2."
+  critical: true
+
+- id: pool-config-change
+  fact: "The new pool used maximumPoolSize=8 and connectionTimeout=2000 ms; the previous values were maximumPoolSize=24 and connectionTimeout=10000 ms."
+  critical: true
+
+- id: traffic-baseline
+  fact: "Typical EU-region traffic is approximately 280 RPS."
+  critical: true
+
+- id: staging-load-mismatch
+  fact: "Staging load tests used a 60 RPS profile, which was insufficient to reproduce the regression."
+  critical: true
+
+- id: pool-file
+  fact: "The connection-pool constants live in services/payments-api/internal/db/pool.go at lines 42–55."
+  critical: true
+
+- id: rebase-todo-loss
+  fact: "A TODO comment intended to flag a revisit before merge was removed during a rebase on main."
+  critical: true
+
+- id: detection-monitor
+  fact: "The Datadog monitor payments-api-error-rate-eu-west-1 triggers when error rate exceeds 5% over a 2-minute window."
+  critical: true
+
+- id: pagerduty-policy
+  fact: "PagerDuty escalation policy payments-eu-sev2 paged the on-call within 60 seconds."
+  critical: false
+
+- id: cohorts-unaffected
+  fact: "Cohorts C and D in us-east-1 were unaffected because the rollout had not reached that region."
+  critical: true
+
+- id: argo-rollouts
+  fact: "Rollback was executed by Argo Rollouts without manual kubectl intervention."
+  critical: true
+
+- id: statuspage-lag
+  fact: "The public statuspage update lagged internal acknowledgement by 14 minutes."
+  critical: false
+
+- id: ai-1
+  fact: "Action item AI-1: add a production-traffic load profile of at least 250 RPS to the staging pipeline; tracked as PAY-2418."
+  critical: true
+
+- id: ai-2
+  fact: "Action item AI-2: require explicit reviewer sign-off on changes to services/payments-api/internal/db/pool.go; tracked as PAY-2419."
+  critical: true
+
+- id: ai-3
+  fact: "Action item AI-3: wire statuspage automation to PagerDuty incident creation so no manual update is needed; tracked as PLAT-1842."
+  critical: true
+
+- id: ai-4
+  fact: "Action item AI-4: add a CODEOWNERS entry for the connection-pool module mapping to the database guild; tracked as PAY-2420."
+  critical: false
+
+- id: ai-5
+  fact: "Action item AI-5: backfill a regression test that fails at maximumPoolSize=8 and 250 RPS; tracked as PAY-2421."
+  critical: true
+
+- id: pr-numbers
+  fact: "PR #8421 introduced the change; PR #8429 reverted it."
+  critical: false
+
+- id: idempotency
+  fact: "Idempotency keys prevented double-charges on retried checkouts."
+  critical: true

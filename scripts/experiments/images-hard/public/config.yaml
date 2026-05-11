@@ -1,0 +1,252 @@
+models:
+  - google/gemini-2.5-flash-image  
+  - google/gemini-3.1-flash-image-preview
+  - openai/gpt-5-image
+  - openai/gpt-5.4-image-2
+  - black-forest-labs/flux.2-max
+  - google/gemini-3-pro-image-preview  
+
+prompts:
+  - id: TC-01
+    name: Text & Typography Poster (Cyrillic + Latin, long text)
+    prompt: |
+      Generate a photorealistic A3 advertising poster (vertical), like printed offset on matte paper.
+
+      Text requirements (must be fully readable, no errors, consistent kerning, correct line breaks):
+      Headline (Cyrillic, ALL CAPS): «СКИДКА 35% ТОЛЬКО 3 ДНЯ»
+      Subheadline (Latin): "Winter Service Pack"
+      Terms block (4 lines, small font, Cyrillic):
+      1) «Акция действует с 16 по 18 декабря 2025»
+      2) «Только для новых клиентов»
+      3) «Не суммируется с купонами»
+      4) «Подробности на стойке регистрации»
+      Footer: "SKU: WS-2025-12 / Batch № 0417"
+
+      No distorted letters, pseudo-font gibberish, or random symbols. Add realistic print shadows and subtle paper texture.
+    checklist:
+      - Text matches exactly, character-for-character (including « », " ", №, punctuation).
+      - All text readable at 100% zoom.
+      - Terms block is exactly 4 lines.
+      - No extra text anywhere.
+      - Baselines/kerning not warped; no overlapping letters.
+
+  - id: TC-02
+    name: Hands / Fingers / Contact + Reflection
+    prompt: |
+      Photorealistic close-up of hands, 85mm lens look, soft daylight.
+      Two adult hands tie a thin satin ribbon into a bow on a small gift box.
+
+      Constraints:
+      - Exactly 10 fingers, anatomically correct joints and nails.
+      - Realistic contact: tension and folds in the ribbon where it is held.
+      - No fused fingers, no missing/extra digits.
+      - The table is glossy lacquered: reflection must match hands and objects (no phantom reflections).
+    checklist:
+      - Exactly 10 fingers; no deformed anatomy.
+      - Ribbon contact looks physically plausible (no floating grip).
+      - Reflection contains only the real objects, correctly positioned.
+
+  - id: TC-03
+    name: Exact Counting + Spatial Rules (20 cubes grid)
+    prompt: |
+      Isometric 3D scene on a pure white background.
+      A 4 rows x 5 columns grid of identical cubes (total 20) placed on a table.
+
+      Hard constraints:
+      - The grid has 4 rows (from back to front) and 5 columns (from left to right).
+      - Total counts: exactly 7 red, 6 blue, 5 green, 2 yellow cubes.
+      - Row 1 (back row), left-to-right sequence: red, blue, green, red, yellow.
+      - Rotation rule: Counting from 1 (back-left) to 20 (front-right), row by row:
+        * Cubes at positions 3, 6, 9, 12, 15, 18 must be rotated 45 degrees clockwise.
+        * All other cubes must be strictly aligned with the grid (0 degrees).
+      - Equal spacing between cubes; identical size and matte plastic material.
+      - No other objects.
+    checklist:
+      - Total cubes = 20; layout is a clean 4 rows x 5 columns grid.
+      - Color counts exact; back row sequence exact.
+      - Rotation (45° CW) visible ONLY on cubes 3, 6, 9, 12, 15, 18.
+      - Spacing uniform; cubes identical material/scale.
+
+  - id: TC-04
+    name: Identity Consistency Across 6 Views
+    prompt: |
+      Create a 6-frame contact sheet (single image) with the SAME character identical in all frames.
+      Character: male, 35, short undercut haircut.
+      Distinct markers: a short line-shaped scar above the LEFT eyebrow; a mole to the RIGHT of the nose.
+      Clothing: dark navy jacket with zipper, no logos.
+      Accessory: wristwatch on LEFT hand, black strap.
+
+      Frames:
+      1) front
+      2) left profile
+      3) right profile
+      4) left 3/4
+      5) right 3/4
+      6) back view
+
+      Studio softbox lighting; same color tone and lens look across all frames.
+    checklist:
+      - Same face identity across all 6 frames (no drift).
+      - Scar/mole stay in the same positions.
+      - Same haircut, jacket, watch in all frames.
+      - Lighting and tone consistent.
+
+  - id: TC-05
+    name: 3×3 Comic (9 panels) + Exact Dialog
+    prompt: |
+      Draw a 3x3 comic page (9 panels) with clean line art and flat colors.
+      The same hero and props must stay consistent:
+      - hero: gray hoodie with white drawstrings
+      - prop 1: red mug with a crack near the handle
+      - prop 2: green notebook with a sticker that reads "OKR"
+
+      Story: hero spills coffee, tries to wipe it, gets distracted by the notebook, returns and the stain is larger.
+
+      Each panel: exactly ONE speech bubble with readable Russian text, no distortions:
+      1) «Успею за 10 минут»
+      2) «Только не кружка…»
+      3) «Ой»
+      4) «Салфетка, где ты?»
+      5) «Так, план на день»
+      6) «Минутку…»
+      7) «Что с пятном?»
+      8) «Оно растёт»
+      9) «Ладно. Новый стол»
+
+      No extra text anywhere.
+    checklist:
+      - Exactly 9 panels in a 3×3 grid.
+      - Props and hero consistent panel-to-panel.
+      - Exactly one bubble per panel.
+      - Bubble text matches exactly; fully readable.
+      - No stray text.
+
+  - id: TC-06
+    name: Electrical Schematic (Formal correctness)
+    prompt: |
+      Generate a black-and-white electrical schematic like real documentation.
+      Circuit:
+      24V DC source -> fuse F1 (2A) -> switch S1 -> load branch where relay coil K1 (24V) and lamp H1 (24V) are in parallel.
+      Add flyback diode D1 across the relay coil with correct polarity orientation.
+      Add terminal block X1 with:
+      - X1:1 labeled +24V
+      - X1:2 labeled 0V
+
+      Requirements:
+      - Standard schematic symbols, straight wires on a grid.
+      - Unambiguous junction dots.
+      - All labels readable: F1, S1, K1, H1, D1, X1:1, X1:2.
+      - Add a title block with fields: Document, Rev, Date, Author.
+      - No gibberish characters.
+    checklist:
+      - Topology is correct (series chain then parallel branch).
+      - D1 is across K1 coil with correct polarity.
+      - Symbols are recognizable and wiring unambiguous.
+      - Title block present; all labels readable.
+
+  - id: TC-07
+    name: Floor Plan (Geometry + dimensions + areas)
+    prompt: |
+      Create an architectural floor plan (top-down) in technical drawing style.
+      Outer footprint: rectangle 9.60 m x 6.40 m.
+      Wall thickness: external 0.30 m, internal 0.12 m.
+
+      Rooms (internal dimensions):
+      - Living room: 4.20 x 3.60
+      - Bedroom: 3.60 x 3.20
+      - Kitchen: 3.00 x 2.60
+      - Bathroom: 2.00 x 1.80
+      - Corridor arranged so all rooms have doors and the plan is connected.
+
+      Show:
+      - doors with swing direction
+      - windows on two opposite exterior walls
+      - labels with dimensions and areas for each room
+
+      All numbers must be consistent (no contradictory dimensions).
+    checklist:
+      - Outer dimensions and wall thicknesses match exactly.
+      - Room dimensions match exactly.
+      - Doors connect all rooms logically; door swings shown.
+      - Windows on two opposite exterior walls.
+      - Areas correspond to labeled dimensions.
+
+  - id: TC-08
+    name: District Map (Topology + labeled POIs)
+    prompt: |
+      Create a schematic tourist-style district map with strong topological consistency.
+
+      Hard constraints:
+      - One river runs north-to-south through the center.
+      - Two bridges cross the river: one in the north, one in the south.
+      - A main road runs west-to-east and crosses the river via the SOUTH bridge.
+      - A railway runs northwest-to-southeast and crosses the river via the NORTH bridge.
+      - Exactly three POIs with icons and readable labels (Russian): «Музей», «Рынок», «Стадион».
+      - Add a legend, a scale bar, and a north arrow labeled "N".
+
+      No disconnected nonsense roads; labels must match the icons.
+    checklist:
+      - River direction and placement correct.
+      - Bridges placed north/south; road/rail crossings use the specified bridge.
+      - Exactly three POIs with correct labels; label-to-icon alignment correct.
+      - Legend, scale bar, north arrow present. 
+
+  - id: TC-10
+    name: Catalog Product Render (DIN-rail PSU) + Readable Markings
+    prompt: |
+      Photorealistic catalog product photo of an industrial DIN-rail power supply: 24V, 240W.
+      White background, soft shadows.
+
+      Hard constraints:
+      - Visible screw terminals and DIN mounting.
+      - Clear terminal labels: +V, -V, L, N, PE.
+      - Warning pictograms that look standard.
+      - Serial number exactly: "SN: 24V240W-2025-000417".
+      - No gibberish text; everything must be readable at 100% zoom.
+    checklist:
+      - DIN-rail form factor plausible (mount, vents, terminals).
+      - Terminal labels present and correct.
+      - Serial number exact and readable.
+      - No random characters.
+
+  - id: TC-11
+    name: Optics/Physics (Prism + water + spectrum + caustics)
+    prompt: |
+      Photorealistic scene on a table: a glass prism and a drinking glass filled with water.
+      A strong sunbeam enters the prism at a 25° angle.
+
+      Requirements:
+      - Visible spectrum (rainbow dispersion) on the table.
+      - Visible caustics consistent with the geometry.
+      - Physically plausible refractions/reflections; no extra impossible beams.
+      - Background distortions through glass and water must be coherent.
+      High detail.
+    checklist:
+      - Single consistent light direction.
+      - Spectrum direction plausible relative to prism.
+      - Caustics look consistent, not arbitrary blobs.
+      - Refraction/distortion coherent.
+
+  - id: TC-12
+    name: Combined Stress Test (A–D set, invariants + minimal diffs)
+    prompt: |
+      Generate 4 images (A, B, C, D) of the same desk scene. Camera and lighting must be identical across all four.
+
+      On the desk: a laptop, a notebook, a 3x4 grid of identical sticky notes (exactly 12), and a printed sheet with a mini diagram.
+
+      Hard constraints:
+      - Laptop and notebook are identical in shape and position across A–D.
+      - Sticky notes are exactly 12 in a 3x4 grid.
+      - In A: exactly 5 red, 4 blue, 3 green notes.
+      - In B: swap only two notes (top-left and bottom-right). Everything else unchanged.
+      - Printed sheet contains readable text exactly: "24V -> F1 -> S1 -> K1 // D1".
+      - Footer text exactly: "Rev: B / Date: 16.12.2025".
+      - No extra objects appear/disappear across frames.
+    checklist:
+      - Four outputs clearly ordered A–D.
+      - Camera/light/composition unchanged across A–D.
+      - Laptop/notebook invariant across A–D.
+      - Sticky note count=12 and grid=3×4.
+      - In A: color counts exact.
+      - In B: only the specified swap occurs.
+      - Printed diagram and footer text exact and readable.

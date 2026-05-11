@@ -27,6 +27,7 @@
 ### 3.1 FR-EXP-RUN
 
 - **Desc:** Run an experiment variant end-to-end: build cartesian product of axes, prepare a clean sandbox per trial, spawn the agent, collect output, judge, compute adherence, write JSON + Markdown reports.
+- **Tasks:** [migrate-benchmarks-from-ai-dir](tasks/2026/05/migrate-benchmarks-from-ai-dir.md)
 - **Scenario:** User invokes `deno task experiment <name> --variant <v> --model <m>`. Runner loads the variant, iterates cells × trials, calls adapter to spawn agent, calls judge, writes `results/<DATE>-<model>-<variant>.{json,md}`.
 - **Acceptance:**
   - [x] Runner loads variant file and sweeps the full cartesian product of axes. Evidence: `scripts/experiments/lib/runner.ts`, `scripts/experiments/lib/runner_test.ts`.
@@ -96,6 +97,31 @@
   - [x] `cursor` adapter supports single-file variant. Evidence: `scripts/benchmarks/lib/adapters/cursor.ts`, `scripts/benchmarks/lib/adapters/cursor_test.ts`.
   - [x] Adapter registry `mod.ts` exposes the set. Evidence: `scripts/benchmarks/lib/adapters/mod.ts`.
 
+### 3.9 FR-EXP.TOKENIZERS
+
+- **Desc:** Measure tokenizer efficiency (tokens/char) of OpenRouter models across 40+ UDHR language corpora. Entry point: `deno task experiment:tokenizers`.
+- **Scenario:** User invokes `deno task experiment:tokenizers [--model <id>] [--language <lang>] [--dry-run]`. Shim spawns `bench.ts` from `scripts/experiments/tokenizers/` with isolated output dir, then copies results to `results/<DATE>-tokenizers-<model>.{json,md}`.
+- **Acceptance:**
+  - [ ] `deno task experiment:tokenizers --dry-run` exits 0 and prints plan. Evidence: `scripts/experiments/tokenizers/tokenizers_test.ts::smoke`.
+  - [ ] First live run commits `results/*-tokenizers-*.md`. Evidence: `ls results/*tokenizers*.md`.
+
+### 3.10 FR-EXP.COMPRESSION
+
+- **Desc:** Two-stage compress→decompress benchmark for technical documents. Measures fact retention (%) and compression ratio across styles and models. Entry point: `deno task experiment:compression`.
+- **Scenario:** User invokes `deno task experiment:compression [--filter <id>] [--compress-models <m>] [--decompress-models <m>] [--dry-run]`. Shim spawns `scripts/bench.ts` from `scripts/experiments/compression-decompression/` with the sub-project's deno.json, then aggregates `runs/latest/` artefacts into `results/<DATE>-compression-<filter>.{json,md}`.
+- **Acceptance:**
+  - [ ] `deno task experiment:compression --dry-run` exits 0 and prints plan. Evidence: `scripts/experiments/compression-decompression/run.ts`.
+  - [ ] `deno task check:compression` passes. Evidence: `cd scripts/experiments/compression-decompression && deno task check`.
+  - [ ] First live run commits `results/*-compression-*.md`. Evidence: `ls results/*compression*.md`.
+
+### 3.11 FR-EXP.IMAGES-HARD
+
+- **Desc:** Text-to-image generation benchmark: 12 hard test cases (typography, anatomy, geometry, schematics) evaluated via OpenRouter API. Entry point: `deno task experiment:images-hard`.
+- **Scenario:** User invokes `deno task experiment:images-hard [--model <id>] [--prompt <TC-IDs>] [--dry-run]`. Shim spawns `bench.ts` from `scripts/experiments/images-hard/`, copies results to `results/<DATE>-images-hard-<model>.{json,md}`.
+- **Acceptance:**
+  - [ ] `deno task experiment:images-hard --dry-run` exits 0 and prints plan. Evidence: `scripts/experiments/images-hard/images_test.ts::smoke`.
+  - [ ] First live run commits `results/*-images-hard-*.md`. Evidence: `ls results/*images-hard*.md`.
+
 ## 4. Non-Functional
 
 - **Perf/Reliability/Sec/Scale/UX:**
@@ -112,6 +138,7 @@
 - **Memory files:** adapters write per-trial `CLAUDE.md` / `AGENTS.md` (claude) or `.cursorrules` (cursor) into the sandbox.
 - **Env isolation (claude adapter):** `CLAUDE_CONFIG_DIR=<cleanroom temp dir containing only a mirrored copy of ~/.claude/.credentials.json>`, `CLAUDECODE=""`. Spawn args include `--strict-mcp-config --disable-slash-commands` to strip account-level MCP and slash commands. Built-in tools/skills/agents embedded in the `claude` binary still contribute ~26k baseline on haiku — this is the measurement target, not a leak.
 - **Experiment extension point:** `scripts/experiments/lib/types.ts` exports the `Experiment` interface — new experiments implement `{id, name, description, axes, defaults, setupCell, query, judgePrompt, headline}` plus optional `renderCustom?(report)` for experiments whose payload is not pass/fail adherence (e.g. metric tables extracted from raw agent output — see FR-EXP.CONTEXT-ANATOMY).
+- **Env (OpenRouter-based experiments):** `OPENROUTER_API_KEY` — required for `experiment:tokenizers` and `experiment:images-hard`. See `.env.example`. Not used by agent-spawning experiments.
 
 ## 6. Acceptance
 

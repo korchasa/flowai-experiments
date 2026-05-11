@@ -7,15 +7,33 @@
     "@std/path": "jsr:@std/path@^1.1.4"
   },
   "tasks": {
-    "check": "deno fmt --check && deno lint && deno test -A --ignore=results",
-    "test": "deno test -A --ignore=results",
-    "experiment": "deno run -A scripts/task-experiment.ts"
+    "check": "deno fmt --check && deno lint && deno test -A --ignore=results,scripts/experiments/compression-decompression",
+    "test": "deno test -A --ignore=results,scripts/experiments/compression-decompression",
+    "check:compression": "cd scripts/experiments/compression-decompression && BENCH_HEALTH_DISABLE=1 deno task check",
+    "check:all": "deno task check && deno task check:compression",
+    "experiment": "deno run -A scripts/task-experiment.ts",
+    "experiment:tokenizers": "deno run -A --env-file=.env scripts/experiments/tokenizers/run.ts",
+    "experiment:compression": "deno run -A scripts/experiments/compression-decompression/run.ts",
+    "experiment:images-hard": "deno run -A --env-file=.env scripts/experiments/images-hard/run.ts"
   },
   "fmt": {
     "proseWrap": "preserve",
     "exclude": [
       "**/*.md",
-      "results/"
+      "results/",
+      "scripts/experiments/compression-decompression/",
+      "scripts/experiments/tokenizers/public/",
+      "scripts/experiments/images-hard/public/"
+    ]
+  },
+  "lint": {
+    "exclude": [
+      "scripts/experiments/compression-decompression/",
+      "scripts/experiments/tokenizers/public/",
+      "scripts/experiments/tokenizers/bench.ts",
+      "scripts/experiments/tokenizers/merge-results.ts",
+      "scripts/experiments/images-hard/public/",
+      "scripts/experiments/images-hard/bench.ts"
     ]
   }
 }
