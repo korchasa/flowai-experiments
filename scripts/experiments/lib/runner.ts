@@ -355,26 +355,36 @@ async function runSingleCell(input: {
 }
 
 /**
- * Default agent spawner — uses SpawnedAgent from benchmark lib.
- * Imported lazily to keep the runner module importable in environments
- * where the benchmark infra cannot be instantiated (e.g. unit tests).
+ * Default agent spawner — uses invokeClaudeCli from @korchasa/ai-ide-cli.
+ * settingSources: [] creates an empty cleanroom so ~/.claude/CLAUDE.md and
+ * user plugins do not leak into experiment trials. Auth is handled natively
+ * by the Claude CLI (macOS keychain — no credential file copying needed).
  */
 const defaultSpawnAgent: SpawnAgentFn = async (opts) => {
-  const { SpawnedAgent } = await import(
-    "../../benchmarks/lib/spawned_agent.ts"
+  const { invokeClaudeCli, defaultRegistry } = await import(
+    "@korchasa/ai-ide-cli"
   );
-  const agent = new SpawnedAgent({
-    workspace: opts.sandbox,
+  const extraArgs: Record<string, string | null> = {
+    "--disable-slash-commands": "",
+  };
+  if (opts.name) extraArgs["--name"] = opts.name;
+  const result = await invokeClaudeCli({
+    processRegistry: defaultRegistry,
+    cwd: opts.sandbox,
     model: opts.model,
-    prompt: opts.prompt,
-    adapter: opts.adapter,
-    maxSteps: 1,
-    stepTimeout: opts.stepTimeoutMs,
-    name: opts.name,
-    env: opts.env,
+    taskPrompt: opts.prompt,
+    permissionMode: "bypassPermissions",
+    maxRetries: 1,
+    retryDelaySeconds: 2,
+    timeoutSeconds: Math.ceil(opts.stepTimeoutMs / 1000),
+    strictMcpConfig: true,
+    claudeArgs: extraArgs,
   });
-  const result = await agent.run();
-  return { output: result.logs, exitCode: result.code };
+  const out = result.output;
+  return {
+    output: out?.result ?? result.error ?? "",
+    exitCode: out?.is_error || !out ? 1 : 0,
+  };
 };
 
 const defaultJudge: JudgeFn = async (

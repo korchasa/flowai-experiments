@@ -1,0 +1,9 @@
+# Authentication Requirements
+
+## MFA Requirement
+
+All user accounts require multi-factor authentication. MFA is verified on every new session and after session expiry.
+
+Administrators may not disable MFA for any account class. Enforcement is applied at the session creation boundary: a session token is not issued until the second factor is verified.
+
+Session lifetime is controlled by [session timeout policy](session.md#session-timeout-policy). After a session expires, the client receives a 401 response and must re-authenticate, including MFA. Access tokens issued within a session follow [access token lifetime](token.md#access-token-lifetime).

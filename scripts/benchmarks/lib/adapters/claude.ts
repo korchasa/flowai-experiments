@@ -195,54 +195,13 @@ MOCK_EOF
     return null;
   }
 
-  /**
-   * Returns env vars that isolate the spawned `claude` process from the
-   * host's global state while preserving CLI authentication:
-   *
-   * - `CLAUDE_CONFIG_DIR=<configDir>` — points claude at an otherwise
-   *   empty dir, so `~/.claude/CLAUDE.md`, `plugins/`, `mcp.json`,
-   *   skills, etc. do NOT leak into experiment trials.
-   * - A single file is copied from the host into `<configDir>`:
-   *   `.credentials.json`. This is the only thing the adapter reads,
-   *   and it is read from the host's normal `claude login` location —
-   *   no keychain, no env vars, no secrets hard-coded. If the host has
-   *   not been authorized yet (`claude login` never ran), the copy
-   *   fails loudly so the experiment stops before contaminating data.
-   * - `CLAUDECODE=""` — unsets the marker that says we're inside
-   *   Claude Code, so the parent CLI can spawn a fresh subprocess.
-   *
-   * The caller is expected to authorize the Claude Code CLI on the
-   * host beforehand; this adapter only mirrors that authorization into
-   * the cleanroom, never creates it.
-   */
+  // deno-lint-ignore require-await
   async getCleanroomEnv(
-    configDir: string,
+    _configDir: string,
   ): Promise<Record<string, string>> {
-    const home = Deno.env.get("HOME");
-    if (!home) {
-      throw new Error(
-        "ClaudeAdapter.getCleanroomEnv: HOME is not set — cannot locate host credentials",
-      );
-    }
-    const hostCreds = join(home, ".claude", ".credentials.json");
-    try {
-      await Deno.stat(hostCreds);
-    } catch (e) {
-      if (e instanceof Deno.errors.NotFound) {
-        throw new Error(
-          `ClaudeAdapter.getCleanroomEnv: host credentials not found at ${hostCreds}. ` +
-            `Run \`claude login\` on the host before starting an experiment.`,
-        );
-      }
-      throw e;
-    }
-    const cleanroomCreds = join(configDir, ".credentials.json");
-    await Deno.copyFile(hostCreds, cleanroomCreds);
-    await Deno.chmod(cleanroomCreds, 0o600);
-    return {
-      CLAUDE_CONFIG_DIR: configDir,
-      CLAUDECODE: "",
-    };
+    // Cleanroom isolation is handled by invokeClaudeCli via settingSources: [].
+    // Claude CLI reads auth natively from macOS keychain — no file copying needed.
+    return {};
   }
 
   /**

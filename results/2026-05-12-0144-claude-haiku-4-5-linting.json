@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "anchor-systems-linting",
+  "experimentName": "Anchor Systems — Graph Diagnostics & Linting (Bench 6)",
+  "model": "claude-haiku-4-5",
+  "ide": "claude",
+  "startedAt": "2026-05-12T01:44:11.053Z",
+  "finishedAt": "2026-05-12T01:58:02.234Z",
+  "seed": 1,
+  "reps": 3,
+  "axes": {
+    "system": [
+      "native",
+      "wikilinks",
+      "zettelkasten",
+      "salp",
+      "salp-short"
+    ]
+  },
+  "trials": [
+    {
+      "cell": {
+        "axes": {
+          "system": "native"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identified all 3 planted anomaly types: \"duplicate_anchor\" (exact match), \"missing_anchor\" (semantically equivalent to \"orphaned_ref\"), and \"anchor_in_comment\" (semantically equivalent to \"shadowed_anchor\"), with no fabricated anomalies.",
+      "agentOutput": "```json\n[\n  {\n    \"type\": \"duplicate_anchor\",\n    \"id\": \"ANC:db:user-schema\",\n    \"details\": \"Declared in both auth.md line 4 and session_store.py line 4\"\n  },\n  {\n    \"type\": \"missing_anchor\",\n    \"id\": \"REF:api:oauth-callback\",\n    \"details\": \"Reference in oauth.md line 8 points to non-existent anchor [ANC:api:oauth-callback]\"\n  },\n  {\n    \"type\": \"anchor_in_comment\",\n    \"id\": \"ANC:legacy:md5-hash\",\n    \"details\": \"Anchor declared inside HTML comment block in password.md lines 10-12\"\n  }\n]\n```",
+      "durationMs": 48032.476417,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent identified all three planted anomaly types: \"duplicate_anchor\" matches exactly, \"broken_reference\" corresponds to \"orphaned_ref\" (a reference pointing to a non-existent anchor), and \"anchor_in_comment\" corresponds to \"shadowed_anchor\" (an anchor declared inside a commented-out block) — all three underlying anomaly concepts are correctly detected, satisfying the requirement of at least 2.",
+      "agentOutput": "```json\n[\n  {\n    \"type\": \"duplicate_anchor\",\n    \"id\": \"ANC:db:user-schema\",\n    \"details\": \"Declared in auth.md:4 and session_store.py:4\"\n  },\n  {\n    \"type\": \"broken_reference\",\n    \"id\": \"REF:api:oauth-callback\",\n    \"details\": \"Referenced in oauth.md:8 but no matching anchor exists\"\n  },\n  {\n    \"type\": \"anchor_in_comment\",\n    \"id\": \"ANC:legacy:md5-hash\",\n    \"details\": \"Declared inside HTML comment block in password.md:11-12\"\n  }\n]\n```",
+      "durationMs": 43930.666750000004,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent identified all three anomaly types: \"duplicate_anchor\" (exact match), \"anchor_in_comment\" (corresponds to \"shadowed_anchor\"), and \"missing_anchor\" (corresponds to \"orphaned_ref\"), satisfying the requirement of at least 2 of the 3 planted anomaly types.",
+      "agentOutput": "```json\n[\n  {\n    \"type\": \"anchor_in_comment\",\n    \"id\": \"ANC:legacy:md5-hash\",\n    \"details\": \"Anchor declared inside commented-out code block in password.md (lines 10-13)\"\n  },\n  {\n    \"type\": \"duplicate_anchor\",\n    \"id\": \"ANC:db:user-schema\",\n    \"details\": \"Anchor declared in auth.md (line 4) and session_store.py (line 4)\"\n  },\n  {\n    \"type\": \"missing_anchor\",\n    \"id\": \"REF:api:oauth-callback\",\n    \"details\": \"Reference in oauth.md (line 8) points to non-existent anchor ANC:api:oauth-callback\"\n  }\n]\n```",
+      "durationMs": 79680.44954100001,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent identified all 3 planted anomaly types: \"duplicate_anchor\" (exact match), \"broken_reference\" (semantically equivalent to \"orphaned_ref\" — a reference pointing to a non-existent anchor), and \"anchor_in_comment\" (semantically equivalent to \"shadowed_anchor\" — an anchor inside a commented-out block); none are fabricated, satisfying the requirement of at least 2 correct identifications.",
+      "agentOutput": "```json\n[\n  {\"type\": \"duplicate_anchor\", \"id\": \"db:user-schema\", \"details\": \"Anchor declared in auth.md line 4 and session_store.py line 4\"},\n  {\"type\": \"broken_reference\", \"id\": \"api:oauth-callback\", \"details\": \"Reference in oauth.md line 8 points to non-existent anchor [ANC:api:oauth-callback]\"},\n  {\"type\": \"anchor_in_comment\", \"id\": \"legacy:md5-hash\", \"details\": \"Anchor declared inside HTML comment block in password.md lines 10-13\"}\n]\n```",
+      "durationMs": 65108.86249999999,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identified all three planted anomaly categories: \"duplicate_anchor\" matches exactly, \"broken_reference\" clearly maps to \"orphaned_ref\" (reference to a non-existent anchor), and \"anchor_in_comment\" clearly maps to \"shadowed_anchor\" (anchor inside a commented-out block) — at least 2 of the 3 required anomaly types are substantively identified.",
+      "agentOutput": "```json\n[\n  {\n    \"type\": \"duplicate_anchor\",\n    \"id\": \"ANC:db:user-schema\",\n    \"details\": \"Declared in auth.md:4 and session_store.py:4\"\n  },\n  {\n    \"type\": \"broken_reference\",\n    \"id\": \"REF:api:oauth-callback\",\n    \"details\": \"Referenced in oauth.md:8 but no corresponding anchor [ANC:api:oauth-callback] exists\"\n  },\n  {\n    \"type\": \"anchor_in_comment\",\n    \"id\": \"ANC:legacy:md5-hash\",\n    \"details\": \"Declared in password.md:11 inside a commented-out code block (lines 10-13)\"\n  }\n]\n```",
+      "durationMs": 54159.489499999996,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent identified all three anomaly types: \"duplicate_anchor\" (exact match), \"anchor_in_comment\" (semantically equivalent to \"shadowed_anchor\"), and \"broken_reference\" (semantically equivalent to \"orphaned_ref\"), satisfying the requirement of at least 2 of the 3 planted anomaly types without fabricating non-existent ones.",
+      "agentOutput": "```json\n[\n  {\n    \"type\": \"anchor_in_comment\",\n    \"id\": \"legacy:md5-hash\",\n    \"details\": \"Anchor [ANC:legacy:md5-hash] declared inside commented-out block in password.md lines 10-13\"\n  },\n  {\n    \"type\": \"duplicate_anchor\",\n    \"id\": \"db:user-schema\",\n    \"details\": \"Anchor [ANC:db:user-schema] declared in both auth.md and session_store.py\"\n  },\n  {\n    \"type\": \"broken_reference\",\n    \"id\": \"api:oauth-callback\",\n    \"details\": \"Reference [REF:api:oauth-callback] in oauth.md line 8 points to non-existent anchor [ANC:api:oauth-callback]\"\n  }\n]\n```",
+      "durationMs": 45516.73562500003,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identified all three planted anomaly types: \"duplicate_anchor\" (exact match), \"anchor_in_commented_code\" (semantic equivalent of \"shadowed_anchor\"), and \"broken_reference\" (semantic equivalent of \"orphaned_ref\"), satisfying the requirement of at least 2 of 3 anomaly types without fabricating non-existent ones.",
+      "agentOutput": "```json\n[\n  {\n    \"type\": \"duplicate_anchor\",\n    \"id\": \"ANC:db:user-schema\",\n    \"details\": \"Declared in auth.md:4 and session_store.py:4\"\n  },\n  {\n    \"type\": \"anchor_in_commented_code\",\n    \"id\": \"ANC:legacy:md5-hash\",\n    \"details\": \"Declared inside HTML comment block in password.md:11\"\n  },\n  {\n    \"type\": \"broken_reference\",\n    \"id\": \"REF:api:oauth-callback\",\n    \"details\": \"Referenced in oauth.md:8 but no corresponding anchor exists\"\n  }\n]\n```",
+      "durationMs": 47990.70000000001,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten"
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "The agent correctly identified \"duplicate_anchor\" (matching the required type name), but used \"dangling_reference\" instead of \"orphaned_ref\" and \"anchor_in_comment\" instead of \"shadowed_anchor\"; since the rule specifies matching on the exact type names (\"duplicate_anchor\", \"orphaned_ref\", \"shadowed_anchor\"), only 1 of the 3 required anomaly types is matched, falling short of the required minimum of 2.",
+      "agentOutput": "```json\n[\n  {\n    \"type\": \"duplicate_anchor\",\n    \"id\": \"ANC:db:user-schema\",\n    \"details\": \"Declared in both auth.md:4 and session_store.py:4\"\n  },\n  {\n    \"type\": \"dangling_reference\",\n    \"id\": \"REF:api:oauth-callback\",\n    \"details\": \"Referenced in oauth.md:8 but no corresponding anchor exists\"\n  },\n  {\n    \"type\": \"anchor_in_comment\",\n    \"id\": \"ANC:legacy:md5-hash\",\n    \"details\": \"Declared inside HTML comment block in password.md:11-12\"\n  }\n]\n```",
+      "durationMs": 50111.40716599999,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identified all three planted anomalies: \"duplicate_anchor\" (exact match for type 1), \"anchor_in_comment\" (clearly corresponds to \"shadowed_anchor\" — an anchor inside a commented-out block), and \"missing_anchor\" (clearly corresponds to \"orphaned_ref\" — a reference pointing to a non-existent anchor), satisfying the requirement of at least 2 of 3 anomaly types without fabricating any non-existent ones.",
+      "agentOutput": "```json\n[\n  {\n    \"type\": \"duplicate_anchor\",\n    \"id\": \"ANC:db:user-schema\",\n    \"details\": \"Declared in auth.md:4 and session_store.py:4\"\n  },\n  {\n    \"type\": \"anchor_in_comment\",\n    \"id\": \"ANC:legacy:md5-hash\",\n    \"details\": \"Declared in commented-out block in password.md:10-12\"\n  },\n  {\n    \"type\": \"missing_anchor\",\n    \"id\": \"REF:api:oauth-callback\",\n    \"details\": \"Referenced in oauth.md:8 but no anchor definition found\"\n  }\n]\n```",
+      "durationMs": 53463.60666599998,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent identified all 3 planted anomaly types: \"duplicate_anchor\" (exact match), \"missing_anchor\" (semantically equivalent to \"orphaned_ref\" — references pointing to non-existent anchors), and \"anchor_in_comment\" (semantically equivalent to \"shadowed_anchor\" — anchor declared inside a commented-out block), satisfying the requirement of at least 2 of the 3 anomaly types.",
+      "agentOutput": "```json\n[\n  {\n    \"type\": \"duplicate_anchor\",\n    \"id\": \"ANC:db:user-schema\",\n    \"details\": \"Declared in auth.md:4 and session_store.py:4\"\n  },\n  {\n    \"type\": \"missing_anchor\",\n    \"id\": \"REF:auth:lockout-rule\",\n    \"details\": \"Referenced in auth_service.py:22 but no matching anchor found\"\n  },\n  {\n    \"type\": \"missing_anchor\",\n    \"id\": \"REF:api:oauth-callback\",\n    \"details\": \"Referenced in oauth.md:8 but no matching anchor found\"\n  },\n  {\n    \"type\": \"anchor_in_comment\",\n    \"id\": \"ANC:legacy:md5-hash\",\n    \"details\": \"Declared inside commented-out code block in password.md:11\"\n  }\n]\n```",
+      "durationMs": 54630.43625000003,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent identified all three planted anomaly types: \"duplicate_anchor\" matches exactly, \"invalid_reference\" semantically matches \"orphaned_ref\" (reference to non-existent anchor), and \"anchor_in_comment\" semantically matches \"shadowed_anchor\" (anchor in commented-out block), satisfying the rule's requirement of at least 2 anomaly types.",
+      "agentOutput": "```json\n[\n  {\n    \"type\": \"duplicate_anchor\",\n    \"id\": \"db:user-schema\",\n    \"details\": \"Anchor declared in auth.md:4 and session_store.py:4\"\n  },\n  {\n    \"type\": \"invalid_reference\",\n    \"id\": \"api:oauth-callback\",\n    \"details\": \"Reference in oauth.md:8 points to non-existent anchor\"\n  },\n  {\n    \"type\": \"anchor_in_comment\",\n    \"id\": \"legacy:md5-hash\",\n    \"details\": \"Anchor declared inside HTML comment block in password.md:11\"\n  }\n]\n```",
+      "durationMs": 47859.44512499997,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent identified all 3 planted anomaly types: \"duplicate_anchor\" (exact name match), \"nonexistent_reference\" (semantically equivalent to \"orphaned_ref\" — a reference pointing to a non-existent anchor), and \"anchor_in_comment\" (semantically equivalent to \"shadowed_anchor\" — an anchor declared inside a commented-out block), satisfying the requirement of identifying at least 2 of the 3 anomaly types.",
+      "agentOutput": "```json\n[\n  {\n    \"type\": \"duplicate_anchor\",\n    \"id\": \"ANC:db:user-schema\",\n    \"details\": \"Declared in auth.md:4 and session_store.py:4\"\n  },\n  {\n    \"type\": \"nonexistent_reference\",\n    \"id\": \"REF:api:oauth-callback\",\n    \"details\": \"Referenced in oauth.md:8 but anchor does not exist\"\n  },\n  {\n    \"type\": \"anchor_in_comment\",\n    \"id\": \"ANC:legacy:md5-hash\",\n    \"details\": \"Declared in commented-out code block in password.md:11\"\n  }\n]\n```",
+      "durationMs": 65276.927208000096,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identified all 3 planted anomaly types: \"duplicate_anchor\" is an exact match, \"broken_reference\" is a clear semantic equivalent of \"orphaned_ref\", and \"anchor_in_comment\" is a clear semantic equivalent of \"shadowed_anchor\" — satisfying the requirement of at least 2 identified anomaly types without fabricating false ones.",
+      "agentOutput": "```json\n[\n  {\n    \"type\": \"duplicate_anchor\",\n    \"id\": \"db:user-schema\",\n    \"details\": \"Anchor declared in multiple files: auth.md:4, session_store.py:4\"\n  },\n  {\n    \"type\": \"broken_reference\",\n    \"id\": \"api:oauth-callback\",\n    \"details\": \"Reference [REF:api:oauth-callback] in oauth.md:8 points to non-existent anchor\"\n  },\n  {\n    \"type\": \"anchor_in_comment\",\n    \"id\": \"legacy:md5-hash\",\n    \"details\": \"Anchor [ANC:legacy:md5-hash] declared inside HTML comment block in password.md:11\"\n  }\n]\n```",
+      "durationMs": 51510.01733300008,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identified all three planted anomaly types: \"duplicate_anchor\" (exact match), \"undefined_reference\" (semantically equivalent to \"orphaned_ref\"), and \"anchor_in_comment\" (semantically equivalent to \"shadowed_anchor\"), satisfying the requirement of at least 2 anomaly types without fabrication.",
+      "agentOutput": "```json\n[\n  {\n    \"type\": \"duplicate_anchor\",\n    \"id\": \"ANC:db:user-schema\",\n    \"details\": \"Declared in auth.md line 4 and session_store.py line 4\"\n  },\n  {\n    \"type\": \"undefined_reference\",\n    \"id\": \"REF:api:oauth-callback\",\n    \"details\": \"Referenced in oauth.md line 8 but no matching anchor ANC:api:oauth-callback exists\"\n  },\n  {\n    \"type\": \"anchor_in_comment\",\n    \"id\": \"ANC:legacy:md5-hash\",\n    \"details\": \"Declared in password.md line 11 inside HTML comment block (lines 10-13)\"\n  }\n]\n```",
+      "durationMs": 67885.52604200004,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent identified all three anomaly types: \"duplicate_anchor\" (exact match), \"anchor_in_comment\" (semantically equivalent to \"shadowed_anchor\" — anchor declared inside an HTML comment block), and \"broken_reference\" (semantically equivalent to \"orphaned_ref\" — reference pointing to a non-existent anchor), satisfying the requirement of at least 2 of the 3 planted anomaly types.",
+      "agentOutput": "```json\n[\n  {\n    \"type\": \"duplicate_anchor\",\n    \"id\": \"db:user-schema\",\n    \"details\": \"Declared in auth.md:4 and session_store.py:4\"\n  },\n  {\n    \"type\": \"anchor_in_comment\",\n    \"id\": \"legacy:md5-hash\",\n    \"details\": \"Declared inside HTML comment block in password.md:11\"\n  },\n  {\n    \"type\": \"broken_reference\",\n    \"id\": \"auth:lockout-rule\",\n    \"details\": \"Referenced in auth_service.py:22 and password.md:8, but anchor does not exist (impl:auth-lockout-timer exists instead)\"\n  },\n  {\n    \"type\": \"broken_reference\",\n    \"id\": \"api:oauth-callback\",\n    \"details\": \"Referenced in oauth.md:8, but anchor does not exist\"\n  }\n]\n```",
+      "durationMs": 55979.701917,
+      "exitCode": 0
+    }
+  ],
+  "adherenceByAxis": {
+    "system": {
+      "native": 1,
+      "wikilinks": 1,
+      "zettelkasten": 0.6666666666666666,
+      "salp": 1,
+      "salp-short": 1
+    }
+  },
+  "durationMs": 831192.583583,
+  "headline": "Linting adherence (≥2/3 anomalies found) — native=100% / salp=100% / salp-short=100% / wikilinks=100% / zettelkasten=67% (n=3/cell)"
+}

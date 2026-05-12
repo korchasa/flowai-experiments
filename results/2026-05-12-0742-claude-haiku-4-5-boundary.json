@@ -1,0 +1,358 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "anchor-systems-boundary",
+  "experimentName": "Anchor Systems — Context Boundary Detection (Bench 2)",
+  "model": "claude-haiku-4-5",
+  "ide": "claude",
+  "startedAt": "2026-05-12T07:42:54.797Z",
+  "finishedAt": "2026-05-12T07:52:02.934Z",
+  "seed": 1,
+  "reps": 5,
+  "axes": {
+    "system": [
+      "native",
+      "wikilinks",
+      "zettelkasten",
+      "salp",
+      "salp-short"
+    ]
+  },
+  "trials": [
+    {
+      "cell": {
+        "axes": {
+          "system": "native"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, satisfying the rule's conditions (start_line ≤ 8 AND end_line ≥ 17), exactly matching the ground truth range [7, 18].",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 18556.958416,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, which satisfies the rule's condition (start_line ≤ 8 AND end_line ≥ 17), exactly matching the ground truth range [7, 18].",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 20229.189417,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, which satisfies the pass condition (start_line ≤ 8 AND end_line ≥ 17) with exact overlap of the ground truth range [7, 18].",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 17295.252249999998,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, which satisfies the rule's conditions (start_line ≤ 8 AND end_line ≥ 17) and exactly matches the ground truth range [7, 18].",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 19572.357791000002,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, which satisfies the rule's pass condition (start_line ≤ 8 AND end_line ≥ 17) and matches the ground truth range exactly.",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 23705.703584000003,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, which satisfies both required conditions (start_line ≤ 8 and end_line ≥ 17) and matches the ground truth range exactly.",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 25765.226416999998,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, which satisfies the rule's conditions (start_line ≤ 8 AND end_line ≥ 17), matching the ground truth range exactly.",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 22182.12058399999,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, which satisfies the rule's pass condition (start_line ≤ 8 AND end_line ≥ 17), correctly identifying the anchored function's line range.",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 20884.665167,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, which satisfies the rule's conditions (start_line ≤ 8 and end_line ≥ 17), exactly matching the ground truth range despite being wrapped in a code fence.",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 17832.250415999995,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, which satisfies the rule's pass condition (start_line ≤ 8 AND end_line ≥ 17) and exactly matches the ground truth range [7, 18].",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 26614.78691699999,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, which satisfies the rule's condition (start_line ≤ 8 AND end_line ≥ 17), matching the ground truth range of [7, 18] with perfect overlap.",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 21360.608582999994,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, which satisfies the rule's conditions (start_line ≤ 8 AND end_line ≥ 17), correctly identifying the generate_reset_token function range despite wrapping the JSON in code fences.",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 21200.274790999974,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, which satisfies the pass criteria (start_line ≤ 8 AND end_line ≥ 17) and exactly matches the ground truth range [7, 18].",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 18992.178833000013,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, which satisfies the rule's pass condition (start_line ≤ 8 AND end_line ≥ 17), correctly identifying the generate_reset_token function anchored at UID 202605121017.",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 18890.56920800003,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The agent reported {\"start_line\": 7, \"end_line\": 18}, which satisfies the pass condition (start_line=7 ≤ 8 and end_line=18 ≥ 17) and exactly matches the ground truth range.",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 19404.45425000001,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, which satisfies the pass condition (start_line ≤ 8 AND end_line ≥ 17), exactly matching the ground truth range for the generate_reset_token function.",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 24120.96858299995,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, which satisfies the pass condition (start_line ≤ 8 AND end_line ≥ 17) and exactly matches the ground truth range.",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 24591.48295799998,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, which exactly matches the ground truth range [7, 18] and satisfies the pass conditions (start_line ≤ 8 AND end_line ≥ 17).",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 26738.531749999966,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, which satisfies the pass criteria (start_line ≤ 8 AND end_line ≥ 17) and exactly matches the ground truth range for the generate_reset_token function.",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 27562.130208000017,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, which satisfies the rule's conditions (start_line ≤ 8 AND end_line ≥ 17), perfectly matching the ground truth range of the generate_reset_token function.",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 19376.491207999992,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, which satisfies the rule's condition (start_line ≤ 8 AND end_line ≥ 17), matching the ground truth range exactly.",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 26507.182499999995,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, which satisfies the pass condition (start_line ≤ 8 AND end_line ≥ 17) and exactly matches the ground truth range [7, 18].",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 21537.204958999995,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, which exactly matches the ground truth range and satisfies the pass condition (start_line ≤ 8 AND end_line ≥ 17).",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 21312.899083000026,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, which satisfies the rule's pass conditions (start_line ≤ 8 and end_line ≥ 17), correctly identifying the generate_reset_token function range.",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 23792.50920899998,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line=7 and end_line=18, which satisfies the pass condition (start_line ≤ 8 AND end_line ≥ 17) and exactly matches the ground truth range for the generate_reset_token function.",
+      "agentOutput": "```json\n{\"start_line\": 7, \"end_line\": 18}\n```",
+      "durationMs": 20025.40187499998,
+      "exitCode": 0
+    }
+  ],
+  "adherenceByAxis": {
+    "system": {
+      "native": 1,
+      "wikilinks": 1,
+      "zettelkasten": 1,
+      "salp": 1,
+      "salp-short": 1
+    }
+  },
+  "durationMs": 548139.494125,
+  "headline": "Boundary detection adherence (IoU≥0.8) — native=100% / salp=100% / salp-short=100% / wikilinks=100% / zettelkasten=100% (n=5/cell)"
+}

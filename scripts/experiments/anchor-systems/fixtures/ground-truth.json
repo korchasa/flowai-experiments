@@ -1,0 +1,284 @@
+{
+  "anchors": [
+    {
+      "id": "auth:session-timeout",
+      "file": "session.md",
+      "description": "Maximum session idle timeout (30 minutes)"
+    },
+    {
+      "id": "auth:lockout-rule",
+      "file": "lockout.md",
+      "description": "Account lockout policy after 5 failed login attempts"
+    },
+    {
+      "id": "auth:mfa-required",
+      "file": "auth.md",
+      "description": "Mandatory MFA requirement for all accounts"
+    },
+    {
+      "id": "auth:password-policy",
+      "file": "password.md",
+      "description": "Password requirements: ≥12 chars, complexity, no history reuse"
+    },
+    {
+      "id": "token:access-ttl",
+      "file": "token.md",
+      "description": "Access token lifetime (15 minutes)"
+    },
+    {
+      "id": "token:refresh-ttl",
+      "file": "refresh.md",
+      "description": "Refresh token lifetime (7 days)"
+    },
+    {
+      "id": "mfa:sms-otp",
+      "file": "mfa.md",
+      "description": "SMS OTP delivery and 90-second expiry rule"
+    },
+    {
+      "id": "mfa:totp-window",
+      "file": "mfa.md",
+      "description": "TOTP time-window tolerance (±30 seconds)"
+    },
+    {
+      "id": "rate:otp-window",
+      "file": "ratelimit.md",
+      "description": "OTP validity window (90 seconds), shared with session:otp-ttl"
+    },
+    {
+      "id": "rate:login-limit",
+      "file": "ratelimit.md",
+      "description": "Max 5 login attempts per 10-minute window before lockout"
+    },
+    {
+      "id": "sec:password-strength",
+      "file": "password_utils.py",
+      "description": "Password strength rule: ≥12 chars, ≥1 digit, ≥1 upper, ≥1 special"
+    },
+    {
+      "id": "rbac:admin-role",
+      "file": "rbac.md",
+      "description": "Admin role permissions and assignment constraints"
+    },
+    {
+      "id": "oauth:callback-ttl",
+      "file": "oauth.md",
+      "description": "OAuth2 authorization code lifetime (5 minutes)"
+    },
+    {
+      "id": "audit:retention",
+      "file": "audit.md",
+      "description": "Audit log retention period (90 days)"
+    },
+    {
+      "id": "recover:link-ttl",
+      "file": "recovery.md",
+      "description": "Password-reset link lifetime (24 hours, single-use)"
+    },
+    {
+      "id": "session:otp-ttl",
+      "file": "session.md",
+      "description": "Session-level OTP TTL (90 s) aligned with rate:otp-window"
+    },
+    {
+      "id": "impl:token-generator-v1",
+      "file": "auth_service.py",
+      "description": "generate_reset_token() implementation"
+    },
+    {
+      "id": "impl:session-creator",
+      "file": "session_store.py",
+      "description": "create_session() implementation"
+    },
+    {
+      "id": "impl:auth-lockout-timer",
+      "file": "auth_service.py",
+      "description": "LOCKOUT_DURATION constant (900 s)"
+    },
+    {
+      "id": "impl:test-token-expiry",
+      "file": "test_auth.py",
+      "description": "Test for 24-hour reset-token expiry"
+    }
+  ],
+  "references": [
+    { "ref_id": "auth:session-timeout", "source_file": "overview.md" },
+    { "ref_id": "auth:password-policy", "source_file": "overview.md" },
+    { "ref_id": "auth:mfa-required", "source_file": "overview.md" },
+    { "ref_id": "auth:session-timeout", "source_file": "auth.md" },
+    { "ref_id": "auth:mfa-required", "source_file": "auth.md" },
+    { "ref_id": "token:access-ttl", "source_file": "auth.md" },
+    { "ref_id": "token:access-ttl", "source_file": "session.md" },
+    { "ref_id": "token:refresh-ttl", "source_file": "session.md" },
+    { "ref_id": "rate:otp-window", "source_file": "session.md" },
+    { "ref_id": "auth:session-timeout", "source_file": "token.md" },
+    { "ref_id": "token:refresh-ttl", "source_file": "token.md" },
+    { "ref_id": "rate:otp-window", "source_file": "mfa.md" },
+    { "ref_id": "session:otp-ttl", "source_file": "mfa.md" },
+    { "ref_id": "auth:lockout-rule", "source_file": "password.md" },
+    { "ref_id": "rate:login-limit", "source_file": "lockout.md" },
+    { "ref_id": "audit:retention", "source_file": "lockout.md" },
+    { "ref_id": "auth:mfa-required", "source_file": "rbac.md" },
+    { "ref_id": "token:access-ttl", "source_file": "oauth.md" },
+    { "ref_id": "auth:password-policy", "source_file": "recovery.md" },
+    { "ref_id": "audit:retention", "source_file": "recovery.md" },
+    { "ref_id": "recover:link-ttl", "source_file": "auth_service.py" },
+    { "ref_id": "token:access-ttl", "source_file": "auth_service.py" },
+    { "ref_id": "auth:lockout-rule", "source_file": "auth_service.py" },
+    { "ref_id": "auth:password-policy", "source_file": "password_utils.py" },
+    { "ref_id": "impl:token-generator-v1", "source_file": "test_auth.py" }
+  ],
+  "multi_hop_targets": {
+    "shallow": {
+      "anchor_id": "auth:session-timeout",
+      "description": "maximum session idle timeout value and its enforcement rule",
+      "chain": ["auth.md", "session.md"],
+      "hops": 1
+    },
+    "medium": {
+      "anchor_id": "rate:otp-window",
+      "description": "OTP validity window duration and where it is defined",
+      "chain": ["auth.md", "mfa.md", "ratelimit.md"],
+      "hops": 2
+    },
+    "deep": {
+      "anchor_id": "session:otp-ttl",
+      "description": "why the OTP validity window is aligned with the session lifetime",
+      "chain": ["auth.md", "mfa.md", "ratelimit.md", "session.md"],
+      "hops": 3
+    }
+  },
+  "stability_target": {
+    "anchor_id": "token:access-ttl",
+    "original_file": "token.md",
+    "moved_to": "reorganized/token.md"
+  },
+  "boundary_targets": [
+    {
+      "anchor_id": "impl:token-generator-v1",
+      "file": "auth_service.py",
+      "function_name": "generate_reset_token",
+      "start_line": 7,
+      "end_line": 18
+    }
+  ],
+  "noise_target": {
+    "anchor_id": "sec:password-strength",
+    "file": "password_utils.py",
+    "target_function": "check_strength",
+    "similar_functions": ["check_history", "check_complexity", "check_format"]
+  },
+  "anomalies": [
+    {
+      "type": "duplicate_anchor",
+      "id": "db:user-schema",
+      "files": ["session_store.py", "auth.md"],
+      "description": "Both files declare the same anchor ID"
+    },
+    {
+      "type": "orphaned_ref",
+      "ref_id": "api:oauth-callback",
+      "source_file": "oauth.md",
+      "description": "Reference points to a deleted anchor"
+    },
+    {
+      "type": "shadowed_anchor",
+      "anchor_id": "legacy:md5-hash",
+      "file": "password.md",
+      "description": "Anchor declared inside a commented-out block"
+    }
+  ],
+  "zettelkasten_uids": {
+    "auth:session-timeout": "202605121001",
+    "auth:lockout-rule": "202605121002",
+    "auth:mfa-required": "202605121003",
+    "auth:password-policy": "202605121004",
+    "token:access-ttl": "202605121005",
+    "token:refresh-ttl": "202605121006",
+    "mfa:sms-otp": "202605121007",
+    "mfa:totp-window": "202605121008",
+    "rate:otp-window": "202605121009",
+    "rate:login-limit": "202605121010",
+    "sec:password-strength": "202605121011",
+    "rbac:admin-role": "202605121012",
+    "oauth:callback-ttl": "202605121013",
+    "audit:retention": "202605121014",
+    "recover:link-ttl": "202605121015",
+    "session:otp-ttl": "202605121016",
+    "impl:token-generator-v1": "202605121017",
+    "impl:session-creator": "202605121018",
+    "impl:auth-lockout-timer": "202605121019",
+    "impl:test-token-expiry": "202605121020"
+  },
+  "salp_short_ids": {
+    "auth:session-timeout": "session-timeout",
+    "auth:lockout-rule": "lockout-rule",
+    "auth:mfa-required": "mfa-required",
+    "auth:password-policy": "password-policy",
+    "token:access-ttl": "access-ttl",
+    "token:refresh-ttl": "refresh-ttl",
+    "mfa:sms-otp": "sms-otp",
+    "mfa:totp-window": "totp-window",
+    "rate:otp-window": "otp-window",
+    "rate:login-limit": "login-limit",
+    "sec:password-strength": "password-strength",
+    "rbac:admin-role": "admin-role",
+    "oauth:callback-ttl": "callback-ttl",
+    "audit:retention": "retention",
+    "recover:link-ttl": "link-ttl",
+    "session:otp-ttl": "otp-ttl",
+    "impl:token-generator-v1": "token-generator-v1",
+    "impl:session-creator": "session-creator",
+    "impl:auth-lockout-timer": "auth-lockout-timer",
+    "impl:test-token-expiry": "test-token-expiry"
+  },
+  "native_headings": {
+    "auth:session-timeout": {
+      "file": "session.md",
+      "slug": "session-timeout-policy"
+    },
+    "auth:lockout-rule": {
+      "file": "lockout.md",
+      "slug": "account-lockout-rule"
+    },
+    "auth:mfa-required": { "file": "auth.md", "slug": "mfa-requirement" },
+    "auth:password-policy": {
+      "file": "password.md",
+      "slug": "password-policy"
+    },
+    "token:access-ttl": { "file": "token.md", "slug": "access-token-lifetime" },
+    "token:refresh-ttl": {
+      "file": "refresh.md",
+      "slug": "refresh-token-lifetime"
+    },
+    "mfa:sms-otp": { "file": "mfa.md", "slug": "sms-otp-rules" },
+    "mfa:totp-window": { "file": "mfa.md", "slug": "totp-time-window" },
+    "rate:otp-window": { "file": "ratelimit.md", "slug": "otp-rate-window" },
+    "rate:login-limit": { "file": "ratelimit.md", "slug": "login-rate-limit" },
+    "sec:password-strength": {
+      "file": "password_utils.py",
+      "slug": "check_strength"
+    },
+    "rbac:admin-role": { "file": "rbac.md", "slug": "admin-role" },
+    "oauth:callback-ttl": { "file": "oauth.md", "slug": "oauth-callback-ttl" },
+    "audit:retention": { "file": "audit.md", "slug": "audit-log-retention" },
+    "recover:link-ttl": { "file": "recovery.md", "slug": "recovery-link-ttl" },
+    "session:otp-ttl": { "file": "session.md", "slug": "session-otp-ttl" },
+    "impl:token-generator-v1": {
+      "file": "auth_service.py",
+      "slug": "generate_reset_token"
+    },
+    "impl:session-creator": {
+      "file": "session_store.py",
+      "slug": "create_session"
+    },
+    "impl:auth-lockout-timer": {
+      "file": "auth_service.py",
+      "slug": "lockout_duration"
+    },
+    "impl:test-token-expiry": {
+      "file": "test_auth.py",
+      "slug": "test_token_expiration"
+    }
+  }
+}

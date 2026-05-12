@@ -122,6 +122,21 @@
   - [ ] `deno task experiment:images-hard --dry-run` exits 0 and prints plan. Evidence: `scripts/experiments/images-hard/images_test.ts::smoke`.
   - [ ] First live run commits `results/*-images-hard-*.md`. Evidence: `ls results/*images-hard*.md`.
 
+### 3.12 FR-EXP.ANCHOR-SYSTEMS
+
+- **Desc:** Measure how reliably AI agents navigate five documentation-linking systems (Native Markdown, Wikilinks, Zettelkasten UID, SALP, SALP-short) across five task types: anchor-reference mapping, context boundary detection, multi-hop chain traversal, graph linting, and RAG noise resistance. Produces adherence curves per system × task-type.
+- **Tasks:** [anchor-systems-experiment](tasks/2026/05/anchor-systems-experiment.md)
+- **Scenario:** Five variants under `scripts/experiments/anchor-systems/`: `mapping`, `boundary`, `multi-hop`, `linting`, `rag-noise`. All tasks are answer-only (read files, respond with text or JSON — no file edits). Static fixture sets (15 Markdown + 4 code files per system, 4 systems + 1 `corrupted/` set) committed under `fixtures/` with `ground-truth.json`. Invoked as `deno task experiment anchor-systems --variant <v>`.
+- **Acceptance:**
+  - [ ] Fixture sets for all 4 systems (native, wikilinks, zettelkasten, salp): 19 files each + `corrupted/` (19 files, salp+anomalies) + `ground-truth.json`. Evidence: `ls scripts/experiments/anchor-systems/fixtures/`.
+  - [ ] `mapping` variant: system axis, F₁ of extracted JSON graph. Evidence: `scripts/experiments/anchor-systems/mapping.ts`, dry-run exit 0.
+  - [ ] `boundary` variant: system axis, IoU ≥ 0.8 on code block line-ranges. Evidence: `scripts/experiments/anchor-systems/boundary.ts`, dry-run exit 0.
+  - [ ] `multi-hop` variant: system × target (shallow/medium/deep), hop-accuracy across reference chains. Evidence: `scripts/experiments/anchor-systems/multi-hop.ts`, dry-run exit 0.
+  - [ ] `linting` variant: system axis, F₁ ≥ 0.7 detection of 3 planted anomalies. Evidence: `scripts/experiments/anchor-systems/linting.ts`, dry-run exit 0.
+  - [ ] `rag-noise` variant: system × noise_count [3, 6, 9], focus on anchor-bearing function vs noise neighbours. Evidence: `scripts/experiments/anchor-systems/rag-noise.ts`, dry-run exit 0.
+  - [ ] `deno task check` green. Evidence: `deno task check 2>&1 | tail -5`.
+  - [ ] First live run results committed for all 5 variants on `claude-haiku-4-5`. Evidence: `ls results/*anchor-systems*.md`.
+
 ## 4. Non-Functional
 
 - **Perf/Reliability/Sec/Scale/UX:**

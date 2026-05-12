@@ -1,0 +1,253 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "anchor-systems-multi-hop",
+  "experimentName": "Anchor Systems — Multi-Hop Reasoning (Bench 4)",
+  "model": "claude-haiku-4-5",
+  "ide": "claude",
+  "startedAt": "2026-05-12T10:02:48.072Z",
+  "finishedAt": "2026-05-12T10:15:16.461Z",
+  "seed": 1,
+  "reps": 1,
+  "axes": {
+    "system": [
+      "native",
+      "wikilinks",
+      "zettelkasten",
+      "salp",
+      "salp-short"
+    ],
+    "target": [
+      "shallow",
+      "medium",
+      "deep"
+    ]
+  },
+  "trials": [
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "target": "shallow"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The agent hallucinated the final anchor ID as \"session.md#session-timeout-policy\" instead of the required \"auth:session-timeout\", and cited \"overview.md\" as an intermediate anchor rather than the correct \"auth.md\" from the required chain (auth.md → session.md).",
+      "agentOutput": "Основываясь на моем исследовании проекта, вот ответ:\n\n## Ответ\n\n**Максимальное значение timeout неактивной сессии: 30 минут**\n\n**Правило применения:** Сервер возвращает код 401 и очищает сессионный куки.\n\n## Деталь навигации\n\n**Финальный якорь (где определен ответ):** `session.md#session-timeout-policy`\n\n**Промежуточные якоря:** `overview.md` (ссылался на session.md#session-timeout-policy)\n\n## Объяснение\n\nЗначение timeout определено в разделе \"Session Timeout Policy\" документа session.md: сессии истекают после 30 минут неактивности. Механизм применения этого ограничения заключается в том, что когда сессия истекает, сервер возвращает код ошибки 401 (Unauthorized) и удаляет сессионный куки на клиенте. \n\nЭто гарантирует принудительное отключение пользователя после периода неактивности. Использованный подход не поддерживает \"скользящее\" истечение (sliding expiry) — timeout отсчитывается абсолютно от момента последней активности пользователя.",
+      "durationMs": 44161.869083,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "target": "medium"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The agent never mentions the required final anchor ID \"rate:otp-window\" and instead hallucinates anchor IDs such as \"session.md#session-otp-ttl\" and \"ratelimit.md#otp-rate-window\" that are not present in the correct chain, failing criteria (a) and the explicit rule against hallucinated anchor IDs.",
+      "agentOutput": "## Ответ\n\nЯ прошёл по документации и нашёл информацию об OTP validity window.\n\n### Структура навигации:\n1. **overview.md** → упоминание MFA и OTP\n2. **mfa.md#sms-otp-rules** → определение SMS OTP (90 секунд)\n3. **session.md#session-otp-ttl** → определение session-level OTP TTL (90 секунд)\n4. **ratelimit.md#otp-rate-window** → подтверждение OTP rate window (90 секунд)\n\n### Финальный ответ\n\n**Якорь, где определён ответ:** `session.md#session-otp-ttl`\n\n**Промежуточные якоря:** \n- `mfa.md#sms-otp-rules`\n- `ratelimit.md#otp-rate-window`\n\n**Объяснение на простом языке:**\n\nДлительность окна действия OTP составляет **90 секунд**. Это относится к сеансовому уровню проверки OTP. Система имеет две разновидности OTP:\n\n1. **SMS OTP**: 6-значные коды, действующие 90 секунд и одноразовые (в mfa.md)\n2. **TOTP**: временные коды, принимаемые в диапазоне ±30 секунд от текущего 30-секундного окна (в mfa.md)\n\nОкно длительностью 90 секунд согласовано между хранилищем сеанса и ограничителем частоты запросов для предотвращения атак повторного использования, а также позволяет учитывать различие в синхронизации часов между клиентом и сервером.",
+      "durationMs": 51123.632958,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "target": "deep"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The agent hallucinated `ratelimit.md#otp-rate-window` as the final anchor (not in the chain), misidentified `session.md#session-otp-ttl` as merely intermediate rather than the final answer anchor, violating the explicit fail condition about hallucinated anchor IDs.",
+      "agentOutput": "Я нашел ответ, следуя ссылкам между документами.\n\n## Результат\n\n**Финальный якорь с определением:** `ratelimit.md#otp-rate-window`\n\n**Промежуточные якори:**\n1. `session.md#session-otp-ttl` — начальная информация об OTP validity window\n2. `ratelimit.md#otp-rate-window` — объяснение выравнивания\n\n## Объяснение\n\nОкно действия OTP (90 секунд) выравнено с временем жизни сессии для **обеспечения консистентности** (ensuring consistency). \n\nКонкретно, в документе `ratelimit.md#otp-rate-window` говорится:\n\n> \"This window is shared with the session:otp-ttl to ensure consistency.\"\n\nТо есть, OTP код действителен в течение 90-секундного окна, которое совпадает с периодом OTP на уровне сессии. Такое выравнивание позволяет:\n- Унифицировать проверку валидности OTP на серверной стороне\n- Предотвратить replay-атаки (как указано в `session.md`)\n- Учитывать проблемы с синхронизацией времени между клиентом и сервером",
+      "durationMs": 52788.127792,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "target": "shallow"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The agent did not mention the required final anchor ID \"auth:session-timeout\" (instead providing \"session#^auth-session-timeout\"), and hallucinated multiple intermediate anchor IDs (session#^session-otp-ttl, token#^token-access-ttl, refresh#^token-refresh-ttl, ratelimit#^rate-otp-window) that are not part of the correct chain (auth.md → session.md).",
+      "agentOutput": "## Ответ\n\nBased on traversing the wikilink references in the project files:\n\n**Final Answer Anchor:** `session#^auth-session-timeout`\n\n**Intermediate Anchors Traversed:**\n1. `session#^session-otp-ttl` (session OTP validity window, related to session configuration)\n2. `token#^token-access-ttl` (clarifies session timeout is separate from token expiry)\n3. `refresh#^token-refresh-ttl` (shows refresh tokens inherit session timeout)\n4. `ratelimit#^rate-otp-window` (related OTP timing coordination)\n\n**Plain-English Explanation:**\n\nThe **maximum session idle timeout value is 30 minutes**. Any session that remains inactive for 30 minutes automatically expires.\n\n**Enforcement Rule:** When the 30-minute inactivity timeout is reached, the server enforces it by:\n1. Returning a **401 (Unauthorized) HTTP response** to the client\n2. **Clearing the session cookie** to remove client-side session state\n\nThis timeout is enforced at the server level and is separate from token expiry. The session inactivity rule applies universally across all token lifecycles—even if an access token or refresh token is still technically valid, a session idle for 30 minutes will be terminated regardless.",
+      "durationMs": 37700.35024999999,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "target": "medium"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The agent cited `^rate-otp-window` instead of the required anchor ID `rate:otp-window`, and hallucinated additional anchor IDs (`^mfa-totp-window`, `^session-otp-ttl` from session.md) that are not present in the correct traversal chain (auth.md → mfa.md → ratelimit.md).",
+      "agentOutput": "На основе изученных файлов проекта, я нашел информацию об OTP validity window duration:\n\n## Ответ:\n\n**Основной якорь с определением:** `^rate-otp-window` в файле `ratelimit.md`\n\n**Промежуточные якоря, пройденные при навигации:**\n1. `^mfa-sms-otp` (mfa.md) - начальная информация о SMS OTP коде\n2. `^mfa-totp-window` (mfa.md) - информация о TOTP окне\n3. `^session-otp-ttl` (session.md) - подтверждение на уровне сессии\n\n## Объяснение на простом английском:\n\n**OTP validity window duration составляет 90 секунд.**\n\nЭто значение определено в `ratelimit.md` с якорем `^rate-otp-window`, где указано:\n\n> \"OTP codes are valid for a 90-second window. This window is shared with the session:otp-ttl to ensure consistency.\"\n\nОкно из 90 секунд:\n- Применяется ко всем OTP кодам (включая SMS OTP)\n- Синхронизировано с сессионным OTP TTL для предотвращения replay-атак\n- Проверяется на сервере по timestamp создания OTP\n- При превышении этого окна сервер возвращает 422 ответ\n\nДополнительно: TOTP коды имеют более узкое окно принятия ±30 секунд от текущего 30-секундного временного интервала (RFC 6238).",
+      "durationMs": 40664.827208,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "target": "deep"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The agent failed condition (a) by citing `^session-otp-ttl` instead of the required `session:otp-ttl`, and also hallucinated the anchor `^auth-session-timeout` which is not present in the specified chain (auth.md → mfa.md → ratelimit.md → session.md), triggering the explicit fail condition.",
+      "agentOutput": "Based on my investigation of the project files, here's the answer:\n\n## Answer\n\n**Final Anchor ID:** `^session-otp-ttl` (in `session.md`)\n\n**Intermediate Anchors Traversed:**\n- `^auth-session-timeout` (in `session.md`)\n- `^rate-otp-window` (in `ratelimit.md`)\n\n**Explanation:**\n\nThe OTP validity window is actually **not** aligned with the session lifetime. Rather, it's aligned with the **OTP rate-limiting window** for consistency and security purposes.\n\nSpecifically:\n- The **session lifetime** is 30 minutes (absolute timeout from last activity)\n- The **OTP validity window** is 90 seconds\n- These 90-second windows (used for both OTP validation and rate limiting) are **shared and coordinated** to ensure consistency\n\nThe reason for this alignment is stated in `session.md` line 7-8:\n> \"The session-level OTP validity window is 90 seconds, aligned with the OTP rate window **to prevent replay attacks while allowing for clock skew**.\"\n\nThis design ensures that:\n1. **Replay attack prevention** - OTPs expire quickly (90 seconds)\n2. **Clock skew tolerance** - Accounts for minor time differences between client and server\n3. **Rate limiter consistency** - The same 90-second window governs both OTP acceptance and rate limit enforcement (per `ratelimit.md`)\n\nSo the alignment is about internal consistency between the OTP validator and rate limiter, not about matching the broader session timeout.",
+      "durationMs": 44414.095457999996,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "target": "shallow"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The agent never mentions the required final anchor ID \"auth:session-timeout\" and instead hallucinates numerical UIDs (e.g., [[202605121001]], [[202605121005]]) not present in the correct chain (auth.md → session.md).",
+      "agentOutput": "Perfect! I've found the information. Here's my answer:\n\n## Answer\n\n**Final Answer Anchor ID:** [[202605121001]] (Session Management)\n\n**Intermediate Anchors Traversed:**\n- [[202605121001]] - Session Management (primary source)\n- [[202605121005]] - Token Lifecycle (confirms separation of session inactivity from token expiry)\n- [[202605121006]] - Refresh Token Policy (shows tokens inherit session timeout)\n- [[202605121003]] - Authentication Requirements (confirms re-authentication after expiry)\n\n**Maximum Session Idle Timeout Value:** 30 minutes\n\n**Enforcement Rule:** When a session becomes inactive for 30 minutes, the server enforces termination by:\n1. Returning a 401 Unauthorized response to the client\n2. Clearing the session cookie\n3. Requiring the user to re-authenticate (including MFA) to establish a new session\n\nThe timeout is absolute from the time of last activity (sliding expiry is not supported). Clients can monitor the `X-Session-Expires` header to warn users before expiry occurs.\n\n---\n\n**Российский ответ:**\n\nИтоговый якорь: [[202605121001]] (управление сеансом)\n\nМаксимальное значение истечения сеанса из-за неактивности: 30 минут\n\nПравило обеспечения: сервер возвращает ответ 401 и очищает файл cookie сеанса, требуя повторной аутентификации пользователя.",
+      "durationMs": 38596.75137499999,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "target": "medium"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The agent never mentions the required final anchor ID \"rate:otp-window\" and instead references hallucinated UIDs ([[202605121007]], [[202605121016]], [[202605121009]]) that are not present in the defined chain, violating both condition (a) and the anti-hallucination rule.",
+      "agentOutput": "Based on my investigation of the project files, here's the answer:\n\n## OTP Validity Window Duration and Definition\n\n**Duration:** 90 seconds\n\n### Anchor IDs and Traversal Path:\n\n1. **Intermediate Anchor:** [[202605121007]] (mfa.md)\n   - First definition: \"SMS OTP codes are 6 digits, valid for 90 seconds, delivered via the SMS gateway.\"\n\n2. **Intermediate Anchor:** [[202605121016]] (session.md)\n   - Corroborating definition: \"The session-level OTP validity window is 90 seconds, aligned with the OTP rate window to prevent replay attacks while allowing for clock skew.\"\n\n3. **Final/Consolidated Anchor:** [[202605121009]] (ratelimit.md)\n   - Authoritative definition: \"OTP codes are valid for a 90-second window. This window is shared with the session:otp-ttl to ensure consistency.\"\n\n### Plain-English Explanation:\n\nThe OTP (One-Time Password) validity window is **90 seconds**. This duration applies to both SMS-delivered OTP codes and the session-level OTP validation. The 90-second window is enforced server-side using the OTP creation timestamp stored in the session. The window is shared across rate limiting and session management to maintain consistency and prevent replay attacks while accounting for clock skew between client and server. Clients presenting OTP codes outside this window receive a 422 response.",
+      "durationMs": 31788.774082999968,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "target": "deep"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"session:otp-ttl\" as the final anchor, provides a factually consistent explanation (90-second OTP TTL aligned with the rate-limiting window), and names at least one intermediate anchor from the chain (Rate Limiting / ratelimit.md), without hallucinating anchor IDs outside the chain.",
+      "agentOutput": "Отлично, я нашёл ответ, проследив ссылки на UID. Вот полная информация:\n\n## Ответ\n\n**Якорь с финальным ответом:** [[202605121016]] (Session Management)\n\n**Промежуточные якоря, которые я посетил:** [[202605121009]] (Rate Limiting)\n\n### Объяснение на понятном языке\n\nОкно действительности одноразового пароля (OTP) выравнено с временем жизни сессии с целью **предотвращения атак повторного использования и учёта рассогласования часов** (clock skew).\n\nКонкретно:\n- Окно действительности OTP составляет **90 секунд**\n- Это же окно используется в `session:otp-ttl` для обеспечения **согласованности** между уровнем приложения и сессией\n- Окно проверяется на стороне сервера с использованием отметки времени создания OTP, хранящейся в сессии\n- Это выравнивание предотвращает атаки повторного использования, гарантируя, что скомпрометированный OTP не может быть использован после истечения временного окна, и при этом даёт допуск на небольшое рассогласование часов между клиентом и сервером",
+      "durationMs": 54288.24420800002,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "target": "shallow"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The agent hallucinated three intermediate anchor IDs (token:access-ttl, rate:otp-window, auth:mfa-required) that are not part of the correct chain (auth.md → session.md), violating the explicit fail condition against hallucinated anchor IDs.",
+      "agentOutput": "## Ответ\n\n**Якорь с окончательным ответом:** `[ANC:auth:session-timeout]` (в файле `session.md`, строка 3)\n\n**Промежуточные якори, которые я пересек:**\n- `[ANC:token:access-ttl]` (в файле `token.md`)\n- `[ANC:rate:otp-window]` (в файле `ratelimit.md`)\n- `[ANC:auth:mfa-required]` (в файле `auth.md`)\n\n**Значение максимального idle timeout и его правило применения:**\n\nМаксимальное значение простоя сеанса составляет **30 минут**. \n\nПравило применения (enforcement rule) содержит следующие требования:\n\n1. **Истечение**: Сеансы истекают после 30 минут неактивности\n2. **Ответ сервера**: Сервер возвращает код состояния 401 (Unauthorized)\n3. **Действие с файлами cookie**: Сервер очищает session cookie\n4. **Тип таймаута**: Timeout является абсолютным от момента последней активности (скользящее истечение не поддерживается)\n5. **Уведомление клиента**: Клиенты должны мониторить заголовок `X-Session-Expires` для предупреждения пользователей перед истечением",
+      "durationMs": 37279.71208299999,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "target": "medium"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent's response satisfies all three pass conditions: (a) it explicitly mentions the final anchor \"rate:otp-window\", (b) its explanation is factually consistent with the anchor's description — stating 90 seconds and referencing session:otp-ttl — and (c) it names at least one intermediate anchor from the correct chain, specifically \"mfa:totp-window\" from mfa.md which is in the auth.md → mfa.md → ratelimit.md traversal path.",
+      "agentOutput": "## OTP Validity Window Duration\n\n**Duration:** 90 seconds\n\n**Final Answer Anchor:** `[ANC:session:otp-ttl]` (session.md, line 8-11)\n\n**Intermediate Anchors Traversed:**\n1. `[ANC:mfa:totp-window]` (mfa.md) - References the session OTP TTL\n2. `[ANC:rate:otp-window]` (ratelimit.md) - Also defines the same 90-second window\n\n**Plain-English Explanation:**\n\nThe OTP (One-Time Password) validity window is **90 seconds**. This is the time period during which an OTP code remains valid after being generated. The system applies this 90-second window consistently across both SMS OTP and TOTP (Time-based OTP) authentication methods.\n\nThe validity window is:\n- **Enforced server-side** using the OTP creation timestamp stored in the session\n- **Shared between session management and rate limiting layers** to ensure consistency and prevent replay attacks\n- **Aligned with TOTP clock skew tolerance** (±30 seconds within the 30-second TOTP step)\n\nSMS OTP codes are valid for 90 seconds and are single-use (invalidated immediately after any verification attempt). TOTP codes follow RFC 6238 and are similarly subject to the 90-second session-level window.",
+      "durationMs": 49681.32916700002,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "target": "deep"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"session:otp-ttl\" as the final anchor, provides an explanation consistent with the anchor's description (90s OTP TTL aligned with rate:otp-window), and names intermediate anchors from all three intermediate documents in the chain (auth.md, mfa.md, ratelimit.md) without hallucinating IDs outside the chain.",
+      "agentOutput": "Based on my analysis of the project documentation, I need to clarify that **the OTP validity window is NOT aligned with the session lifetime** — they serve different purposes:\n\n## Answer Summary\n\n**Anchor ID where the final answer is defined:**\n- [ANC:session:otp-ttl] (session.md, lines 8-11)\n\n**Intermediate anchors traversed:**\n- [ANC:auth:session-timeout] (session.md, lines 3-6) — defines session lifetime (30 minutes)\n- [ANC:rate:otp-window] (ratelimit.md, lines 3-6) — defines OTP rate window\n- [ANC:mfa:sms-otp] (mfa.md, lines 3-6) — defines SMS OTP validity (90 seconds)\n\n## Plain-English Explanation\n\nThe OTP validity window (**90 seconds**) is actually aligned with the **OTP rate window**, not the session lifetime (30 minutes). Here's why:\n\n**From session.md [ANC:session:otp-ttl]:**\n> \"The session-level OTP validity window is 90 seconds, aligned with the OTP rate window to prevent replay attacks while allowing for clock skew.\"\n\n**From ratelimit.md [ANC:rate:otp-window]:**\n> \"OTP codes are valid for a 90-second window. This window is shared with the session:otp-ttl to ensure consistency.\"\n\n**The alignment serves two security purposes:**\n1. **Replay attack prevention** — An attacker cannot reuse an intercepted OTP once the 90-second window expires\n2. **Clock skew tolerance** — Accounts for minor time differences between client and server\n\nThe 30-minute session lifetime (defined at [ANC:auth:session-timeout]) is completely separate — it controls how long the authenticated session persists after MFA verification is complete. The OTP verification must happen quickly (within 90 seconds during login), but once verified, the resulting session lasts up to 30 minutes.",
+      "durationMs": 99443.98199999996,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "target": "shallow"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The agent hallucinated anchor IDs not present in the correct chain (auth.md → session.md): it fabricated `[ANC:session-creator]`, `[ANC:mfa-required]`, and `[ANC:retention]` as traversed anchors, which violates the explicit \"Fail if the agent hallucinates anchor IDs not present in the chain\" condition.",
+      "agentOutput": "## Answer\n\nBased on traversing the anchor system in the project files, here's what I found:\n\n**Maximum Session Idle Timeout Value: 30 minutes**\n\n**Primary Anchor (Final Answer):** `[ANC:session-timeout]` in `session.md`\n\n**Definition (from session.md):**\n> Sessions expire after 30 minutes of inactivity. The server returns 401 and clears the session cookie.\n\n**Enforcement Rule:**\nThe enforcement is implemented through:\n1. **Immediate enforcement mechanism** (from `[ANC:session-timeout]`): The server returns HTTP 401 status and clears the session cookie when the session expires\n2. **Implementation detail** (from `[ANC:session-creator]` in `session_store.py`): Session expiry is set to exactly 30 minutes from creation: `expires_at: (datetime.now() + timedelta(minutes=30))`\n3. **Client-facing consequence** (from `[ANC:mfa-required]` in `auth.md`): When a session expires, the client receives a 401 response and must re-authenticate, including MFA\n4. **Audit enforcement** (from `[ANC:retention]` in `audit.md`): All session termination events are logged in the audit trail for compliance\n\n**Intermediate Anchors Traversed:**\n- `[ANC:session-timeout]` (primary definition)\n- `[ANC:session-creator]` (implementation in Python)\n- `[ANC:mfa-required]` (re-authentication policy)\n- `[ANC:retention]` (audit logging of termination)\n\n**Plain-English Explanation:**\nWhen a user's session has been inactive for 30 minutes, the authentication server automatically expires the session by returning a 401 \"Unauthorized\" response and clearing the session cookie. The client must then force the user to log in again, including completing multi-factor authentication. This expiration is logged for audit purposes and cannot be extended through sliding windows—the timeout is absolute from the last activity.",
+      "durationMs": 63093.702792000026,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "target": "medium"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"otp-window\" as the final anchor in ratelimit.md, accurately states the 90-second validity window shared with session:otp-ttl, and names mfa.md as an intermediate step in the chain — all three pass conditions are satisfied, despite the agent using a potentially hallucinated \"totp-window\" anchor ID and skipping auth.md as the chain's starting point.",
+      "agentOutput": "## Ответ: OTP Validity Window Duration\n\n**Длительность окна действия ОТП: 90 секунд**\n\n### Путь навигации по якорям:\n\n1. **Начальная точка:** mfa.md [ANC:totp-window]\n   - Ссылается на [REF:otp-window | OTP rate window] и [REF:otp-ttl | session OTP TTL]\n\n2. **Промежуточный якорь:** ratelimit.md [ANC:otp-window]\n   - Содержит явное определение: \"OTP codes are valid for a 90-second window\"\n   - Указывает, что окно разделено с session:otp-ttl для обеспечения согласованности\n\n3. **Подтверждающий якорь:** session.md [ANC:otp-ttl]\n   - Подтверждает: \"The session-level OTP validity window is 90 seconds\"\n\n### Окончательное определение:\n\n**Якорь:** [ANC:otp-window] в файле ratelimit.md\n\n**Определение:** ОТП коды действительны в течение 90-секундного окна. Это окно проверяется на стороне сервера с использованием временной метки создания ОТП, хранящейся в сессии. Клиенты, предоставляющие коды за пределами этого окна, получают ответ 422.\n\n**Пройденные промежуточные якоря:** [ANC:totp-window] → [ANC:otp-window] → [ANC:otp-ttl]",
+      "durationMs": 59617.697208,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "target": "deep"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies the final anchor \"otp-ttl\", names an intermediate anchor \"otp-window\" consistent with ratelimit.md in the traversal chain, and provides an explanation factually aligned with the 90-second session-level OTP TTL description, with no hallucinated anchor IDs.",
+      "agentOutput": "**Anchors traversed:**\n\n1. **[ANC:otp-ttl]** (session.md) - Final answer location\n2. **[ANC:otp-window]** (ratelimit.md) - Intermediate reference\n\n**Answer:**\n\nThe OTP validity window is aligned with the session lifetime (both 90 seconds) **to prevent replay attacks while allowing for clock skew, and to ensure consistency between the OTP rate-limiting window and the session OTP validity window**.\n\nHere's the reasoning:\n\nThe OTP creation timestamp is stored in the server-side session. By aligning the 90-second validity window in both the rate-limiting layer and the session-level enforcement, the system maintains a single, consistent window within which OTP codes must be verified. This prevents attackers from reusing a previously validated OTP after the window closes, since the server enforces this boundary at the session level. The design also accommodates clock skew between client and server—the 90-second window provides enough margin for timing discrepancies while remaining tight enough to limit the window of vulnerability for potential replay attacks.",
+      "durationMs": 43677.54700000002,
+      "exitCode": 0
+    }
+  ],
+  "adherenceByAxis": {
+    "system": {
+      "native": 0,
+      "wikilinks": 0,
+      "zettelkasten": 0.3333333333333333,
+      "salp": 0.6666666666666666,
+      "salp-short": 0.6666666666666666
+    },
+    "target": {
+      "shallow": 0,
+      "medium": 0.4,
+      "deep": 0.6
+    }
+  },
+  "durationMs": 748386.0515419999,
+  "headline": "Multi-hop (deep) adherence — native=0% / wikilinks=0% / zettelkasten=100% / salp=100% / salp-short=100% (n=1/cell)"
+}

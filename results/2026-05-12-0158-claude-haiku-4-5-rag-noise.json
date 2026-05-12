@@ -1,0 +1,673 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "anchor-systems-rag-noise",
+  "experimentName": "Anchor Systems — RAG Noise Resistance (Bench 7)",
+  "model": "claude-haiku-4-5",
+  "ide": "claude",
+  "startedAt": "2026-05-12T01:58:12.546Z",
+  "finishedAt": "2026-05-12T02:14:36.903Z",
+  "seed": 1,
+  "reps": 3,
+  "axes": {
+    "system": [
+      "native",
+      "wikilinks",
+      "zettelkasten",
+      "salp",
+      "salp-short"
+    ],
+    "noise_count": [
+      3,
+      6,
+      9
+    ]
+  },
+  "trials": [
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 3
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function, accurately describes its rule (≥12 chars, ≥1 digit, ≥1 upper, ≥1 special), and distinguishes it from all noise functions without confusing it with any neighbor.",
+      "agentOutput": "Функция **`check_strength`** помечена комментарием `## Password Strength Check`. Она проверяет основную политику паролей: минимум 12 символов, наличие цифры, заглавной буквы и спецсимвола. Отличие от остальных функций в том, что `check_strength` — это бинарный валидатор primary требований, тогда как `check_history` проверяет переиспользование, `check_complexity` возвращает scoring систему (не boolean), `check_format` валидирует ASCII символы, `check_entropy` вычисляет энтропию (float), `check_leaked` проверяет известные breaches, а `check_sequential` ищет последовательности символов.",
+      "durationMs": 18387.634875,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 3
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly named \"check_strength\" as the anchored function and accurately described all four criteria (≥12 chars, ≥1 digit, ≥1 upper, ≥1 special), while correctly identifying the noise functions as separate, distinct checks.",
+      "agentOutput": "Функция **`check_strength`** реализует правило `## Password Strength Check`. Она проверяет, что пароль соответствует четырём критериям: минимум 12 символов, наличие цифры, прописной буквы и специального символа. От других функций в файле она отличается тем, что это единственная бинарная проверка, которая реализует полную политику безопасности пароля, в то время как остальные функции выполняют дополнительные проверки: `check_history` смотрит на историю использования, `check_complexity` вычисляет оценку сложности, а `check_entropy`, `check_leaked` и `check_sequential` проверяют другие аспекты безопасности.",
+      "durationMs": 17096.395791,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 3
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function and accurately describes all four required criteria (≥12 chars, ≥1 digit, ≥1 upper, ≥1 special), without naming any noise function as the primary answer.",
+      "agentOutput": "Функция **`check_strength`** (строки 4–15) реализует это правило. Она проверяет четыре требования: минимум 12 символов, минимум одну цифру, минимум одну прописную букву и минимум один специальный символ (непробельный алфавитно-цифровой символ). Отличие в том, что `check_strength` возвращает булево значение и применяет жёсткие требования ко всем четырём критериям сразу, тогда как другие функции либо проверяют отдельные аспекты (формат, утечки, последовательности), либо вычисляют непрерывные показатели (энтропия, сложность) вместо прямой валидации.",
+      "durationMs": 20022.282583,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 6
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function and accurately describes its rule as requiring a minimum of 12 characters, at least one digit, at least one uppercase letter, and at least one special character — matching the specified criteria exactly.",
+      "agentOutput": "Функция `check_strength` (строки 4–15) реализует проверку соответствия основной политике паролей. Она проверяет четыре критерия одновременно: минимум 12 символов, наличие цифры, наличие заглавной буквы и наличие специального символа (непринтируемого символа). \n\nОна отличается от остальных функций тем, что это единственная функция, которая проверяет комплексное требование к надёжности пароля (как целое), в то время как остальные проверяют отдельные аспекты: `check_history` — повторное использование, `check_complexity` — возвращает оценку (не булево значение), `check_format` — наличие ASCII символов, а `check_sequential`, `check_repetition` и `check_keyboard_patterns` — последовательности и шаблоны клавиатуры.",
+      "durationMs": 22210.850957999995,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 6
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function and accurately describes its rule as requiring ≥12 characters, ≥1 digit, ≥1 uppercase letter, and ≥1 special character, without confusing it with any noise function.",
+      "agentOutput": "Функция `check_strength` реализует это правило (строки 4–15). Она требует, чтобы пароль содержал минимум 12 символов, хотя бы одну цифру, прописную букву и специальный символ. Отличается от других функций тем, что проверяет несколько критериев одновременно и возвращает логическое значение, в то время как другие проверяют отдельные аспекты (историю, энтропию, утечки, последовательности или паттерны клавиатуры).",
+      "durationMs": 19261.633125000008,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 6
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function and accurately describes all four required criteria (≥12 chars, ≥1 digit, ≥1 uppercase, ≥1 special character), without naming any noise function as the primary implementation.",
+      "agentOutput": "Функция **`check_strength`** реализует правило проверки надёжности пароля. Она проверяет четыре критерия: минимум 12 символов, наличие хотя бы одной цифры, заглавной буквы и специального символа (не буквы и не цифры). Отличается от других функций в файле тем, что применяет комбинированное правило, требующее одновременно выполнить все четыре условия, в то время как остальные функции проверяют отдельные аспекты: историю переиспользования (`check_history`), балл сложности (`check_complexity`), формат символов (`check_format`), энтропию, утечки, последовательности и паттерны.",
+      "durationMs": 25033.69308299999,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 9
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function and accurately describes all four rule conditions (≥12 chars, ≥1 digit, ≥1 upper, ≥1 special), satisfying both requirements of the rule.",
+      "agentOutput": "Функция **`check_strength`** (строки 4–15) реализует это правило. Она проверяет, что пароль соответствует четырём требованиям одновременно: минимум 12 символов, хотя бы одна цифра, хотя бы одна заглавная буква и хотя бы один специальный символ. Она отличается от других функций в файле тем, что устанавливает минимальный порог качества (комбинацию обязательных характеристик), в то время как остальные функции проверяют отсутствие нежелательных паттернов (последовательные символы, повторения, клавиатурные комбинации) или анализируют свойства (энтропию, утечки).",
+      "durationMs": 18046.565000000002,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 9
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function and accurately describes all four rule conditions (≥12 chars, ≥1 digit, ≥1 upper, ≥1 special), without confusing it with any noise function.",
+      "agentOutput": "Функция **`check_strength`** (строки 4–15) реализует правило, отмеченное комментарием. Она проверяет четыре обязательных условия: минимум 12 символов, как минимум одну цифру, одну прописную букву и один спецсимвол.\n\nОт других функций в файле `check_strength` отличается тем, что это основная проверка соответствия политике паролей — она применяет комбинированное правило, определяющее минимальный приемлемый уровень стойкости. Остальные функции либо проверяют дополнительные ограничения (например, `check_sequential` и `check_repetition` ищут паттерны небезопасности), либо выполняют вспомогательные проверки (например, `check_format` проверяет ASCII, `check_history` проверяет переиспользование).",
+      "durationMs": 21882.56012499999,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 9
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function and accurately describes its rule (≥12 chars, ≥1 digit, ≥1 upper, ≥1 special), while distinguishing it from the noise functions.",
+      "agentOutput": "Функция `check_strength` реализует правило проверки надёжности пароля — она требует минимум 12 символов, хотя бы одну цифру, заглавную букву и специальный символ. В отличие от других функций в файле, которые проверяют частные аспекты (историю использования, утечки, паттерны клавиатуры, энтропию), `check_strength` — это основная валидация политики паролей, определяющая минимальные требования для принятия пароля в системе.",
+      "durationMs": 17723.930708,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 3
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function and accurately describes its rule as requiring ≥12 characters, ≥1 digit, ≥1 uppercase letter, and ≥1 special character, without confusing it with any noise function.",
+      "agentOutput": "Функция называется `check_strength` (строка 4–15). Она проверяет, что пароль соответствует правилу строгой надёжности: минимум 12 символов, минимум одна цифра, минимум одна заглавная буква и минимум один специальный символ (не буквенно-цифровой). Она отличается от других функций тем, что одновременно проверяет несколько критериев надёжности и возвращает булевское значение для принятия/отклонения пароля, в то время как остальные функции проверяют отдельные аспекты: история использования, энтропию, утечки, последовательные символы.",
+      "durationMs": 19383.821125000017,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 3
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the function anchored by ^sec-password-strength and accurately describes all four criteria (≥12 chars, ≥1 digit, ≥1 upper, ≥1 special), without confusing it with any of the noise functions.",
+      "agentOutput": "Функция **check_strength** реализует правило ^sec-password-strength. Она проверяет, что пароль соответствует требованиям надежности: минимум 12 символов, минимум одна цифра, минимум одна заглавная буква и минимум один специальный символ (непечатное-буквенно-цифровой символ).\n\nОна отличается от других функций тем, что проверяет комбинацию из четырёх критериев стойкости пароля, возвращая логическое значение, в то время как остальные функции решают другие задачи: check_history проверяет историю, check_complexity вычисляет оценку, check_format проверяет ASCII, check_entropy считает энтропию, check_leaked ищет в списке известных паролей, а check_sequential выявляет последовательные серии символов.",
+      "durationMs": 21437.350542,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 3
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly named \"check_strength\" as the anchored function and accurately described all four rule components (≥12 chars, ≥1 digit, ≥1 upper, ≥1 special), while distinguishing it from the noise functions (history, leaks, sequences, entropy).",
+      "agentOutput": "Функция `check_strength` реализует правило ^sec-password-strength и требует, чтобы пароль содержал минимум 12 символов, как минимум одну цифру, одну прописную букву и один специальный символ. Она отличается от других функций тем, что проверяет композицию пароля на соответствие установленным стандартам надёжности (возвращает логическое значение), в то время как остальные функции анализируют отдельные аспекты: историю использования, утечки в базы данных, последовательности символов или вычисляют энтропию.",
+      "durationMs": 24166.346958999988,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 6
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function and accurately describes all four required criteria (≥12 chars, ≥1 digit, ≥1 upper, ≥1 special), without confusing it with any noise function.",
+      "agentOutput": "Функция `check_strength()` реализует это правило. Она проверяет, что пароль содержит минимум 12 символов, хотя бы одну цифру, хотя бы одну прописную букву и хотя бы один специальный символ — это комплексное требование, объединяющее четыре независимых критерия в одном логическом выражении. \n\nОтличие от остальных функций в том, что они проверяют изолированные аспекты: `check_history()` и `check_leaked()` ищут совпадения в базах данных, `check_repetition()` и `check_sequential()` анализируют паттерны внутри строки, `check_complexity()` считает оценку, а `check_entropy()` вычисляет метрику энтропии — в то время как `check_strength()` — единственная, что применяет категориальный многоуровневый стандарт состава пароля.",
+      "durationMs": 27527.26570800002,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 6
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function and accurately describes its rule as requiring ≥12 characters, ≥1 digit, ≥1 uppercase letter, and ≥1 special character, without confusing it with any noise function.",
+      "agentOutput": "Функция `check_strength` помечена меткой ^sec-password-strength. Она проверяет, что пароль содержит минимум 12 символов, хотя бы одну цифру, хотя бы одну заглавную букву и хотя бы один специальный символ — это основная политика требований к надёжности пароля. В отличие от других функций в файле, `check_strength` реализует целостное правило из четырёх критериев сразу, в то время как остальные проверяют либо отдельные аспекты (формат, энтропия, повторения символов), либо историю и утечки (сравнение со списками и предыдущими паролями).",
+      "durationMs": 23033.45795900002,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 6
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function for ^sec-password-strength and accurately describes its rule as requiring ≥12 chars, ≥1 digit, ≥1 uppercase letter, and ≥1 special character, without confusing it with any noise function.",
+      "agentOutput": "Функция **`check_strength`** (строка 4–15) реализует правило `^sec-password-strength`. Она требует, чтобы надёжный пароль содержал не менее 12 символов, минимум одну цифру, минимум одну прописную букву и минимум один специальный символ. От других функций проверки пароля она отличается тем, что проверяет **композицию символов** (требования к типам и длине), тогда как остальные функции проверяют другие аспекты: `check_history` — повторное использование, `check_entropy` — энтропию, `check_leaked` — попадание в известные пароли, `check_sequential` — последовательные символы, `check_repetition` — частоту повторений символов.",
+      "durationMs": 21368.253832999966,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 9
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function and accurately describes its rule as requiring ≥12 characters, ≥1 digit, ≥1 uppercase letter, and ≥1 special character, without confusing it with any noise function.",
+      "agentOutput": "Функция `check_strength` (строки 4–15) реализует правило `^sec-password-strength`. Она проверяет, что пароль имеет минимум 12 символов и содержит хотя бы одну цифру, одну заглавную букву и один специальный символ — это комплексная политика композиции пароля. В отличие от других функций в файле, которые проверяют отдельные ограничения (история повторений, утечки, клавиатурные комбинации, пробелы), `check_strength` — единственная функция, которая применяет полный набор требований для определения «надёжного» пароля согласно политике безопасности.",
+      "durationMs": 20927.573167000024,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 9
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies `check_strength` as the anchored function and accurately describes its rule as requiring ≥12 chars, ≥1 digit, ≥1 uppercase letter, and ≥1 special character, without confusing it with any noise function.",
+      "agentOutput": "Функция **`check_strength()`** (строка 4) реализует правило `^sec-password-strength`. Она проверяет, что пароль соответствует четырём критериям: минимум 12 символов, по меньшей мере одна цифра, одна прописная буква и один спецсимвол. \n\nВ отличие от других функций файла, `check_strength()` единственная, которая комбинирует несколько требований к разным классам символов в единое правило мощности пароля; остальные проверяют отдельные аспекты (историю, формат, утечки, последовательности, энтропию) или возвращают другие типы данных.",
+      "durationMs": 21131.04712500004,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 9
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function and accurately describes all four required criteria (≥12 chars, ≥1 digit, ≥1 upper, ≥1 special), while clearly distinguishing it from the noise functions.",
+      "agentOutput": "Функция называется **`check_strength`** (строка 4). Она проверяет, что пароль соответствует минимальным требованиям к надёжности: содержит не менее 12 символов, минимум одну цифру, хотя бы одну заглавную букву и один специальный символ. Она отличается от остальных функций в файле тем, что это единственная функция, которая применяет **комплексный критерий безопасности** (четыре требования одновременно), в то время как остальные функции проверяют отдельные аспекты: историю (хеши), метрики энтропии, форматирование, клавиатурные паттерны и граничные случаи.",
+      "durationMs": 19440.883541999967,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 3
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly named \"check_strength\" as the anchored function with UID 202605121011, accurately described all four rule criteria (≥12 chars, ≥1 digit, ≥1 upper, ≥1 special), and distinguished it from the noise functions without confusing it with any neighbour.",
+      "agentOutput": "Функция, которая реализует правило с UID 202605121011 — это `check_strength` (строки 4–15). Она проверяет, что пароль содержит не менее 12 символов, минимум одну цифру, минимум одну заглавную букву и минимум один спецсимвол. Она отличается от других функций валидации тем, что это единственная функция, которая проверяет композицию пароля по жёстким комбинированным требованиям, тогда как остальные проверяют отдельные аспекты: историю использования, энтропию, утечку в публичных списках или последовательные комбинации символов.",
+      "durationMs": 20647.873334000004,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 3
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function (UID 202605121011), accurately describes all four criteria (≥12 chars, ≥1 digit, ≥1 upper, ≥1 special), and distinguishes it from all noise functions without confusing any neighbour as the primary answer.",
+      "agentOutput": "Функция **`check_strength`** (строка 4) реализует правило с UID 202605121011. Она проверяет, что пароль соответствует четырём критериям: минимум 12 символов, как минимум одна цифра, одна прописная буква и один специальный символ. В отличие от других функций в файле, `check_strength` — это единственная функция, которая одновременно проверяет несколько минимальных требований к разнообразию символов, тогда как остальные функции либо анализируют метрики без принудительного ограничения (как `check_complexity` и `check_entropy`), либо проверяют одно конкретное условие (как `check_history`, `check_format`, `check_leaked` и `check_sequential`).",
+      "durationMs": 19596.538499999966,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 3
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly names \"check_strength\" as the anchored function (UID 202605121011), accurately describes its rule as requiring ≥12 chars, ≥1 digit, ≥1 uppercase letter, and ≥1 special character, and distinguishes it from the noise functions (check_history, check_entropy, check_leaked, check_sequential, etc.).",
+      "agentOutput": "Функция **`check_strength`** реализует правило с UID 202605121011. Она проверяет надёжность пароля, требуя одновременно: минимум 12 символов, минимум одну цифру, минимум одну букву в верхнем регистре и минимум один специальный символ (не буквенно-цифровой). Отличие от других функций в том, что она единственная комбинирует множественные критерии надёжности (длину + состав символов), в то время как остальные функции либо анализируют энтропию, либо проверяют историю, либо детектируют утечки и последовательности.",
+      "durationMs": 18695.143709000025,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 6
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function (UID 202605121011) and accurately describes its rule as requiring ≥12 characters, ≥1 digit, ≥1 uppercase letter, and ≥1 special character, without confusing it with any noise function.",
+      "agentOutput": "Функция **`check_strength`** (строка 4) реализует правило UID 202605121011. Она проверяет, что пароль содержит не менее 12 символов, минимум одну цифру, минимум одну заглавную букву и минимум один специальный символ. В отличие от других функций — которые либо проверяют отдельные аспекты (последовательности, повторения, известные пароли), либо возвращают метрики (сложность, энтропия) — `check_strength` определяет общую надёжность пароля, объединяя четыре критерия в одну комплексную проверку и возвращая булево значение.",
+      "durationMs": 18816.284249999968,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 6
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function (UID 202605121011) and accurately describes its rule as requiring ≥12 characters, ≥1 digit, ≥1 uppercase letter, and ≥1 special character, without naming any noise function as the primary answer.",
+      "agentOutput": "Функция **`check_strength`** реализует правило UID 202605121011. Она проверяет, что пароль содержит минимум 12 символов, как минимум одну цифру, как минимум одну прописную букву и как минимум один специальный символ. В отличие от других функций файла, которые проверяют отдельные аспекты (историю, утечки, клавиатурные комбинации, повторения), `check_strength` — это единственная функция, которая комбинирует несколько требований в одно комплексное правило оценки надежности пароля.",
+      "durationMs": 19103.714791000006,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 6
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the function anchored by UID 202605121011 and accurately describes its rule as requiring ≥12 chars, ≥1 digit, ≥1 uppercase letter, and ≥1 special character, without naming any noise function as the primary answer.",
+      "agentOutput": "Функция `check_strength` (строка 4) имеет UID 202605121011. Она проверяет, что пароль содержит как минимум 12 символов, хотя бы одну цифру, хотя бы одну прописную букву и хотя бы один специальный символ. От остальных функций в файле она отличается тем, что проверяет совокупность критериев для оценки общей стойкости пароля (возвращает boolean), в то время как другие функции анализируют отдельные аспекты: history проверяет историю, complexity возвращает оценку из 100, entropy рассчитывает энтропию, а остальные проверяют конкретные паттерны (sequential, repetition, keyboard patterns и другие).",
+      "durationMs": 23068.935875000025,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 9
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the function anchored by UID 202605121011 and accurately describes its rule as requiring ≥12 characters, ≥1 digit, ≥1 uppercase letter, and ≥1 special character, without naming any noise function as the primary answer.",
+      "agentOutput": "Функция с UID 202605121011 — это **`check_strength`** (строки 4–15). Она проверяет, что пароль соответствует правилу надёжности: минимум 12 символов, минимум одна цифра, минимум одна заглавная буква и минимум один спецсимвол. Она отличается от остальных функций тем, что это единственная проверка, требующая одновременно четырёх критериев разнообразия — все остальные функции проверяют отдельные аспекты (историю, утечки, последовательности, клавиатурные паттерны и т. д.).",
+      "durationMs": 20547.147791999974,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 9
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identified \"check_strength\" as the anchored function (UID 202605121011) and accurately described its rule as requiring ≥12 characters, ≥1 digit, ≥1 uppercase letter, and ≥1 special character, without confusing it with any noise function.",
+      "agentOutput": "Функция с UID 202605121011 — это `check_strength`. Она проверяет, что пароль соответствует правилу надёжности: не менее 12 символов, минимум одна цифра, минимум одна прописная буква и минимум один специальный символ. От других функций она отличается тем, что применяет комбинированное правило, проверяя несколько требований одновременно, тогда как остальные функции в файле обычно проверяют только одну характеристику (историю, формат, энтропию, утечки, последовательности и так далее).",
+      "durationMs": 19258.697582999943,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 9
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function (UID 202605121011) and accurately describes its rule as requiring ≥12 characters, ≥1 digit, ≥1 uppercase letter, and ≥1 special character, while correctly distinguishing it from the noise functions.",
+      "agentOutput": "Функция, которая реализует правило с UID 202605121011, — это `check_strength`. Эта функция проверяет, что пароль соответствует требованиям надежности: минимум 12 символов, минимум одна цифра, минимум одна прописная буква и минимум один специальный символ. Она отличается от других функций проверки тем, что объединяет четыре критерия в одну комплексную проверку надежности, тогда как остальные функции проверяют отдельные аспекты (историю использования, формат, энтропию, утечки, последовательности символов и так далее).",
+      "durationMs": 19757.536708,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 3
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function and accurately describes all four requirements (≥12 chars, ≥1 digit, ≥1 upper, ≥1 special), without naming any noise function as the primary answer.",
+      "agentOutput": "Функция **`check_strength`** (строка 4) помечена меткой [АНЦ:сек:пароль-прочность]. Она проверяет, соответствует ли пароль политике надёжности: минимум 12 символов, хотя бы одна цифра, хотя бы один заглавный символ и хотя бы один специальный символ. В отличие от других функций (которые проверяют историю, вычисляют энтропию, анализируют сложность или ищут утечки), `check_strength` — единственная функция, которая возвращает двоичный результат (истина/ложь) на основе строгих требований к составу пароля.",
+      "durationMs": 23056.088916999986,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 3
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identified \"check_strength\" as the function marked by [ANC:sec:password-strength] and accurately described its rule as requiring ≥12 characters, ≥1 digit, ≥1 uppercase letter, and ≥1 special character, without naming any noise function as the primary answer.",
+      "agentOutput": "Функция, помеченная меткой `[ANC:sec:password-strength]`, — это **`check_strength`**. Она обеспечивает соответствие пароля политике надежности: минимум 12 символов, минимум одна цифра, минимум одна прописная буква и минимум один специальный символ (не буквенно-цифровой). Она отличается от других функций тем, что единственная реализует комплексную проверку состава пароля с возвратом булева значения — остальные функции либо проверяют отдельные аспекты (историю, формат, последовательность), либо возвращают метрики вместо бинарной оценки соответствия политике.",
+      "durationMs": 19890.713334000087,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 3
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly names \"check_strength\" as the anchored function and accurately describes all four required criteria (≥12 chars, ≥1 digit, ≥1 upper, ≥1 special), without naming any noise function as the primary answer.",
+      "agentOutput": "Функция называется `check_strength` и проверяет четыре обязательных требования к надёжному паролю: минимум 12 символов, наличие цифры, заглавной буквы и специального символа. Она отличается от остальных функций тем, что это единственная функция, которая применяет единый обязательный набор требований к сложности в качестве фильтра входа (возвращает истину/ложь), тогда как другие функции либо проверяют отдельные проблемы (история, формат, последовательность), либо предоставляют метрики (сложность, энтропия), либо проверяют чёрные списки.",
+      "durationMs": 21782.940165999928,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 6
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function and accurately describes all four required criteria (≥12 chars, ≥1 digit, ≥1 upper, ≥1 special), while clearly distinguishing it from the noise functions without confusing it with any of them.",
+      "agentOutput": "Функция `check_strength` реализует правило для проверки надёжности пароля. Она требует как минимум 12 символов, хотя бы одну цифру, заглавную букву и специальный символ (не буквенно-цифровой), возвращая логическое значение: истина, если все четыре условия выполнены. \n\nОна отличается от других функций тем, что это единственная проверка, определяющая минимальные требования по сложности пароля как набор обязательных критериев; остальные функции решают разные задачи — проверка истории использования, анализ энтропии, поиск утекших паролей, проверку на последовательности и повторения символов, но не задают базовый стандарт надёжности.",
+      "durationMs": 22923.49645799992,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 6
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the function anchored by [ANC:sec:password-strength] and accurately describes its rule as requiring ≥12 characters, ≥1 digit, ≥1 uppercase letter, and ≥1 special character, without confusing it with any noise function.",
+      "agentOutput": "Функция, отмеченная меткой [ANC:sec:password-strength], — это `check_strength`. Она обеспечивает минимальные требования к стойкости пароля: не менее 12 символов, минимум одна цифра, минимум одна заглавная буква и минимум один специальный символ. Она отличается от других функций в файле тем, что проверяет комплексный базовый критерий пароля (булево значение), в то время как остальные функции решают узкие задачи — `check_complexity` вычисляет оценку, `check_entropy` оценивает энтропию Шеннона, `check_sequential` и `check_repetition` ищут паттерны повторения, а `check_leaked` проверяет утечки.",
+      "durationMs": 22145.108083000057,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 6
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identified \"check_strength\" as the anchored function and accurately described its rule (≥12 chars, ≥1 digit, ≥1 upper, ≥1 special), while correctly distinguishing it from the noise functions.",
+      "agentOutput": "Функция **`check_strength`** реализует отмеченное правило [ANC:sec:password-strength]. Она проверяет, что пароль соответствует требованиям надёжности: минимум 12 символов, минимум одна цифра, минимум одна заглавная буква и минимум один специальный символ. Отличие от остальных функций в том, что `check_strength` — это единственная функция, которая проверяет основной набор требований безопасности в виде бинарного результата (истина/ложь), тогда как остальные функции проверяют вторичные аспекты: историю паролей, утечки, последовательности символов, паттерны клавиатуры и прочие частные правила валидации.",
+      "durationMs": 24208.65741600003,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 9
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function and accurately describes its rule as requiring ≥12 characters, ≥1 digit, ≥1 uppercase letter, and ≥1 special character, without naming any noise function as the primary answer.",
+      "agentOutput": "Функция **`check_strength`** реализует правило [ANC:sec:password-strength], которое требует пароля не менее 12 символов с минимум одной цифрой, одной прописной буквой и одним специальным символом. Эта функция отличается от других тем, что это единственная проверка, которая вводит строгие комплексные требования ко всем основным аспектам надежности (длина и типы символов одновременно), тогда как остальные функции проверяют отдельные аспекты: историю использования, утечки в известные списки, последовательности и повторения символов, а также форматы и энтропию.",
+      "durationMs": 20426.861167000025,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 9
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function and accurately describes its rule as requiring ≥12 characters, ≥1 digit, ≥1 uppercase letter, and ≥1 special character, without confusing it with any noise function.",
+      "agentOutput": "Функция **`check_strength`** (строки 4–15) реализует обозначенное правило. Она требует минимум 12 символов, хотя бы одну цифру, заглавную букву и спецсимвол. Отличие от других функций: `check_strength` проверяет базовые требования к силе пароля (сложность и длину), тогда как остальные функции проверяют вторичные аспекты — историю повторного использования, утечки в общеизвестные списки, клавиатурные паттерны и технические ограничения (пробелы, нулевые байты, нормализацию).",
+      "durationMs": 20279.750541999936,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 9
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identified \"check_strength\" as the anchored function and accurately described its rule as requiring ≥12 characters, ≥1 digit, ≥1 uppercase letter, and ≥1 special character, without confusing it with any noise function.",
+      "agentOutput": "Функция **`check_strength`** (строки 4–15) реализует правило [ANC:sec:password-strength]. Эта функция проверяет, что пароль соответствует требованиям к сильному паролю: минимум 12 символов, минимум одна цифра, минимум одна заглавная буква и минимум один специальный символ (символ, который не является буквой или цифрой).\n\nОт остальных функций она отличается тем, что комбинирует несколько независимых критериев в единую комплексную проверку для определения общей силы пароля, в то время как другие функции проверяют узкие аспекты (например, `check_entropy` вычисляет энтропию, `check_leaked` ищет в базе утечек, `check_sequential` контролирует последовательные символы).",
+      "durationMs": 20871.849083999987,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 3
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function and accurately describes its rule as requiring ≥12 characters, ≥1 digit, ≥1 uppercase letter, and ≥1 special character, without naming any noise function as the primary implementation.",
+      "agentOutput": "Функция называется **`check_strength`** (строки 4–15).\n\nЭта функция проверяет основное требование политики пароля: пароль должен содержать минимум 12 символов, как минимум одну цифру, как минимум одну прописную букву и как минимум один специальный символ (любой непалиндромный символ). \n\nОна отличается от других функций файла тем, что это единственная, которая осуществляет комплексную проверку обязательного состава пароля — критерии силы. Остальные функции либо анализируют метрики (энтропия, сложность), либо проверяют контекст (история, утечки), либо валидируют формат и структуру (ASCII, последовательности).",
+      "durationMs": 59599.16054099996,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 3
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function, accurately states all four requirements (≥12 chars, ≥1 digit, ≥1 upper, ≥1 special), and clearly distinguishes it from the noise functions (check_history, check_complexity, check_format, check_entropy, check_leaked, check_sequential).",
+      "agentOutput": "Функция, отмеченная `[ANC:password-strength]`, — это **`check_strength`** (строка 4). Она проверяет четыре обязательных требования к надёжности пароля: минимум 12 символов, как минимум одна цифра, как минимум одна заглавная буква и как минимум один специальный (не буквенно-цифровой) символ. От остальных функций она отличается тем, что выполняет простую бинарную проверку соответствия критериям, в то время как другие функции проверяют историю паролей, вычисляют баллы сложности, проверяют формат, энтропию, утечки или последовательные символы.",
+      "durationMs": 18217.615959000075,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 3
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function and accurately describes its rule as requiring at least 12 characters, at least one digit, at least one uppercase letter, and at least one special character, without confusing it with any noise function.",
+      "agentOutput": "Функция **`check_strength`** (строки 4–15) реализует это правило. Она проверяет надёжность пароля, требуя минимум 12 символов, хотя бы одну цифру, заглавную букву и специальный символ.\n\nОтличие от других функций: `check_strength` возвращает логический результат (пароль либо надёжный, либо нет) на основе комбинации четырёх критериев. В отличие от этого, `check_history` проверяет только неиспользование в последних 10 циклах, `check_complexity` возвращает оценку (0–100), `check_entropy` вычисляет энтропию Шеннона, а `check_sequential` предотвращает последовательные символы — каждая функция решает отдельную узкую задачу, тогда как `check_strength` — это комплексное правило для оценки надёжности.",
+      "durationMs": 22422.040833999985,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 6
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function and accurately describes its rule as requiring ≥12 chars, ≥1 digit, ≥1 uppercase letter, and ≥1 special character, while clearly distinguishing it from the noise functions.",
+      "agentOutput": "Функция **`check_strength`** (строки 4–15) реализует правило [ANC:password-strength]. Она проверяет, что пароль соответствует четырём требованиям одновременно: минимум 12 символов, минимум одна цифра, минимум одна прописная буква и минимум один специальный символ (не буквенно-цифровой). От остальных функций она отличается тем, что это единственная, которая комбинирует несколько требований к составу символов в одно целостное определение \"сильного пароля\", в то время как прочие функции проверяют частные аспекты слабости (утечки, паттерны, повторения) или возвращают значения, отличные от булева типа (оценка сложности, энтропия).",
+      "durationMs": 19890.792125000036,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 6
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function and accurately describes its rule as requiring ≥12 characters, ≥1 digit, ≥1 uppercase letter, and ≥1 special character, while distinguishing it from the noise functions.",
+      "agentOutput": "Функция **`check_strength`** реализует помеченное правило. Она проверяет, что пароль содержит не менее 12 символов, хотя бы одну цифру, хотя бы одну прописную букву и хотя бы один специальный символ (не буквенно-цифровой). В отличие от других функций файла, `check_strength` — это единственная функция, которая комбинирует несколько критериев и возвращает булев результат для решения о принятии пароля; остальные функции либо проверяют отдельные аспекты (история, формат, энтропия), либо возвращают оценки и статусы, а не прямые решения валидности.",
+      "durationMs": 19348.85370800004,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 6
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function and accurately describes its rule as requiring minimum 12 characters, at least one digit, one uppercase letter, and one special character, without confusing it with any noise function.",
+      "agentOutput": "Функция **`check_strength`** (строки 4–15) реализует это правило. Она проверяет базовые требования к надежности пароля: минимум 12 символов, наличие цифры, прописной буквы и специального символа. Отличается от остальных функций тем, что устанавливает обязательное минимальное стандарт качества, тогда как другие проверяют частные недостатки: `check_history` — повторное использование, `check_complexity` — возвращает оценку вместо boolean, `check_repetition` и `check_sequential` — находят нежелательные паттерны повтора или последовательности.",
+      "durationMs": 23044.309167,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 9
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function and accurately describes its rule as requiring a minimum of 12 characters, at least one digit, one uppercase letter, and one special character, satisfying both conditions (a) and (b) of the rule.",
+      "agentOutput": "Функция `check_strength` (строка 4) реализует правило [ANC:password-strength] и проверяет сложность пароля, требуя минимум 12 символов, как минимум одну цифру, одну прописную букву и один специальный символ. Она отличается от других функций в файле тем, что это единственная функция, которая проверяет комбинированное требование к классам символов (цифры, прописные буквы, спецсимволы) вместе с минимальной длиной, в то время как остальные функции проверяют отдельные аспекты (историю, формат, утечки, паттерны и т. д.).",
+      "durationMs": 21415.821208999958,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 9
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identifies \"check_strength\" as the anchored function and accurately describes its rule as requiring ≥12 chars, ≥1 digit, ≥1 uppercase letter, and ≥1 special character, while distinguishing it from the noise functions.",
+      "agentOutput": "Функция **`check_strength`** реализует данное правило. Она проверяет, что пароль содержит минимум 12 символов, как минимум одну цифру, одну прописную букву и один специальный символ (не буквенно-цифровой). Это отличается от других функций в файле: `check_strength` — единственная, которая устанавливает **минимальный порог сложности** для успешной валидации, тогда как остальные функции проверяют **отсутствие проблемных паттернов** (последовательности символов, повторения, клавиатурные комбинации и так далее).",
+      "durationMs": 22788.979207999888,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 9
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent correctly identified \"check_strength\" as the anchored function and accurately described its rule as requiring minimum 12 characters, at least one digit, at least one uppercase letter, and at least one special character, matching all four criteria specified in the rule.",
+      "agentOutput": "Функция `check_strength()` (строки 4–15) реализует правило маркировки [ANC:password-strength]. Она проверяет четыре основных требования к надёжному паролю: минимум 12 символов, наличие минимум одной цифры, наличие минимум одной прописной буквы и наличие минимум одного спецсимвола.\n\nОтличие этой функции в том, что она — единственная, которая определяет **основные критерии силы пароля** посредством булева результата, тогда как остальные функции проверяют дополнительные аспекты: история использования, скор сложности, формат, энтропию, утечки в известные словари, последовательность символов, повторение, клавиатурные паттерны и прочие технические свойства.",
+      "durationMs": 24303.152040999965,
+      "exitCode": 0
+    }
+  ],
+  "adherenceByAxis": {
+    "system": {
+      "native": 1,
+      "wikilinks": 1,
+      "zettelkasten": 1,
+      "salp": 1,
+      "salp-short": 1
+    },
+    "noise_count": {
+      "3": 1,
+      "6": 1,
+      "9": 1
+    }
+  },
+  "durationMs": 984368.967,
+  "headline": "RAG noise (count=9) adherence — native=100% / wikilinks=100% / zettelkasten=100% / salp=100% / salp-short=100% (n=3/cell)"
+}
