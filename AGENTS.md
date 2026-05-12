@@ -17,6 +17,8 @@ Sister repository: [`flow`](https://github.com/korchasa/flow) holds the AssistFl
 - Do not use tables in chat output — use two-level lists instead (portable, terminal-friendly).
 - Provide evidence for claims — link to code, docs, or tool output.
 - Use standard tools (`jq`, `yq`, `jc`) to process structured output.
+- Before implementing any dev tooling (secret scanners, linters, formatters, test runners) — first check for an existing CLI tool: `brew search <name>`, `which <name>`, web search. Prefer maintained external tools over custom scripts.
+- Secret scanning (API keys/tokens in git history) ≠ security code review (OWASP, injection). For leaked credentials → `gitleaks` (already in `deno task check`). For code vulnerabilities → `/security-review` skill.
 
 ## Project Information
 

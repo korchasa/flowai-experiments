@@ -12,6 +12,7 @@
   - static code analysis (`deno lint`)
   - all unit tests (`deno test -A --ignore=scripts/experiments/*/results`)
   - secret scanning of git history (`gitleaks git . --no-banner --no-color`; requires `brew install gitleaks`)
+  - Note: `gitleaks dir` scans ALL files including `.gitignore`'d ones — false positives on `.env` and cache files. Always use `gitleaks git` for "no secrets in repo" checks.
 - `test <path>` — runs a single test file or suite (`deno test -A <path>`).
 - `experiment <name>` — runs an experiment variant end-to-end (spawns the live Claude CLI; requires macOS keychain auth).
 - `dev` — not applicable. This repo has no long-running dev server. Use `experiment --dry-run` for quick iteration.
@@ -35,6 +36,12 @@ All commands are defined as Deno tasks in [`deno.json`](../deno.json) and must b
 - [`scripts/experiments/lib/report.ts`](experiments/lib/report.ts) — JSON + Markdown result writers.
 - [`scripts/benchmarks/lib/`](benchmarks/lib/) — minimal agent runtime (adapters, llm, spawned_agent, usage). Name is a historical artifact from the `flow` split; Phase-3 rename planned.
 - [`scripts/utils.ts`](utils.ts) — shared helpers (FS, paths, formatting).
+
+## First-time setup
+
+After cloning:
+1. `brew install gitleaks` — required for `deno task check` secret scan.
+2. `git config core.hooksPath .githooks` — activates the pre-commit hook that runs `gitleaks git --staged` before every commit. Already set in `.git/config` for existing checkouts.
 
 ## Running experiments — prerequisites
 

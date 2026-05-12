@@ -1,0 +1,3 @@
+#!/bin/sh
+# Scans staged changes for secrets before commit
+gitleaks git --staged --no-banner --no-color
