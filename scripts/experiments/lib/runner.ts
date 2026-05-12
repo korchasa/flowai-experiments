@@ -356,9 +356,9 @@ async function runSingleCell(input: {
 
 /**
  * Default agent spawner — uses invokeClaudeCli from @korchasa/ai-ide-cli.
- * settingSources: [] creates an empty cleanroom so ~/.claude/CLAUDE.md and
- * user plugins do not leak into experiment trials. Auth is handled natively
- * by the Claude CLI (macOS keychain — no credential file copying needed).
+ * Auth is handled natively by the Claude CLI (macOS keychain).
+ * Note: ~/.claude/CLAUDE.md leaks into trials because settingSources is not
+ * set; this is acceptable for experiments that don't test memory injection.
  */
 const defaultSpawnAgent: SpawnAgentFn = async (opts) => {
   const { invokeClaudeCli, defaultRegistry } = await import(

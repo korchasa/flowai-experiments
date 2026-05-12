@@ -38,12 +38,6 @@ export interface GtMultiHopTarget {
   hops: number;
 }
 
-export interface GtStabilityTarget {
-  anchor_id: string;
-  original_file: string;
-  moved_to: string;
-}
-
 export interface GtBoundaryTarget {
   anchor_id: string;
   file: string;
@@ -74,7 +68,6 @@ export interface GroundTruth {
   anchors: GtAnchor[];
   references: GtReference[];
   multi_hop_targets: Record<string, GtMultiHopTarget>;
-  stability_target: GtStabilityTarget;
   boundary_targets: GtBoundaryTarget[];
   noise_target: GtNoiseTarget;
   anomalies: GtAnomaly[];
@@ -141,19 +134,6 @@ const CODE_FILES = [
 
 const ALL_FILES = [...MD_FILES, ...CODE_FILES];
 
-// Files that may be relocated in path-stability tests (excluding stability target).
-// Ordered deterministically; change_ratio selects the first N.
-const RELOCATABLE_FILES = [
-  "auth.md",
-  "session.md",
-  "password.md",
-  "lockout.md",
-  "audit.md",
-  "rbac.md",
-  "refresh.md",
-  "revocation.md",
-];
-
 // ---------------------------------------------------------------------------
 // Core write helpers
 // ---------------------------------------------------------------------------
@@ -194,59 +174,6 @@ export async function writeFixtures(
     const content = await readFixtureFile(system, f);
     await writeProjectFile(sandboxPath, f, content);
   }
-}
-
-/**
- * Write fixture files with a fraction of files relocated to `reorganized/`.
- *
- * The stability target (token.md) is ALWAYS moved.
- * Additional files are taken from RELOCATABLE_FILES up to the quota.
- * References inside source files still point to original paths (by design —
- * this is what creates broken links for path-dependent systems).
- */
-export async function writeFixturesWithMoves(
-  sandboxPath: string,
-  system: string,
-  changeRatio: number,
-): Promise<{ movedFiles: Record<string, string> }> {
-  const gt = loadGroundTruth();
-  const totalMoves = Math.ceil(ALL_FILES.length * changeRatio);
-
-  // Always include stability target as the first move.
-  const toMove = new Set<string>([gt.stability_target.original_file]);
-  for (const f of RELOCATABLE_FILES) {
-    if (toMove.size >= totalMoves) break;
-    toMove.add(f);
-  }
-
-  const movedFiles: Record<string, string> = {};
-  for (const f of toMove) {
-    movedFiles[f] = `reorganized/${f}`;
-  }
-
-  await Deno.writeTextFile(join(sandboxPath, "AGENTS.md"), ROOT_AGENTS_MD);
-
-  for (const f of ALL_FILES) {
-    const content = await readFixtureFile(system, f);
-    const dest = movedFiles[f] ?? f;
-    await writeProjectFile(sandboxPath, dest, content);
-  }
-
-  // Write a migration log so the agent has a chance to discover the moves.
-  const log = [
-    "# MIGRATION_LOG.md",
-    "",
-    "The following files were relocated during the last refactor:",
-    "",
-    ...Object.entries(movedFiles).map(([from, to]) =>
-      `- \`${from}\` → \`${to}\``
-    ),
-    "",
-    "References in other files have NOT been updated yet.",
-  ].join("\n");
-  await Deno.writeTextFile(join(sandboxPath, "MIGRATION_LOG.md"), log);
-
-  return { movedFiles };
 }
 
 /**

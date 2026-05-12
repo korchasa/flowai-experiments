@@ -199,8 +199,7 @@ MOCK_EOF
   async getCleanroomEnv(
     _configDir: string,
   ): Promise<Record<string, string>> {
-    // Cleanroom isolation is handled by invokeClaudeCli via settingSources: [].
-    // Claude CLI reads auth natively from macOS keychain — no file copying needed.
+    // invokeClaudeCli uses native macOS keychain auth — no CLAUDE_CONFIG_DIR override needed.
     return {};
   }
 

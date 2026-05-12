@@ -18,7 +18,7 @@
 - **Context:** Extracted from the `flow` repo at commit `f311142` (2026-04-11). The sister `flow` repo owns the AssistFlow framework and regression-test benchmarks. This repo owns the empirical-studies pipeline. Clean-slate copy: no git history preserved across the split.
 - **Assumptions/Constraints:**
   - Deno 2.x runtime, TypeScript only.
-  - Experiments run on developer machines — CI runs only `deno task check`. Live `claude` CLI is required for real runs; the CLI must be authorized externally (`claude login` → `~/.claude/.credentials.json`) before the run, and the claude adapter mirrors that one file into an otherwise-empty cleanroom config dir. Cross-platform (Linux devcontainer and macOS both work); no more macOS-keychain dependency.
+  - Experiments run on developer machines — CI runs only `deno task check`. Live `claude` CLI is required for real runs; auth is via macOS keychain (`claude login`). The CLI reads credentials natively — no file copying needed.
   - Results are committed to the repo under `scripts/experiments/<name>/results/` and form the historical record. They must not be deleted or rewritten.
   - All tasks are invoked from the repo root; `config.json` is resolved CWD-relative.
 
@@ -70,11 +70,11 @@
 ### 3.6 FR-EXP.MEMORY-LENGTH
 
 - **Desc:** First experiment: measure the max token budget of project memory files at which an agent still follows an embedded rule ≥80% of the time. Two variants: `single-file` (all memory in one root file) and `tree-sum` (budget split across ancestor chain).
-- **Scenario:** Three rules (`format`, `language`, `negation`) × token axis × 5 reps. Neutral query. Cleanroom `claude` invocation — `CLAUDE_CONFIG_DIR=<empty temp dir with mirrored credentials>` + `--strict-mcp-config --disable-slash-commands`. Headline: `max(tokens : mean_adherence ≥ 0.8)`. Numbers are relative to the CLI-intrinsic baseline (~26k on haiku) quantified by FR-EXP.CONTEXT-ANATOMY — measurement is performed in the real operating environment, not against an idealized zero baseline.
+- **Scenario:** Three rules (`format`, `language`, `negation`) × token axis × 5 reps. Neutral query. Cleanroom `claude` invocation — `--strict-mcp-config --disable-slash-commands` (auth via macOS keychain). Headline: `max(tokens : mean_adherence ≥ 0.8)`. Numbers are relative to the CLI-intrinsic baseline (~26k on haiku) quantified by FR-EXP.CONTEXT-ANATOMY — measurement is performed in the real operating environment, not against an idealized zero baseline.
 - **Acceptance:**
   - [x] `single-file` variant runs and commits results for Haiku 4.5. Evidence: `scripts/experiments/claude-md-length/single-file.ts`, `scripts/experiments/claude-md-length/results/2026-04-11-claude-haiku-4-5-single-file.md`.
   - [x] `tree-sum` variant runs and commits results for Haiku 4.5. Evidence: `scripts/experiments/claude-md-length/tree-sum.ts`, `scripts/experiments/claude-md-length/results/2026-04-11-claude-haiku-4-5-tree-sum.md`.
-  - [x] Environment isolation blocks global `~/.claude/CLAUDE.md` and the `CLAUDECODE` marker. Evidence: `scripts/benchmarks/lib/adapters/claude.ts`, `documents/rnd/claude-md-length-empirical.md:33`.
+  - [x] Account-level MCP and slash commands are blocked via `--strict-mcp-config --disable-slash-commands`. `~/.claude/CLAUDE.md` is visible to trial agents (acceptable — experiments don't test memory injection). Evidence: `scripts/benchmarks/lib/adapters/claude.ts`, `scripts/experiments/lib/runner.ts:363`.
   - [ ] Sonnet and Opus results for both variants. Evidence: none yet.
 
 ### 3.7 FR-EXP.CONTEXT-ANATOMY
@@ -126,23 +126,23 @@
 
 - **Desc:** Measure how reliably AI agents navigate five documentation-linking systems (Native Markdown, Wikilinks, Zettelkasten UID, SALP, SALP-short) across five task types: anchor-reference mapping, context boundary detection, multi-hop chain traversal, graph linting, and RAG noise resistance. Produces adherence curves per system × task-type.
 - **Tasks:** [anchor-systems-experiment](tasks/2026/05/anchor-systems-experiment.md)
-- **Scenario:** Five variants under `scripts/experiments/anchor-systems/`: `mapping`, `boundary`, `multi-hop`, `linting`, `rag-noise`. All tasks are answer-only (read files, respond with text or JSON — no file edits). Static fixture sets (15 Markdown + 4 code files per system, 4 systems + 1 `corrupted/` set) committed under `fixtures/` with `ground-truth.json`. Invoked as `deno task experiment anchor-systems --variant <v>`.
+- **Scenario:** Five variants under `scripts/experiments/anchor-systems/`: `mapping`, `boundary`, `multi-hop`, `linting`, `rag-noise`. All tasks are answer-only (read files, respond with text or JSON — no file edits). Static fixture sets (15 Markdown + 4 code files per system, 5 systems + 1 `corrupted/` set) committed under `fixtures/` with `ground-truth.json`. Invoked as `deno task experiment anchor-systems --variant <v>`.
 - **Acceptance:**
-  - [ ] Fixture sets for all 4 systems (native, wikilinks, zettelkasten, salp): 19 files each + `corrupted/` (19 files, salp+anomalies) + `ground-truth.json`. Evidence: `ls scripts/experiments/anchor-systems/fixtures/`.
-  - [ ] `mapping` variant: system axis, F₁ of extracted JSON graph. Evidence: `scripts/experiments/anchor-systems/mapping.ts`, dry-run exit 0.
-  - [ ] `boundary` variant: system axis, IoU ≥ 0.8 on code block line-ranges. Evidence: `scripts/experiments/anchor-systems/boundary.ts`, dry-run exit 0.
-  - [ ] `multi-hop` variant: system × target (shallow/medium/deep), hop-accuracy across reference chains. Evidence: `scripts/experiments/anchor-systems/multi-hop.ts`, dry-run exit 0.
-  - [ ] `linting` variant: system axis, F₁ ≥ 0.7 detection of 3 planted anomalies. Evidence: `scripts/experiments/anchor-systems/linting.ts`, dry-run exit 0.
-  - [ ] `rag-noise` variant: system × noise_count [3, 6, 9], focus on anchor-bearing function vs noise neighbours. Evidence: `scripts/experiments/anchor-systems/rag-noise.ts`, dry-run exit 0.
-  - [ ] `deno task check` green. Evidence: `deno task check 2>&1 | tail -5`.
-  - [ ] First live run results committed for all 5 variants on `claude-haiku-4-5`. Evidence: `ls results/*anchor-systems*.md`.
+  - [x] Fixture sets for all 5 systems (native, wikilinks, zettelkasten, salp, salp-short): 19 files each + `corrupted/` (19 files, salp+anomalies) + `ground-truth.json`. Evidence: `ls scripts/experiments/anchor-systems/fixtures/`.
+  - [x] `mapping` variant: system axis, F₁ of extracted JSON graph. Evidence: `scripts/experiments/anchor-systems/mapping.ts`, `results/2026-05-12-0038-claude-haiku-4-5-mapping.md`.
+  - [x] `boundary` variant: system axis, IoU ≥ 0.8 on code block line-ranges. Evidence: `scripts/experiments/anchor-systems/boundary.ts`, `results/2026-05-12-0059-claude-haiku-4-5-boundary.md`.
+  - [x] `multi-hop` variant: system × target (shallow/medium/deep), hop-accuracy across reference chains. Evidence: `scripts/experiments/anchor-systems/multi-hop.ts`, `results/2026-05-12-0105-claude-haiku-4-5-multi-hop.md`.
+  - [x] `linting` variant: system axis, F₁ ≥ 0.7 detection of 3 planted anomalies. Evidence: `scripts/experiments/anchor-systems/linting.ts`, `results/2026-05-12-0144-claude-haiku-4-5-linting.md`.
+  - [x] `rag-noise` variant: system × noise_count [3, 6, 9], focus on anchor-bearing function vs noise neighbours. Evidence: `scripts/experiments/anchor-systems/rag-noise.ts`, `results/2026-05-12-0158-claude-haiku-4-5-rag-noise.md`.
+  - [x] `deno task check` green. Evidence: `deno task check 2>&1 | tail -5`.
+  - [x] First live run results committed for all 5 variants on `claude-haiku-4-5`. Evidence: `ls results/2026-05-12-*-claude-haiku-4-5-*.md`.
 
 ## 4. Non-Functional
 
 - **Perf/Reliability/Sec/Scale/UX:**
   - **Perf:** no global wall-clock budget. One variant run on Haiku 4.5 takes ~20 min for ~75–90 trials. Opus runs take longer.
   - **Reliability:** runner is fail-fast. A single failing trial does NOT stop the sweep — the verdict is recorded as `exitCode != 0`, adherence includes it. Trials never retry silently.
-  - **Sec:** no secrets in results. The judge never sees user filesystem beyond the sandbox. Credentials come from the host-level `~/.claude/.credentials.json` (written by `claude login`); the claude adapter copies that file into a per-run cleanroom config dir and never inlines its contents into results. The credentials file itself is never committed.
+  - **Sec:** no secrets in results. The judge never sees user filesystem beyond the sandbox. Auth via macOS keychain (`claude login`); the CLI reads credentials natively. No credentials are copied or committed.
   - **Scale:** cartesian sweeps scale as `|axes₁| × |axes₂| × ... × reps`. Keep small.
   - **UX:** CLI is invoked from repo root. `--dry-run` prints the sweep plan without spawning agents.
 
@@ -151,7 +151,7 @@
 - **CLI:** `deno task experiment <name> --variant <v> [--model <m>] [--ide <id>] [--reps <n>] [--axis <name>=<csv>]… [--seed <n>] [--dry-run]`. `--axis` is the sole axis-override mechanism: repeatable, accepts any axis declared by the variant, rejects unknown names. No axis-specific flag (e.g. `--sizes`, `--rules`) is hard-coded at the engine level.
 - **Config:** `config.json` — IDE defaults (`default_agent_model`, `judge` model). Resolved CWD-relative.
 - **Memory files:** adapters write per-trial `CLAUDE.md` / `AGENTS.md` (claude) or `.cursorrules` (cursor) into the sandbox.
-- **Env isolation (claude adapter):** `CLAUDE_CONFIG_DIR=<cleanroom temp dir containing only a mirrored copy of ~/.claude/.credentials.json>`, `CLAUDECODE=""`. Spawn args include `--strict-mcp-config --disable-slash-commands` to strip account-level MCP and slash commands. Built-in tools/skills/agents embedded in the `claude` binary still contribute ~26k baseline on haiku — this is the measurement target, not a leak.
+- **Env isolation (claude adapter):** spawn args include `--strict-mcp-config --disable-slash-commands` to strip account-level MCP and slash commands. Auth via macOS keychain; no `CLAUDE_CONFIG_DIR` override. `~/.claude/CLAUDE.md` is visible to trial agents — acceptable for experiments that don't test memory injection. Built-in tools/skills/agents embedded in the `claude` binary still contribute ~26k baseline on haiku — this is the measurement target, not a leak.
 - **Experiment extension point:** `scripts/experiments/lib/types.ts` exports the `Experiment` interface — new experiments implement `{id, name, description, axes, defaults, setupCell, query, judgePrompt, headline}` plus optional `renderCustom?(report)` for experiments whose payload is not pass/fail adherence (e.g. metric tables extracted from raw agent output — see FR-EXP.CONTEXT-ANATOMY).
 - **Env (OpenRouter-based experiments):** `OPENROUTER_API_KEY` — required for `experiment:tokenizers` and `experiment:images-hard`. See `.env.example`. Not used by agent-spawning experiments.
 

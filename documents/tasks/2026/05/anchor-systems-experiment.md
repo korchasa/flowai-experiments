@@ -1,6 +1,6 @@
 ---
 date: "2026-05-12"
-status: to do
+status: done
 implements:
   - FR-EXP.ANCHOR-SYSTEMS
 tags: [experiment, anchors, links, documentation, salp, rag, hallucination]
@@ -53,17 +53,17 @@ Fixture files (static, committed) represent a synthetic technical project (~15 f
 
 ## Definition of Done
 
-- [ ] Add FR-EXP.ANCHOR-SYSTEMS section to SRS with `**Acceptance:**` field filled. FR-ID: FR-EXP.ANCHOR-SYSTEMS. Test: manual — korchasa. Evidence: `grep -n "FR-EXP.ANCHOR-SYSTEMS" documents/requirements.md`.
-- [ ] Fixture set exists for all 4 systems: `scripts/experiments/anchor-systems/fixtures/{native,wikilinks,zettelkasten,salp}/`. FR-ID: FR-EXP.ANCHOR-SYSTEMS. Test: manual — korchasa. Evidence: `ls scripts/experiments/anchor-systems/fixtures/`.
-- [ ] Ground-truth graph committed: `scripts/experiments/anchor-systems/fixtures/ground-truth.json`. FR-ID: FR-EXP.ANCHOR-SYSTEMS. Test: manual — korchasa. Evidence: `ls scripts/experiments/anchor-systems/fixtures/ground-truth.json`.
-- [ ] `mapping.ts` sweeps `system` axis (all 19 fixtures), judges F₁ of JSON anchor-reference graph vs ground-truth. FR-ID: FR-EXP.ANCHOR-SYSTEMS. Test: `deno task experiment anchor-systems --variant mapping --dry-run`. Evidence: exit 0.
-- [ ] `multi-hop.ts` sweeps `system × target` (shallow/medium/deep), judges hop-accuracy across reference chains. FR-ID: FR-EXP.ANCHOR-SYSTEMS. Test: `deno task experiment anchor-systems --variant multi-hop --dry-run`. Evidence: exit 0.
-- [ ] `boundary.ts` sweeps `system`, judges IoU ≥ 0.8 between reported and ground-truth line ranges. FR-ID: FR-EXP.ANCHOR-SYSTEMS. Test: `deno task experiment anchor-systems --variant boundary --dry-run`. Evidence: exit 0.
-- [ ] `linting.ts` sweeps `system`, judges F₁ ≥ 0.7 detection of 3 planted anomalies (duplicate / orphaned / shadowed). FR-ID: FR-EXP.ANCHOR-SYSTEMS. Test: `deno task experiment anchor-systems --variant linting --dry-run`. Evidence: exit 0.
-- [ ] `rag-noise.ts` sweeps `system × noise_count [3, 6, 9]`, judges focus on anchor-bearing function vs noise neighbours. FR-ID: FR-EXP.ANCHOR-SYSTEMS. Test: `deno task experiment anchor-systems --variant rag-noise --dry-run`. Evidence: exit 0.
-- [ ] `deno task check` green after all files added. FR-ID: FR-EXP.ANCHOR-SYSTEMS. Test: `deno task check`. Evidence: `deno task check 2>&1 | tail -5`.
-- [ ] Smoke run (all 5 variants, `--dry-run`) without errors. FR-ID: FR-EXP.ANCHOR-SYSTEMS. Test: manual — korchasa. Evidence: exit 0 for each.
-- [ ] First live run on `claude-haiku-4-5`, all 5 variants, results committed. FR-ID: FR-EXP.ANCHOR-SYSTEMS. Test: manual — korchasa. Evidence: `ls results/*anchor-systems*.md`.
+- [x] Add FR-EXP.ANCHOR-SYSTEMS section to SRS with `**Acceptance:**` field filled. FR-ID: FR-EXP.ANCHOR-SYSTEMS. Test: manual — korchasa. Evidence: `grep -n "FR-EXP.ANCHOR-SYSTEMS" documents/requirements.md`.
+- [x] Fixture set exists for all 5 systems: `scripts/experiments/anchor-systems/fixtures/{native,wikilinks,zettelkasten,salp,salp-short}/`. FR-ID: FR-EXP.ANCHOR-SYSTEMS. Test: manual — korchasa. Evidence: `ls scripts/experiments/anchor-systems/fixtures/`.
+- [x] Ground-truth graph committed: `scripts/experiments/anchor-systems/fixtures/ground-truth.json`. FR-ID: FR-EXP.ANCHOR-SYSTEMS. Test: manual — korchasa. Evidence: `ls scripts/experiments/anchor-systems/fixtures/ground-truth.json`.
+- [x] `mapping.ts` sweeps `system` axis (all 19 fixtures), judges F₁ of JSON anchor-reference graph vs ground-truth. FR-ID: FR-EXP.ANCHOR-SYSTEMS. Test: `deno task experiment anchor-systems --variant mapping --dry-run`. Evidence: `results/2026-05-12-0038-claude-haiku-4-5-mapping.md`.
+- [x] `multi-hop.ts` sweeps `system × target` (shallow/medium/deep), judges hop-accuracy across reference chains. FR-ID: FR-EXP.ANCHOR-SYSTEMS. Test: `deno task experiment anchor-systems --variant multi-hop --dry-run`. Evidence: `results/2026-05-12-0105-claude-haiku-4-5-multi-hop.md`.
+- [x] `boundary.ts` sweeps `system`, judges IoU ≥ 0.8 between reported and ground-truth line ranges. FR-ID: FR-EXP.ANCHOR-SYSTEMS. Test: `deno task experiment anchor-systems --variant boundary --dry-run`. Evidence: `results/2026-05-12-0059-claude-haiku-4-5-boundary.md`.
+- [x] `linting.ts` sweeps `system`, judges F₁ ≥ 0.7 detection of 3 planted anomalies (duplicate / orphaned / shadowed). FR-ID: FR-EXP.ANCHOR-SYSTEMS. Test: `deno task experiment anchor-systems --variant linting --dry-run`. Evidence: `results/2026-05-12-0144-claude-haiku-4-5-linting.md`.
+- [x] `rag-noise.ts` sweeps `system × noise_count [3, 6, 9]`, judges focus on anchor-bearing function vs noise neighbours. FR-ID: FR-EXP.ANCHOR-SYSTEMS. Test: `deno task experiment anchor-systems --variant rag-noise --dry-run`. Evidence: `results/2026-05-12-0158-claude-haiku-4-5-rag-noise.md`.
+- [x] `deno task check` green after all files added. FR-ID: FR-EXP.ANCHOR-SYSTEMS. Test: `deno task check`. Evidence: `deno task check 2>&1 | tail -5`.
+- [x] Smoke run (all 5 variants, `--dry-run`) without errors. FR-ID: FR-EXP.ANCHOR-SYSTEMS. Test: manual — korchasa. Evidence: exit 0 for each.
+- [x] First live run on `claude-haiku-4-5`, all 5 variants, results committed. FR-ID: FR-EXP.ANCHOR-SYSTEMS. Test: manual — korchasa. Evidence: `ls results/2026-05-12-*-claude-haiku-4-5-*.md`.
 
 ## Solution
 
