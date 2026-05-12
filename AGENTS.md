@@ -84,8 +84,9 @@ Sister repository: [`flow`](https://github.com/korchasa/flow) holds the AssistFl
 
 1. Read the relevant code and error output before making any changes.
 2. Apply "5 WHY" analysis to find the root cause.
-3. Root cause is fixable — apply the fix, retry.
-4. Second fix attempt failed — STOP. Output a short state/expected/5-why/root-cause/hypotheses report. Wait for user help.
+3. For CI failures: run `gh run list --limit 10` first to check if the failure predates the current session's commits. If the last success is before session start, the failure is pre-existing — state this explicitly to the user before fixing.
+4. Root cause is fixable — apply the fix, retry.
+5. Second fix attempt failed — STOP. Output a short state/expected/5-why/root-cause/hypotheses report. Wait for user help.
 
 When the root cause is outside your control (missing Claude CLI auth, macOS keychain empty, expired OAuth token, unavailable external services) — STOP immediately and ask the user for the correct values. Do not guess or invent replacements.
 

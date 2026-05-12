@@ -63,3 +63,5 @@ After cloning:
 ## CI Scope
 
 CI runs `deno fmt --check`, `deno lint`, and `deno test -A` individually (see [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) — it does NOT run `deno task check`, so `gitleaks` is a local-only gate. CI does NOT run `deno task experiment` — experiments need live Claude CLI auth and are run manually on developer machines.
+
+When changing `--ignore` paths in `deno.json` (tasks `test` or `check`), update `.github/workflows/ci.yml` to match — there is no automated check enforcing this sync.
