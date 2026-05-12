@@ -8,7 +8,7 @@
     "@std/path": "jsr:@std/path@^1.1.4"
   },
   "tasks": {
-    "check": "deno fmt --check && deno lint && deno test -A --ignore=results,scripts/experiments/compression-decompression",
+    "check": "deno fmt --check && deno lint && deno test -A --ignore=results,scripts/experiments/compression-decompression && gitleaks git . --no-banner --no-color",
     "test": "deno test -A --ignore=results,scripts/experiments/compression-decompression",
     "check:compression": "cd scripts/experiments/compression-decompression && BENCH_HEALTH_DISABLE=1 deno task check",
     "check:all": "deno task check && deno task check:compression",

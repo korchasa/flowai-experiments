@@ -11,6 +11,7 @@
   - code formatting check (`deno fmt --check`)
   - static code analysis (`deno lint`)
   - all unit tests (`deno test -A --ignore=scripts/experiments/*/results`)
+  - secret scanning of git history (`gitleaks git . --no-banner --no-color`; requires `brew install gitleaks`)
 - `test <path>` — runs a single test file or suite (`deno test -A <path>`).
 - `experiment <name>` — runs an experiment variant end-to-end (spawns the live Claude CLI; requires macOS keychain auth).
 - `dev` — not applicable. This repo has no long-running dev server. Use `experiment --dry-run` for quick iteration.
@@ -20,7 +21,7 @@
 
 All commands are defined as Deno tasks in [`deno.json`](../deno.json) and must be invoked from the repo root (`config.json` is resolved CWD-relative, intentional).
 
-- `deno task check` — format check + lint + unit tests. The canonical gate: run before every commit.
+- `deno task check` — format check + lint + unit tests + gitleaks secret scan. The canonical gate: run before every commit. Requires `gitleaks` (`brew install gitleaks`).
 - `deno task test` — unit tests only (`deno test -A --ignore=scripts/experiments/*/results`). Use during TDD loops.
 - `deno task experiment <name> --variant <v> [flags]` — run an experiment variant. Flags: `--dry-run`, `--reps`, `--axis <name>=<csv>` (repeatable; axis names are experiment-specific — see the experiment's README), `--model`, `--ide`, `--seed`.
 
@@ -54,4 +55,4 @@ All commands are defined as Deno tasks in [`deno.json`](../deno.json) and must b
 
 ## CI Scope
 
-CI runs `deno task check` only (see [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)). CI does NOT run `deno task experiment` — experiments need live Claude CLI auth and are run manually on developer machines.
+CI runs `deno fmt --check`, `deno lint`, and `deno test -A` individually (see [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) — it does NOT run `deno task check`, so `gitleaks` is a local-only gate. CI does NOT run `deno task experiment` — experiments need live Claude CLI auth and are run manually on developer machines.
