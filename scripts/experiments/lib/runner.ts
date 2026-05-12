@@ -152,6 +152,9 @@ export async function runExperiment(
   // responsible for deciding whether they need the dir at all.
   // Credentials are NOT sourced here — the caller must authorize the
   // underlying CLI externally.
+  // TODO(migration-leftover): cleanroomEnv is passed to opts.env but defaultSpawnAgent
+  // ignores it — invokeClaudeCli handles auth natively via macOS keychain. This plumbing
+  // exists for custom SpawnAgentFn implementations that DO use opts.env.
   let cleanroomEnv: Record<string, string> = {};
   let cleanroomConfigDir: string | undefined;
   try {

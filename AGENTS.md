@@ -60,6 +60,7 @@ Sister repository: [`flow`](https://github.com/korchasa/flow) holds the AssistFl
 - **Functionality preservation**: Before editing any file for refactoring, run existing tests and confirm they pass — prerequisite, not suggestion. Without a green baseline you cannot detect regressions. Run tests again after all edits.
 - **Data-first**: When integrating with external APIs or processes, inspect the actual protocol and data formats before planning — assumptions about data shape are the #1 source of integration bugs.
 - **Variant analysis**: When the path is non-obvious, propose variants with Pros/Cons/Risks per variant and trade-offs across them.
+- **Task-first**: Before implementing a migration or refactor, glob `documents/tasks/**/*.md` and check for an existing task with overlapping FR-IDs or keywords. If found, read it fully — it contains chosen variants, constraints, and known gaps that supersede ad-hoc discovery.
 - **Plan persistence**: After variant selection, save the detailed plan to `documents/tasks/<YYYY-MM-DD>-<slug>.md` using GODS format — chat-only plans are lost between sessions.
 - **Proactive resolution**: Before asking the user, exhaust available resources (codebase, docs, web) to find the answer autonomously.
 

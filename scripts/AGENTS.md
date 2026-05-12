@@ -38,8 +38,19 @@ All commands are defined as Deno tasks in [`deno.json`](../deno.json) and must b
 ## Running experiments — prerequisites
 
 - `claude` CLI installed and authenticated. On macOS, OAuth credentials live in keychain entry `Claude Code-credentials`. If missing or expired, the runner fails with a clear error — STOP and ask the user, do not invent replacements.
+- **CRITICAL**: Never attempt to read or write credentials directly — no `security find-generic-password`, no `.credentials.json` creation, no env var injection of tokens. Auth is always handled externally by the CLI. This is a security constraint, not a workaround opportunity.
 - `config.json` present at repo root — holds IDE defaults (`default_agent_model`, `judge` model per IDE).
 - Invoke all tasks from the repo root. Running from `scripts/` breaks config resolution.
+- Note: `~/.claude/CLAUDE.md` leaks into trial agents (no `settingSources` override in `invokeClaudeCli`). Experiments measuring memory-file effects must account for this baseline contamination.
+
+## Known Library Gotchas
+
+### @korchasa/ai-ide-cli (v0.8.3)
+
+- **`settingSources: []`**: creates an empty temp `CLAUDE_CONFIG_DIR`, stripping all auth tokens → "Not logged in". Omit `settingSources` entirely to use native macOS keychain auth.
+- **Required fields**: `processRegistry: defaultRegistry` and `retryDelaySeconds: <number>` are both required — missing either causes a runtime error.
+- **`taskPrompt`**: the prompt field is `taskPrompt`, not `prompt`.
+- **`claudeArgs`**: type is `Record<string, string | null>`, not `string[]`. Use `{"--flag": "value"}` or `{"--flag": ""}` for valueless flags.
 
 ## CI Scope
 
