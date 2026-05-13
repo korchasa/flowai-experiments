@@ -120,7 +120,7 @@ Notes:
 
 ## Findings
 
-Empirical results from runs committed under each experiment's `results/`. All numbers tied to Claude CLI 2.1.101 and the model versions named.
+Empirical results from runs committed under each experiment's `results/`. Current inventory: 33 retained result pairs (`.json` + `.md`): 22 anchor-systems, 3 context-anatomy, 2 claude-md-length, 2 tokenizers, 2 images-hard, 2 compression-decompression. All numbers are tied to the named model/CLI versions and the specific retained artifact linked beside each claim.
 
 ### AGENTS.md size budget — not the bottleneck most people think
 
@@ -154,6 +154,36 @@ Practical implication: AGENTS.md is the wrong place to put rules that ask the mo
 
 Practical implication: if you need to shrink agent context, **AGENTS.md is the last thing to cut**. Even a 16k-token AGENTS.md only doubles the prompt — the floor is what you can't escape. To actually move context cost, strip built-in tools, skills, MCP servers, and slash commands first.
 
+### Anchor systems help traversal, not extraction
+
+The `anchor-systems` suite compares five documentation-linking systems across task classes on `claude-haiku-4-5`. The repo contains early n=1/n=3 probes plus n=5 retained sweeps. The main signal below uses the n=5 artifacts where available; the later n=1 reruns are smoke/spot checks, not stronger evidence.
+
+- **Extraction and mapping:** every system scored **0%** across 25 trials. The agent hallucinated anchor IDs or references even when the fixture contained explicit structure. Stronger anchor syntax alone did not make full graph extraction reliable. This result repeated across several retained probes.
+  - Main evidence: [`anchor-systems/results/2026-05-12-0717-claude-haiku-4-5-mapping.md`](anchor-systems/results/2026-05-12-0717-claude-haiku-4-5-mapping.md).
+- **Boundary detection:** every system scored **100%** across 25 trials. Once the task is local and asks for code-block line ranges, all link formats were sufficient. This result also repeated in n=3 and n=1 retained runs.
+  - Main evidence: [`anchor-systems/results/2026-05-12-0742-claude-haiku-4-5-boundary.md`](anchor-systems/results/2026-05-12-0742-claude-haiku-4-5-boundary.md).
+- **Multi-hop traversal:** Native Markdown scored **6.7%**, Wikilinks **0%**, Zettelkasten **26.7%**, SALP **53.3%**, SALP-short **60%** over 75 trials. The headline for deep targets is sharper: native **20%**, wikilinks **0%**, zettelkasten **80%**, SALP **60%**, SALP-short **100%**. Explicit stable anchor IDs help traversal across chains, but the small model still drops or invents hops.
+  - Main evidence: [`anchor-systems/results/2026-05-12-0752-claude-haiku-4-5-multi-hop.md`](anchor-systems/results/2026-05-12-0752-claude-haiku-4-5-multi-hop.md).
+- **Graph linting:** Native Markdown scored **100%**, Wikilinks and Zettelkasten **80%**, SALP and SALP-short **60%** across 25 trials. Later n=1 spot checks hit 100% for every system, but the n=5 artifact is the better retained estimate.
+  - Main evidence: [`anchor-systems/results/2026-05-12-0901-claude-haiku-4-5-linting.md`](anchor-systems/results/2026-05-12-0901-claude-haiku-4-5-linting.md).
+- **RAG noise resistance:** every system scored **100%** across 75 trials and across noise_count values 3, 6, and 9. The agent can stay focused on the anchor-bearing function when the target is explicit.
+  - Main evidence: [`anchor-systems/results/2026-05-12-0926-claude-haiku-4-5-rag-noise.md`](anchor-systems/results/2026-05-12-0926-claude-haiku-4-5-rag-noise.md).
+
+Practical implication: use explicit anchor IDs for multi-hop documentation flows, especially SALP/SALP-short, but do not assume they make broad graph extraction safe. If the task needs a complete graph, add a verifier or constrained parser. If the task is local boundary lookup or noisy retrieval, the tested systems are already adequate at this scale.
+
+### Standalone benchmarks now have fresh retained evidence
+
+The standalone benchmark families each have an initial 2026-05-12 retained run and a 2026-05-13 refresh. The latest refresh stores both JSON and Markdown artifacts in the repo:
+
+- **Tokenizers:** `anthropic/claude-haiku-4.5` processed **54/54** UDHR/code files, producing **249,508** input tokens at estimated cost **$0.253828**. The 2026-05-12 run has the same totals; the 2026-05-13 run confirms repeatability for the same model/corpus pair.
+  - Evidence: [`tokenizers/results/2026-05-13-1024-tokenizers-anthropic-claude-haiku-4-5.md`](tokenizers/results/2026-05-13-1024-tokenizers-anthropic-claude-haiku-4-5.md) + [`tokenizers/results/2026-05-13-1024-tokenizers-anthropic-claude-haiku-4-5.json`](tokenizers/results/2026-05-13-1024-tokenizers-anthropic-claude-haiku-4-5.json).
+- **Images-hard:** `google/gemini-2.5-flash-image` succeeded on **11/11** prompts in the retained hard-image suite. The 2026-05-12 artifact was a 1/1 smoke run; the 2026-05-13 artifact is the first retained broader sweep.
+  - Evidence: [`images-hard/results/2026-05-13-1057-images-hard-google-gemini-2-5-flash-image.md`](images-hard/results/2026-05-13-1057-images-hard-google-gemini-2-5-flash-image.md) + [`images-hard/results/2026-05-13-1057-images-hard-google-gemini-2-5-flash-image.json`](images-hard/results/2026-05-13-1057-images-hard-google-gemini-2-5-flash-image.json).
+- **Compression-decompression:** `adr-record-decision--compressed-style--claude` retained **100%** overall facts, **100%** critical facts, and **0** inventions with compression ratio **0.713** and decompression ratio **1.635**. The 2026-05-12 and 2026-05-13 retained artifacts report the same metrics for this scenario/style/model combination.
+  - Evidence: [`compression-decompression/results/2026-05-13-1119-compression-adr-record-decision.md`](compression-decompression/results/2026-05-13-1119-compression-adr-record-decision.md) + [`compression-decompression/results/2026-05-13-1119-compression-adr-record-decision.json`](compression-decompression/results/2026-05-13-1119-compression-adr-record-decision.json).
+
+Practical implication: standalone benchmarks are now current enough for comparison baselines, but they are still single-model or single-scenario refreshes. Treat them as retained evidence for the named model/scenario, not as broad leaderboard claims.
+
 ### Model selection by task class
 
 - **Sonnet 4.6** — when AGENTS.md is supposed to *shape behavior*: project conventions, domain rules, persona, language overrides. There is room (16k+) and overrides actually land.
@@ -165,6 +195,7 @@ Practical implication: if you need to shrink agent context, **AGENTS.md is the l
 - **Rule position:** the rule is fixed at 50% of file length. Primacy/recency effects (lost-in-the-middle) are a known confound and would need their own sweep to isolate.
 - **Token estimation:** 1 token ≈ 4 chars heuristic (±15%). Axis values are approximate. Swap in a real tokenizer if tighter precision is needed.
 - **Versioning:** all numbers tied to `claude` CLI 2.1.101. Re-run after major model or CLI upgrades — language adherence in particular is something model trainers actively retune, so the Haiku finding may move on the next release.
+- **Standalone coverage:** tokenizers/images/compression results above are latest retained runs, but each covers the explicitly named model/scenario only.
 - **Non-determinism:** even at temperature=0, tool use and context can shift outputs. Always read the aggregate curve, not single cells.
 
 ## License
