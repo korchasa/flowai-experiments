@@ -56,9 +56,59 @@ See each experiment's `README.md` for flags and methodology.
 
 All tasks **must be invoked from the repo root** — `config.json` is resolved CWD-relative (intentional).
 
+## Evidence retention
+
+Live run output is part of the product, not temporary logs. Keep every retained run in the repository as a pair:
+
+- `<experiment>/results/<date>-<slug>.json` — raw machine-readable evidence.
+- `<experiment>/results/<date>-<slug>.md` — human-readable summary derived from the JSON.
+
+Do not keep fresh successful results only in the working tree. If a run is cited from this `README.md`, both artifact files must be committed with it. Failed attempts that did not measure the target behavior should be documented as notes only, not stored as benchmark evidence.
+
 ## Running locally vs CI
 
 CI runs `deno task check` (format + lint + test). CI does **NOT** run `deno task experiment*` — agent experiments need a live `claude` CLI with OAuth auth; API experiments need `OPENROUTER_API_KEY`. Run all experiments manually on a developer machine.
+
+## Current verification
+
+Last local verification: 2026-05-13, from repo root.
+
+- `deno task test` passed: 89 tests, 0 failures.
+- `deno task check` passed:
+  - `deno fmt --check`: 55 files checked.
+  - `deno lint`: 44 files checked.
+  - `deno test`: 89 tests, 0 failures.
+  - `gitleaks`: 16 commits scanned, ~4.31 MB scanned, no leaks found.
+
+This verification covers repository quality gates only. Live experiment runs are separate because they require external Claude/OpenRouter credentials.
+
+## Latest benchmark refresh
+
+Last live benchmark refresh: 2026-05-13, from repo root.
+
+- `deno task experiment:tokenizers --model anthropic/claude-haiku-4.5` passed:
+  - 1 / 1 model processed.
+  - 54 / 54 language files processed.
+  - 249,508 input tokens counted.
+  - Estimated cost: $0.253828.
+  - Evidence: [`tokenizers/results/2026-05-13-1024-tokenizers-anthropic-claude-haiku-4-5.md`](tokenizers/results/2026-05-13-1024-tokenizers-anthropic-claude-haiku-4-5.md) + [`tokenizers/results/2026-05-13-1024-tokenizers-anthropic-claude-haiku-4-5.json`](tokenizers/results/2026-05-13-1024-tokenizers-anthropic-claude-haiku-4-5.json).
+- `deno task experiment:images-hard --model google/gemini-2.5-flash-image` passed:
+  - 1 / 1 model processed.
+  - 11 / 11 prompts generated images.
+  - Evidence: [`images-hard/results/2026-05-13-1057-images-hard-google-gemini-2-5-flash-image.md`](images-hard/results/2026-05-13-1057-images-hard-google-gemini-2-5-flash-image.md) + [`images-hard/results/2026-05-13-1057-images-hard-google-gemini-2-5-flash-image.json`](images-hard/results/2026-05-13-1057-images-hard-google-gemini-2-5-flash-image.json).
+- `BENCH_HEALTH_DISABLE=1 deno task experiment:compression --filter adr-record-decision` passed:
+  - 1 / 1 scenario included in the final report.
+  - Compression ratio: 0.713.
+  - Decompression ratio: 1.635.
+  - Fact retention: 100% overall, 100% critical.
+  - Inventions: 0.
+  - Estimated cost: $0.1871.
+  - Evidence: [`compression-decompression/results/2026-05-13-1119-compression-adr-record-decision.md`](compression-decompression/results/2026-05-13-1119-compression-adr-record-decision.md) + [`compression-decompression/results/2026-05-13-1119-compression-adr-record-decision.json`](compression-decompression/results/2026-05-13-1119-compression-adr-record-decision.json).
+
+Notes:
+
+- `compression-decompression/run.ts` now respects `--filter` when collecting `runs/latest/` reports. Before this fix, the benchmark command executed the filtered scenario but copied stale reports for unrelated scenarios into the final result artifact.
+- `anchor-systems mapping --reps 1` was attempted but not retained as evidence: all 5 cells failed in the Claude judge step with `API Error: Unable to connect to API (FailedToOpenSocket/ConnectionRefused)`, so the run did not measure anchor-system adherence.
 
 ## Concepts
 

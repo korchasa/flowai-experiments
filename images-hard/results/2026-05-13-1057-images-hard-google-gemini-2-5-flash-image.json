@@ -1,0 +1,158 @@
+{
+  "createdAt": "2026-05-13T07:57:38.980Z",
+  "models": [
+    {
+      "modelId": "google/gemini-2.5-flash-image",
+      "modelInfo": {
+        "id": "google/gemini-2.5-flash-image",
+        "name": "google/gemini-2.5-flash-image",
+        "object": "model"
+      },
+      "results": [
+        {
+          "promptId": "TC-01",
+          "promptName": "Text & Typography Poster (Cyrillic + Latin, long text)",
+          "results": [
+            {
+              "success": true,
+              "revisedPrompt": "Okay, here's the A3 advertising poster you requested, featuring all the specified text and photorealistic details like print shadows and paper texture:\n\n",
+              "imagePath": "/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-images-hard-ac4e98a57c6a8e7a/google_gemini_2_5_flash_image_TC_01.png"
+            }
+          ],
+          "createdAt": "2026-05-13T07:57:38.980Z"
+        },
+        {
+          "promptId": "TC-02",
+          "promptName": "Hands / Fingers / Contact + Reflection",
+          "results": [
+            {
+              "success": true,
+              "revisedPrompt": "Here is the image you requested: ",
+              "imagePath": "/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-images-hard-ac4e98a57c6a8e7a/google_gemini_2_5_flash_image_TC_02.png"
+            }
+          ],
+          "createdAt": "2026-05-13T07:57:38.980Z"
+        },
+        {
+          "promptId": "TC-03",
+          "promptName": "Exact Counting + Spatial Rules (20 cubes grid)",
+          "results": [
+            {
+              "success": true,
+              "imagePath": "/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-images-hard-ac4e98a57c6a8e7a/google_gemini_2_5_flash_image_TC_03.png"
+            }
+          ],
+          "createdAt": "2026-05-13T07:57:38.980Z"
+        },
+        {
+          "promptId": "TC-04",
+          "promptName": "Identity Consistency Across 6 Views",
+          "results": [
+            {
+              "success": true,
+              "revisedPrompt": "Here is the 6-frame contact sheet of your character! ",
+              "imagePath": "/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-images-hard-ac4e98a57c6a8e7a/google_gemini_2_5_flash_image_TC_04.png"
+            }
+          ],
+          "createdAt": "2026-05-13T07:57:38.980Z"
+        },
+        {
+          "promptId": "TC-05",
+          "promptName": "3×3 Comic (9 panels) + Exact Dialog",
+          "results": [
+            {
+              "success": true,
+              "imagePath": "/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-images-hard-ac4e98a57c6a8e7a/google_gemini_2_5_flash_image_TC_05.png"
+            }
+          ],
+          "createdAt": "2026-05-13T07:57:38.980Z"
+        },
+        {
+          "promptId": "TC-06",
+          "promptName": "Electrical Schematic (Formal correctness)",
+          "results": [
+            {
+              "success": true,
+              "revisedPrompt": "Here is the electrical schematic you requested:\n\n",
+              "imagePath": "/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-images-hard-ac4e98a57c6a8e7a/google_gemini_2_5_flash_image_TC_06.png"
+            }
+          ],
+          "createdAt": "2026-05-13T07:57:38.980Z"
+        },
+        {
+          "promptId": "TC-07",
+          "promptName": "Floor Plan (Geometry + dimensions + areas)",
+          "results": [
+            {
+              "success": true,
+              "revisedPrompt": "Here is an architectural floor plan based on your specifications: ",
+              "imagePath": "/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-images-hard-ac4e98a57c6a8e7a/google_gemini_2_5_flash_image_TC_07.png"
+            }
+          ],
+          "createdAt": "2026-05-13T07:57:38.980Z"
+        },
+        {
+          "promptId": "TC-08",
+          "promptName": "District Map (Topology + labeled POIs)",
+          "results": [
+            {
+              "success": true,
+              "revisedPrompt": "Here's a schematic tourist-style district map with the features you requested:\n\n",
+              "imagePath": "/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-images-hard-ac4e98a57c6a8e7a/google_gemini_2_5_flash_image_TC_08.png"
+            }
+          ],
+          "createdAt": "2026-05-13T07:57:38.980Z"
+        },
+        {
+          "promptId": "TC-10",
+          "promptName": "Catalog Product Render (DIN-rail PSU) + Readable Markings",
+          "results": [
+            {
+              "success": true,
+              "revisedPrompt": "Here's an image of the industrial DIN-rail power supply you described: ",
+              "imagePath": "/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-images-hard-ac4e98a57c6a8e7a/google_gemini_2_5_flash_image_TC_10.png"
+            }
+          ],
+          "createdAt": "2026-05-13T07:57:38.980Z"
+        },
+        {
+          "promptId": "TC-11",
+          "promptName": "Optics/Physics (Prism + water + spectrum + caustics)",
+          "results": [
+            {
+              "success": true,
+              "revisedPrompt": "Here is your photorealistic scene with the glass prism, drinking glass, and strong sunbeam.\n",
+              "imagePath": "/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-images-hard-ac4e98a57c6a8e7a/google_gemini_2_5_flash_image_TC_11.png"
+            }
+          ],
+          "createdAt": "2026-05-13T07:57:38.980Z"
+        },
+        {
+          "promptId": "TC-12",
+          "promptName": "Combined Stress Test (A–D set, invariants + minimal diffs)",
+          "results": [
+            {
+              "success": true,
+              "revisedPrompt": "Here are the four images of the desk scene, following all your specifications:\n\nImage A: ",
+              "imagePath": "/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-images-hard-ac4e98a57c6a8e7a/google_gemini_2_5_flash_image_TC_12.png"
+            }
+          ],
+          "createdAt": "2026-05-13T07:57:38.980Z"
+        }
+      ],
+      "stats": {
+        "totalPrompts": 11,
+        "successfulGenerations": 11,
+        "errors": []
+      }
+    }
+  ],
+  "summary": {
+    "totalModels": 1,
+    "processedModels": 1,
+    "modelsWithErrors": 0,
+    "totalPrompts": 11,
+    "totalSuccessfulGenerations": 11,
+    "totalErrors": 0
+  }
+}

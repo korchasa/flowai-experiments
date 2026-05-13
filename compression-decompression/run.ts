@@ -58,6 +58,7 @@ export async function run(args: string[]): Promise<void> {
   try {
     for await (const scenarioEntry of Deno.readDir(runsRoot)) {
       if (!scenarioEntry.isDirectory) continue;
+      if (filterArg !== "all" && !scenarioEntry.name.includes(filterArg)) continue;
       const scenarioDir = join(runsRoot, scenarioEntry.name);
       // Find the latest run-N dir
       let maxN = 0;
