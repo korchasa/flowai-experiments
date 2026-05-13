@@ -31,9 +31,8 @@ Sister repository: [`flow`](https://github.com/korchasa/flow) holds the AssistFl
 
 ## Architecture
 
-- `scripts/experiments/lib/` — framework (runner, judge, noise, report, tokens, types).
-- `scripts/experiments/<name>/` — per-experiment directory with `README.md`, variant files, `shared.ts`, committed static inputs, `results/`.
-- `scripts/benchmarks/lib/` — minimal agent runtime (adapters, llm, spawned_agent, usage). Name is a historical artifact from the split; a Phase-3 rename is planned.
+- `shared/` — framework + runtime (runner, judge, noise, report, tokens, types, adapters, llm, spawned_agent, usage).
+- `<name>/` — per-experiment directory at repo root with `README.md`, variant files, `shared.ts`, committed static inputs, `results/`.
 - `scripts/task-experiment.ts` — CLI entry point.
 - `config.json` — IDE defaults (agent model + judge model per IDE).
 - `documents/rnd/` — R&D writeups that motivate experiments.
@@ -41,7 +40,7 @@ Sister repository: [`flow`](https://github.com/korchasa/flow) holds the AssistFl
 ## Key Decisions
 
 - **Deno + TypeScript**: primary runtime (see `deno.json`).
-- **Evidence-first**: experiment results committed as `results/<DATE>-<model-slug>-<variant>.{json,md}`. Code changes without committed evidence are incomplete.
+- **Evidence-first**: experiment results committed as `<name>/results/<DATE>-<model-slug>-<variant>.{json,md}`. Code changes without committed evidence are incomplete.
 - **Clean-slate copy from flow**: history not preserved. Blame traversal across the split requires checking out `flow@f311142`.
 - **CI scope**: CI runs `deno task check` only. Experiments need live `claude` CLI + macOS keychain auth (not runnable in CI).
 
@@ -68,9 +67,9 @@ Sister repository: [`flow`](https://github.com/korchasa/flow) holds the AssistFl
 
 ## Experiment TDD
 
-1. **RED**: Write the experiment variant file (`scripts/experiments/<name>/<variant>.ts`) with axes, setup, query, and judge prompt. Add a smoke-check (tiny reps + tiny sizes) and confirm the runner exits cleanly but produces failing adherence (proves the rule is testable).
+1. **RED**: Write the experiment variant file (`<name>/<variant>.ts`) with axes, setup, query, and judge prompt. Add a smoke-check (tiny reps + tiny sizes) and confirm the runner exits cleanly but produces failing adherence (proves the rule is testable).
 2. **GREEN**: Tune axis values and rule text until the headline number is stable across reruns.
-3. **COMMIT EVIDENCE**: Run the full sweep and commit `results/<DATE>-<model-slug>-<variant>.{json,md}`. This is the product.
+3. **COMMIT EVIDENCE**: Run the full sweep and commit `<name>/results/<DATE>-<model-slug>-<variant>.{json,md}`. This is the product.
 4. **CHECK**: `deno task check` — format + lint + unit tests must pass.
 
 ## Unit-Test Rules (for the runner/judge/noise/report/tokens libs)

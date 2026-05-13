@@ -5,3 +5,4 @@
 - [FR-EXP.COMPRESSION](requirements.md#310-fr-expcompression) — Two-stage compress→decompress pipeline measuring fact retention in technical documents — [ ]
 - [FR-EXP.IMAGES-HARD](requirements.md#311-fr-expimages-hard) — Text-to-image generation benchmark: 12 hard test cases evaluated via OpenRouter API — [ ]
 - [FR-EXP.TOKENIZERS](requirements.md#39-fr-exptokenizers) — Tokenizer efficiency benchmark: tokens/char across models and UDHR language corpora — [ ]
+- [FR-REPO.LAYOUT](requirements.md#313-fr-repolayout) — Flat repo layout: each experiment at repo root with own results/, shared runtime in shared/ — [x]

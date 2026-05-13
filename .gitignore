@@ -1,12 +1,14 @@
 tmp/
 .DS_Store
 .env
+.agents/
 .claude/
+.codex/
 
 # compression-decompression runtime artifacts
-scripts/experiments/compression-decompression/runs/
-scripts/experiments/compression-decompression/cache/
+compression-decompression/runs/
+compression-decompression/cache/
 
 # tokenizers and images-hard runtime artifacts
-scripts/experiments/tokenizers/public/results/
-scripts/experiments/images-hard/public/results/
+tokenizers/public/results/
+images-hard/public/results/

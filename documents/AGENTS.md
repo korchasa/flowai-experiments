@@ -9,7 +9,7 @@ Your memory resets between sessions. Documentation is the only link to past deci
 3. **Software Design Specification (SDS)** (`documents/design.md`): "How". Implementation details. Depends on SRS.
 4. **R&D Writeups** (`documents/rnd/`): Investigation notes that motivate experiments. Evidence-heavy, committed alongside code.
 5. **Tasks** (`documents/tasks/<YYYY-MM-DD>-<slug>.md`): Temporary plans and notes. One file per task or session.
-6. **Experiment Results** (`scripts/experiments/<name>/results/<DATE>-<model>-<variant>.{json,md}`): Committed numeric evidence — the product of this repo.
+6. **Experiment Results** (`<name>/results/<DATE>-<model>-<variant>.{json,md}`): Committed numeric evidence — the product of this repo.
 
 ## Rules
 
@@ -19,7 +19,7 @@ Your memory resets between sessions. Documentation is the only link to past deci
 - Every `[x]` acceptance criterion must include evidence — file paths with line numbers proving implementation. Format:
   `- [x] Criterion text. Evidence: ` `` `path/to/file.ts:42` `` `, ` `` `other/file.md:10` ``
   Without evidence, the criterion stays `[ ]` — claims without proof are assumptions.
-- Experiment evidence lives in `scripts/experiments/<name>/results/` — committed JSON + Markdown. Do not delete or rewrite past results; they form the historical record.
+- Experiment evidence lives in `<name>/results/` — committed JSON + Markdown. Do not delete or rewrite past results; they form the historical record.
 
 ## SRS Format (`documents/requirements.md`)
 
