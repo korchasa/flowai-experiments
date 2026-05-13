@@ -10,7 +10,7 @@
 - `check` — the main command for comprehensive project verification. Runs:
   - code formatting check (`deno fmt --check`)
   - static code analysis (`deno lint`)
-  - all unit tests (`deno test -A --ignore=scripts/experiments/*/results`)
+  - all unit tests (`deno test -A --ignore=compression-decompression,tokenizers,images-hard`)
   - secret scanning of git history (`gitleaks git . --no-banner --no-color`; requires `brew install gitleaks`)
   - Note: `gitleaks dir` scans ALL files including `.gitignore`'d ones — false positives on `.env` and cache files. Always use `gitleaks git` for "no secrets in repo" checks.
 - `test <path>` — runs a single test file or suite (`deno test -A <path>`).
@@ -23,18 +23,18 @@
 All commands are defined as Deno tasks in [`deno.json`](../deno.json) and must be invoked from the repo root (`config.json` is resolved CWD-relative, intentional).
 
 - `deno task check` — format check + lint + unit tests + gitleaks secret scan. The canonical gate: run before every commit. Requires `gitleaks` (`brew install gitleaks`).
-- `deno task test` — unit tests only (`deno test -A --ignore=scripts/experiments/*/results`). Use during TDD loops.
+- `deno task test` — unit tests only (`deno test -A --ignore=compression-decompression,tokenizers,images-hard`). Use during TDD loops.
 - `deno task experiment <name> --variant <v> [flags]` — run an experiment variant. Flags: `--dry-run`, `--reps`, `--axis <name>=<csv>` (repeatable; axis names are experiment-specific — see the experiment's README), `--model`, `--ide`, `--seed`.
 
 ## Command Scripts
 
 - [`scripts/task-experiment.ts`](task-experiment.ts) — CLI entry point for experiments. Parses flags, resolves variant file, invokes runner.
-- [`scripts/experiments/lib/runner.ts`](experiments/lib/runner.ts) — experiment sweep engine (cells × trials × adherence).
-- [`scripts/experiments/lib/judge.ts`](experiments/lib/judge.ts) — binary-verdict judge invocation.
-- [`scripts/experiments/lib/noise.ts`](experiments/lib/noise.ts) — noise corpus sampling for CLAUDE.md padding.
-- [`scripts/experiments/lib/tokens.ts`](experiments/lib/tokens.ts) — token counting (Anthropic tokenizer heuristics).
-- [`scripts/experiments/lib/report.ts`](experiments/lib/report.ts) — JSON + Markdown result writers.
-- [`scripts/benchmarks/lib/`](benchmarks/lib/) — minimal agent runtime (adapters, llm, spawned_agent, usage). Name is a historical artifact from the `flow` split; Phase-3 rename planned.
+- [`shared/runner.ts`](../shared/runner.ts) — experiment sweep engine (cells × trials × adherence).
+- [`shared/judge.ts`](../shared/judge.ts) — binary-verdict judge invocation.
+- [`shared/noise.ts`](../shared/noise.ts) — noise corpus sampling for CLAUDE.md padding.
+- [`shared/tokens.ts`](../shared/tokens.ts) — token counting (Anthropic tokenizer heuristics).
+- [`shared/report.ts`](../shared/report.ts) — JSON + Markdown result writers.
+- [`shared/adapters/`](../shared/adapters/) — agent runtime (adapters, llm, spawned_agent, usage).
 - [`scripts/utils.ts`](utils.ts) — shared helpers (FS, paths, formatting).
 
 ## First-time setup
@@ -62,6 +62,4 @@ After cloning:
 
 ## CI Scope
 
-CI runs `deno fmt --check`, `deno lint`, and `deno test -A` individually (see [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) — it does NOT run `deno task check`, so `gitleaks` is a local-only gate. CI does NOT run `deno task experiment` — experiments need live Claude CLI auth and are run manually on developer machines.
-
-When changing `--ignore` paths in `deno.json` (tasks `test` or `check`), update `.github/workflows/ci.yml` to match — there is no automated check enforcing this sync.
+CI runs `deno task check` directly (see [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) — same command as local, including gitleaks. CI does NOT run `deno task experiment` — experiments need live Claude CLI auth and are run manually on developer machines.

@@ -1,6 +1,6 @@
 /**
  * task-experiment.ts — Runs one experiment variant and writes committed
- * results (JSON + Markdown) under the top-level `./results/` directory.
+ * results (JSON + Markdown) under `./<experiment-name>/results/`.
  *
  * Usage:
  *   deno task experiment <name> --variant <v> [options]
@@ -22,18 +22,11 @@
 import { join } from "@std/path";
 import { parse } from "@std/flags";
 import { existsSync } from "@std/fs";
-import {
-  createAdapter,
-  SUPPORTED_IDES,
-} from "./benchmarks/lib/adapters/mod.ts";
-import {
-  getIdeConfig,
-  loadConfig,
-  type ModelConfig,
-} from "./benchmarks/lib/llm.ts";
-import type { Experiment } from "./experiments/lib/types.ts";
-import { expandCells, runExperiment } from "./experiments/lib/runner.ts";
-import { writeReport } from "./experiments/lib/report.ts";
+import { createAdapter, SUPPORTED_IDES } from "../shared/adapters/mod.ts";
+import { getIdeConfig, loadConfig, type ModelConfig } from "../shared/llm.ts";
+import type { Experiment } from "../shared/types.ts";
+import { expandCells, runExperiment } from "../shared/runner.ts";
+import { writeReport } from "../shared/report.ts";
 import { ansi } from "./utils.ts";
 
 function printHelp() {
@@ -41,7 +34,7 @@ function printHelp() {
 Usage: deno task experiment <name> --variant <variant> [options]
 
 Arguments:
-  <name>                  Experiment directory under scripts/experiments/
+  <name>                  Experiment directory at repo root
 
 Options:
   --variant <name>        Variant file (e.g., "single-file"). Required.
@@ -68,10 +61,9 @@ async function loadExperiment(
   name: string,
   variant: string,
 ): Promise<Experiment> {
+  // FR-REPO.LAYOUT: experiments are resolved as root-level directories.
   const file = join(
     Deno.cwd(),
-    "scripts",
-    "experiments",
     name,
     `${variant}.ts`,
   );
@@ -256,7 +248,7 @@ async function main() {
 
   console.log(`\n${ansi("\x1b[1m")}${report.headline}${ansi("\x1b[0m")}`);
 
-  const resultsDir = join(Deno.cwd(), "results");
+  const resultsDir = join(Deno.cwd(), name, "results");
   const { jsonPath, mdPath } = await writeReport(
     report,
     resultsDir,
