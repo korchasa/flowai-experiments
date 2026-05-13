@@ -16,7 +16,6 @@ scripts/
   task-experiment.ts            CLI entry (deno task experiment <name> --variant <v> ...)
 config.json                     IDE defaults (agent_model, judge model)
 <name>/results/                 committed JSON + Markdown evidence (one pair per run)
-documents/rnd/                  R&D writeups
 .env.example                    env var template (copy to .env, fill OPENROUTER_API_KEY)
 ```
 
@@ -70,35 +69,6 @@ Do not keep fresh successful results only in the working tree. If a run is cited
 ## Running locally vs CI
 
 CI runs `deno task check` (format + lint + test). CI does **NOT** run `deno task experiment*` — agent experiments need a live `claude` CLI with OAuth auth; API experiments need `OPENROUTER_API_KEY`. Run all experiments manually on a developer machine.
-
-## Current verification
-
-Last local verification: 2026-05-13, from repo root.
-
-| Check | Result |
-| --- | --- |
-| `deno task test` | Passed: 89 tests, 0 failures. |
-| `deno fmt --check` | Passed: 55 files checked. |
-| `deno lint` | Passed: 44 files checked. |
-| `deno test` | Passed: 89 tests, 0 failures. |
-| `gitleaks` | Passed: 16 commits scanned, ~4.31 MB scanned, no leaks found. |
-
-This verification covers repository quality gates only. Live experiment runs are separate because they require external Claude/OpenRouter credentials.
-
-## Latest benchmark refresh
-
-Last live benchmark refresh: 2026-05-13, from repo root.
-
-| Command | Scope | Result | Evidence |
-| --- | --- | --- | --- |
-| `deno task experiment:tokenizers --model anthropic/claude-haiku-4.5` | 1 model, 54 language/code files | 249,508 input tokens, estimated cost $0.253828 | [md](tokenizers/results/2026-05-13-1024-tokenizers-anthropic-claude-haiku-4-5.md) + [json](tokenizers/results/2026-05-13-1024-tokenizers-anthropic-claude-haiku-4-5.json) |
-| `deno task experiment:images-hard --model google/gemini-2.5-flash-image` | 1 model, 11 prompts | 11 / 11 prompts generated images | [md](images-hard/results/2026-05-13-1057-images-hard-google-gemini-2-5-flash-image.md) + [json](images-hard/results/2026-05-13-1057-images-hard-google-gemini-2-5-flash-image.json) |
-| `BENCH_HEALTH_DISABLE=1 deno task experiment:compression --filter adr-record-decision` | 1 scenario | Compression 0.713, decompression 1.635, facts 100% overall / 100% critical, inventions 0, estimated cost $0.1871 | [md](compression-decompression/results/2026-05-13-1119-compression-adr-record-decision.md) + [json](compression-decompression/results/2026-05-13-1119-compression-adr-record-decision.json) |
-
-Notes:
-
-- `compression-decompression/run.ts` now respects `--filter` when collecting `runs/latest/` reports. Before this fix, the benchmark command executed the filtered scenario but copied stale reports for unrelated scenarios into the final result artifact.
-- `anchor-systems mapping --reps 1` was attempted but not retained as evidence: all 5 cells failed in the Claude judge step with `API Error: Unable to connect to API (FailedToOpenSocket/ConnectionRefused)`, so the run did not measure anchor-system adherence.
 
 ## Concepts
 
