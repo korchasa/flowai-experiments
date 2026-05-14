@@ -8,6 +8,7 @@
  * Options:
  *   --variant <name>        Variant file (e.g., "single-file"). Required.
  *   -m, --model <id>        Agent model (default: IDE default from config)
+ *   --model-provider <id>   Agent model provider (default: IDE default from config)
  *   -i, --ide <id>          IDE adapter (default: claude)
  *   -r, --reps <n>          Repetitions per cell (default: experiment default)
  *   --axis <name>=<csv>     Override one axis (repeatable). Axis names and
@@ -39,6 +40,7 @@ Arguments:
 Options:
   --variant <name>        Variant file (e.g., "single-file"). Required.
   -m, --model <id>        Agent model (default: IDE default)
+  --model-provider <id>   Agent model provider (default: IDE default)
   -i, --ide <id>          IDE adapter (${
     SUPPORTED_IDES.join(", ")
   }) (default: claude)
@@ -124,7 +126,15 @@ function parseAxisOverrides(
 
 async function main() {
   const args = parse(Deno.args, {
-    string: ["variant", "model", "ide", "reps", "seed", "axis"],
+    string: [
+      "variant",
+      "model",
+      "model-provider",
+      "ide",
+      "reps",
+      "seed",
+      "axis",
+    ],
     boolean: ["help", "dry-run"],
     collect: ["axis"],
     alias: {
@@ -169,6 +179,9 @@ async function main() {
 
   const model = (args.model as string) || experiment.defaults.model ||
     ideConfig.default_agent_model;
+  const modelProvider = (args["model-provider"] as string | undefined) ||
+    experiment.defaults.modelProvider ||
+    ideConfig.default_agent_model_provider;
   const judgeConfig: ModelConfig = { ...ideConfig.judge };
 
   const reps = args.reps ? parseInt(args.reps, 10) : experiment.defaults.reps;
@@ -202,9 +215,14 @@ async function main() {
   );
   console.log(`  id:         ${experiment.id}`);
   console.log(`  variant:    ${args.variant}`);
+  console.log(`  provider:   ${modelProvider ?? "(none)"}`);
   console.log(`  model:      ${model}`);
   console.log(`  ide:        ${ideName}`);
-  console.log(`  judge:      ${judgeConfig.model}`);
+  console.log(
+    `  judge:      ${
+      judgeConfig.model_provider ? `${judgeConfig.model_provider}/` : ""
+    }${judgeConfig.model} via ${judgeConfig.runtime ?? "claude"}`,
+  );
   console.log(`  reps/cell:  ${reps}`);
   console.log(`  seed:       ${seed}`);
   console.log(`  total cells:${cells.length}`);
@@ -224,6 +242,7 @@ async function main() {
     experiment,
     variant: args.variant as string,
     model,
+    modelProvider,
     ide: ideName,
     adapter,
     reps,

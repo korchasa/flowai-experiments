@@ -3,9 +3,9 @@
  * writes committed results under ./results/.
  *
  * Usage:
- *   deno task experiment:anchor-systems [--model <id>] [--reps <n>]
+ *   deno task experiment:anchor-systems [--ide <id>] [--model-provider <id>] [--model <id>] [--reps <n>] [--dry-run]
  *
- * Defaults: model=haiku, reps=5
+ * Defaults: ide=opencode, model/provider from config.json, reps=5
  */
 
 import { parse } from "@std/flags";
@@ -13,16 +13,22 @@ import { parse } from "@std/flags";
 const VARIANTS = ["mapping", "boundary", "multi-hop", "linting", "rag-noise"];
 
 const flags = parse(Deno.args, {
-  string: ["model"],
-  default: { model: "haiku", reps: 5 },
+  string: ["ide", "model-provider", "model"],
+  boolean: ["dry-run"],
+  default: { ide: "opencode", reps: 5 },
 });
 
-const model = flags.model as string;
+const ide = flags.ide as string;
+const modelProvider = flags["model-provider"] as string | undefined;
+const model = flags.model as string | undefined;
 const reps = Number(flags.reps);
 
 console.log(`anchor-systems — all variants`);
-console.log(`  model: ${model}`);
+console.log(`  ide:   ${ide}`);
+console.log(`  provider: ${modelProvider ?? "(config)"}`);
+console.log(`  model: ${model ?? "(config)"}`);
 console.log(`  reps:  ${reps}/cell`);
+console.log(`  dry-run: ${flags["dry-run"] ? "yes" : "no"}`);
 console.log(`  variants: ${VARIANTS.join(", ")}\n`);
 
 const results: Array<{ variant: string; ok: boolean; code: number }> = [];
@@ -32,18 +38,29 @@ for (const variant of VARIANTS) {
   console.log(`▶ ${variant}`);
   console.log(`${"─".repeat(60)}`);
 
+  const args = [
+    "task",
+    "experiment",
+    "anchor-systems",
+    "--variant",
+    variant,
+    "--ide",
+    ide,
+    "--reps",
+    String(reps),
+  ];
+  if (modelProvider) {
+    args.push("--model-provider", modelProvider);
+  }
+  if (model) {
+    args.push("--model", model);
+  }
+  if (flags["dry-run"]) {
+    args.push("--dry-run");
+  }
+
   const cmd = new Deno.Command("deno", {
-    args: [
-      "task",
-      "experiment",
-      "anchor-systems",
-      "--variant",
-      variant,
-      "--model",
-      model,
-      "--reps",
-      String(reps),
-    ],
+    args,
     stdout: "inherit",
     stderr: "inherit",
   });

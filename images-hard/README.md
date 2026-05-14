@@ -107,6 +107,18 @@ Tests consistency across similar scenes with controlled variations.
    # Open http://localhost:8000/public/
    ```
 
+## Results
+
+Retained runs copied to `results/`:
+
+| Date | Model | Prompts | Passed | Evidence |
+|------|-------|--------:|-------:|----------|
+| 2026-05-13 | `google/gemini-2.5-flash-image` | 11 | 11 | [md](results/2026-05-13-1057-images-hard-google-gemini-2-5-flash-image.md) + [json](results/2026-05-13-1057-images-hard-google-gemini-2-5-flash-image.json) |
+| 2026-05-12 | `google/gemini-2.5-flash-image` | 1 | 1 | [md](results/2026-05-12-0152-images-hard-google-gemini-2-5-flash-image.md) + [json](results/2026-05-12-0152-images-hard-google-gemini-2-5-flash-image.json) |
+
+The 2026-05-13 artifact is the first retained broader sweep for this model; the 2026-05-12 artifact
+is a smoke run.
+
 ## Project Structure
 
 ```

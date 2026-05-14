@@ -82,6 +82,30 @@ The adherence table will always read 100% because the judge rule is a
 stub ("response is non-empty"). Ignore that section — this experiment
 does not test adherence.
 
+## Results
+
+Retained baseline sweeps:
+
+`baseline = cache_creation + cache_read` from the init/result events — everything the model sees in
+its prompt before generating a response.
+
+| Model | tokens=0 | tokens=500 | tokens=2000 | tokens=8000 | tokens=16000 | Evidence |
+|-------|---------:|-----------:|------------:|------------:|-------------:|----------|
+| Sonnet 4.6 | 15,961 | 17,112 | 18,435 | 23,713 | 30,800 | [baseline](results/2026-04-11-2352-claude-sonnet-4-6-baseline.md) |
+| Haiku 4.5 | 26,795 | 28,038 | 29,359 | 34,635 | 41,731 | [baseline](results/2026-04-12-0023-claude-haiku-4-5-baseline.md) |
+
+Haiku's tokens=0 baseline is +10,834 vs Sonnet (+68%).
+
+- Slope is approximately **0.93 prompt tokens per AGENTS.md axis token** on both models (close to
+  1.0 because content lands in the cached prefix).
+- Tools/skills/MCP/slash counts are constant: 25 tools, 7 skills, 0 MCP servers, 0 slash commands
+  (the claude adapter already passes `--strict-mcp-config --disable-slash-commands` to keep
+  account-level state out of measurements).
+
+Practical implication: if you need to shrink agent context, AGENTS.md is the last thing to cut. Even
+a 16k-token AGENTS.md only doubles the prompt; the floor is what you cannot escape. To move context
+cost materially, strip built-in tools, skills, MCP servers, and slash commands first.
+
 ## Baseline finding — haiku smoke (2026-04-11)
 
 First smoke run — `claude-haiku-4-5`, cleanroom config dir, one trial

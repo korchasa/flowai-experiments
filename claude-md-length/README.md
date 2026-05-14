@@ -134,6 +134,36 @@ is flat at 100% across all sizes, the experiment needs a harder rule
 or smaller reps; if it is near 0% across all sizes, the rule is likely
 unclear and the corpus or rule text needs revision.
 
+## Results
+
+Retained `single-file` runs:
+
+| Model | Headline | Interpretation | Evidence |
+|-------|----------|----------------|----------|
+| Sonnet 4.6 | Max safe AGENTS.md = **16,000 tokens at ≥80% adherence** (n=5/cell, 90 trials, 21 min). | Adherence holds near 100% from 500 to 8,000 tokens; the only failure across the sweep is one Russian-language trial at 16k (93.3%). The community heuristic "keep CLAUDE.md under 200 lines" undercounts the safe budget by ~32×. | [single-file](results/2026-04-11-2354-claude-sonnet-4-6-single-file.md) |
+| Haiku 4.5 | Headline says 500 tokens. | The curve is essentially flat from 500 to 16,000 (73–93% with no monotone trend). Headline collapses to 500 because the conservative `max(tokens : every smaller bucket also passed)` rule trips on a single drop at 1,000, not because larger files actually hurt. | [single-file](results/2026-04-12-0025-claude-haiku-4-5-single-file.md) |
+
+Adherence by rule across the full `single-file` sweep (n=15 trials/rule/model):
+
+| Rule | Sonnet 4.6 | Haiku 4.5 | Interpretation |
+|------|-----------:|----------:|----------------|
+| format: output must end with `===NIMBUS-END===` | 100% | 100% | Surface output constraints land reliably on both. |
+| negation: must not use the word `simply` | 100% | 90% | Prohibitions land reliably; small models occasionally slip on idiomatic phrasings. |
+| language: reply in Russian regardless of query language | 96.7% | 43.3% | Strong behavioral overrides collapse on the small model and stay flat across all sizes. |
+
+Practical implication: AGENTS.md is the wrong place to put rules that ask the model to override its
+default mode of speaking, reasoning, or formatting at the prose level. Surface constraints
+(formatting markers, banned tokens, response shape) work; behavioral overrides do not, especially on
+smaller models. If you need a behavioral override on Haiku, put it in the user prompt every turn, not
+in project memory.
+
+Model selection from these retained runs:
+
+| Model | Use when | Avoid relying on |
+|-------|----------|------------------|
+| Sonnet 4.6 | AGENTS.md is supposed to shape behavior: project conventions, domain rules, persona, language overrides. There is room (16k+) and overrides actually land. | None identified from these runs for AGENTS.md size alone. |
+| Haiku 4.5 | AGENTS.md needs to enforce shape of output: format markers, banned tokens, response templates, schema. | Behavioral overrides in AGENTS.md; adherence is roughly a coin flip regardless of file size. |
+
 ## Caveats
 
 - **Measurements include a CLI-intrinsic baseline (~26k tokens on

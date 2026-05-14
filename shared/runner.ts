@@ -5,7 +5,7 @@
  * per cell, judges adherence, and aggregates into an ExperimentReport.
  *
  * Designed for testability: the agent spawn and judge calls are
- * injected via function parameters (defaults hit the real Claude CLI).
+ * injected via function parameters (defaults hit the selected runtime through ai-ide-cli).
  */
 
 import { join } from "@std/path";
@@ -18,6 +18,7 @@ import type {
 } from "./types.ts";
 import type { AgentAdapter } from "./adapters/types.ts";
 import type { ModelConfig } from "./llm.ts";
+import { modelRef } from "./llm.ts";
 import { judgeAdherence, type JudgeVerdict } from "./judge.ts";
 import {
   computeAdherenceByAxis,
@@ -39,6 +40,7 @@ export interface AgentTrialOutcome {
 export type SpawnAgentFn = (opts: {
   sandbox: string;
   model: string;
+  modelProvider?: string;
   prompt: string;
   adapter: AgentAdapter;
   stepTimeoutMs: number;
@@ -59,6 +61,7 @@ export interface RunnerOptions {
   /** Variant label for the result filename (e.g. "single-file"). */
   variant: string;
   model: string;
+  modelProvider?: string;
   ide: string;
   adapter: AgentAdapter;
   reps: number;
@@ -134,6 +137,7 @@ export async function runExperiment(
     experiment,
     variant,
     model,
+    modelProvider,
     ide,
     adapter,
     reps,
@@ -152,9 +156,8 @@ export async function runExperiment(
   // responsible for deciding whether they need the dir at all.
   // Credentials are NOT sourced here — the caller must authorize the
   // underlying CLI externally.
-  // TODO(migration-leftover): cleanroomEnv is passed to opts.env but defaultSpawnAgent
-  // ignores it — invokeClaudeCli handles auth natively via macOS keychain. This plumbing
-  // exists for custom SpawnAgentFn implementations that DO use opts.env.
+  // cleanroomEnv is passed to opts.env for runtimes that support environment
+  // isolation. ai-ide-cli handles each runtime's auth through native config.
   let cleanroomEnv: Record<string, string> = {};
   let cleanroomConfigDir: string | undefined;
   try {
@@ -189,6 +192,7 @@ export async function runExperiment(
         cell,
         experiment,
         model,
+        modelProvider,
         adapter,
         seed: cellSeed(seed, cell),
         judgeConfig,
@@ -221,8 +225,12 @@ export async function runExperiment(
     schemaVersion: 1,
     experimentId: experiment.id,
     experimentName: experiment.name,
+    modelProvider,
     model,
     ide,
+    judgeModelProvider: judgeConfig.model_provider,
+    judgeModel: judgeConfig.model,
+    judgeRuntime: judgeConfig.runtime ?? "claude",
     startedAt,
     finishedAt,
     seed,
@@ -249,6 +257,7 @@ async function runSingleCell(input: {
   cell: Cell;
   experiment: Experiment;
   model: string;
+  modelProvider?: string;
   adapter: AgentAdapter;
   seed: number;
   judgeConfig: ModelConfig;
@@ -262,6 +271,7 @@ async function runSingleCell(input: {
     cell,
     experiment,
     model,
+    modelProvider,
     adapter,
     seed,
     judgeConfig,
@@ -300,6 +310,7 @@ async function runSingleCell(input: {
       outcome = await spawnAgent({
         sandbox,
         model,
+        modelProvider,
         prompt,
         adapter,
         stepTimeoutMs,
@@ -315,6 +326,19 @@ async function runSingleCell(input: {
         durationMs: performance.now() - t0,
         exitCode: -1,
         error: (e as Error).message,
+      };
+    }
+
+    if (outcome.exitCode !== 0) {
+      return {
+        cell,
+        pass: false,
+        judgeReason: `agent exited with code ${outcome.exitCode}`,
+        agentOutput: outcome.output,
+        durationMs: performance.now() - t0,
+        exitCode: outcome.exitCode,
+        error: `agent exited with code ${outcome.exitCode}`,
+        tokensUsed: outcome.tokens,
       };
     }
 
@@ -358,15 +382,46 @@ async function runSingleCell(input: {
 }
 
 /**
- * Default agent spawner — uses invokeClaudeCli from @korchasa/ai-ide-cli.
- * Auth is handled natively by the Claude CLI (macOS keychain).
+ * Default agent spawner — uses @korchasa/ai-ide-cli runtime invokers.
+ * Auth is handled by the selected runtime's native configuration.
  * Note: ~/.claude/CLAUDE.md leaks into trials because settingSources is not
  * set; this is acceptable for experiments that don't test memory injection.
  */
 const defaultSpawnAgent: SpawnAgentFn = async (opts) => {
-  const { invokeClaudeCli, defaultRegistry } = await import(
+  const { invokeClaudeCli, invokeOpenCodeCli, defaultRegistry } = await import(
     "@korchasa/ai-ide-cli"
   );
+  const model = modelRef({
+    model: opts.model,
+    model_provider: opts.modelProvider,
+  });
+  if (opts.adapter.ide === "opencode") {
+    const result = await invokeOpenCodeCli({
+      processRegistry: defaultRegistry,
+      cwd: opts.sandbox,
+      model,
+      taskPrompt: opts.prompt,
+      permissionMode: "bypassPermissions",
+      maxRetries: 1,
+      retryDelaySeconds: 2,
+      timeoutSeconds: Math.ceil(opts.stepTimeoutMs / 1000),
+      env: opts.env,
+    });
+    const out = result.output;
+    return {
+      output: out?.result ?? result.error ?? "",
+      exitCode: out?.is_error || !out ? 1 : 0,
+      tokens: out?.usage
+        ? {
+          input: out.usage.input_tokens ?? 0,
+          output: out.usage.output_tokens ?? 0,
+          cacheRead: out.usage.cached_tokens ?? 0,
+          cacheWrite: 0,
+        }
+        : undefined,
+    };
+  }
+
   const extraArgs: Record<string, string | null> = {
     "--disable-slash-commands": "",
   };
@@ -374,7 +429,7 @@ const defaultSpawnAgent: SpawnAgentFn = async (opts) => {
   const result = await invokeClaudeCli({
     processRegistry: defaultRegistry,
     cwd: opts.sandbox,
-    model: opts.model,
+    model,
     taskPrompt: opts.prompt,
     permissionMode: "bypassPermissions",
     maxRetries: 1,

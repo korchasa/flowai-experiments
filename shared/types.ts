@@ -65,6 +65,7 @@ export interface Experiment {
   defaults: {
     reps: number;
     model?: string;
+    modelProvider?: string;
     ide?: string;
   };
   /** Prepare the sandbox for a specific cell (write memory files, etc.). */
@@ -89,8 +90,12 @@ export interface ExperimentReport {
   schemaVersion: 1;
   experimentId: string;
   experimentName: string;
+  modelProvider?: string;
   model: string;
   ide: string;
+  judgeModelProvider?: string;
+  judgeModel?: string;
+  judgeRuntime?: string;
   startedAt: string; // ISO timestamp
   finishedAt: string; // ISO timestamp
   seed: number;

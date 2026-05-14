@@ -81,6 +81,41 @@ export function shortId(gt: GroundTruth, canonicalId: string): string {
   return gt.salp_short_ids[canonicalId] ?? canonicalId.split(":").pop()!;
 }
 
+/** Return the concrete anchor spelling a fixture system exposes to agents. */
+export function surfaceId(
+  gt: GroundTruth,
+  system: string,
+  canonicalId: string,
+): string {
+  switch (system) {
+    case "native": {
+      const heading = gt.native_headings[canonicalId];
+      if (!heading) return canonicalId;
+      return `${heading.file}#${heading.slug}`;
+    }
+    case "wikilinks":
+      return `^${canonicalId.replaceAll(":", "-")}`;
+    case "zettelkasten":
+      return gt.zettelkasten_uids[canonicalId] ?? canonicalId;
+    case "salp-short":
+      return shortId(gt, canonicalId);
+    case "salp":
+    default:
+      return canonicalId;
+  }
+}
+
+/** Return canonical plus system-specific spellings accepted by the judge. */
+export function acceptedIds(
+  gt: GroundTruth,
+  system: string,
+  canonicalId: string,
+): string[] {
+  const ids = [canonicalId, surfaceId(gt, system, canonicalId)];
+  if (system === "salp-short") ids.push(shortId(gt, canonicalId));
+  return [...new Set(ids)];
+}
+
 let _gt: GroundTruth | null = null;
 
 export function loadGroundTruth(): GroundTruth {
@@ -177,14 +212,109 @@ export async function writeFixtures(
 }
 
 /**
- * Write the `corrupted/` fixture set (SALP with 3 planted anomalies).
+ * Write a system-specific fixture set with the 3 planted anomalies.
  */
 export async function writeCorruptedFixtures(
   sandboxPath: string,
+  system = "salp",
 ): Promise<void> {
   await Deno.writeTextFile(join(sandboxPath, "AGENTS.md"), ROOT_AGENTS_MD);
   for (const f of ALL_FILES) {
-    const content = await readFixtureFile("corrupted", f);
-    await writeProjectFile(sandboxPath, f, content);
+    const content = await readFixtureFile(system, f);
+    await writeProjectFile(sandboxPath, f, corruptFixture(system, f, content));
   }
+}
+
+function corruptFixture(
+  system: string,
+  filename: string,
+  content: string,
+): string {
+  if (filename === "auth.md") {
+    return injectDuplicateAnchor(system, content, false);
+  }
+  if (filename === "session_store.py") {
+    return injectDuplicateAnchor(system, content, true);
+  }
+  if (filename === "oauth.md") {
+    return injectOrphanReference(system, content);
+  }
+  if (filename === "password.md") {
+    return injectShadowedAnchor(system, content);
+  }
+  return content;
+}
+
+function injectDuplicateAnchor(
+  system: string,
+  content: string,
+  isCode: boolean,
+): string {
+  const marker = (() => {
+    switch (system) {
+      case "native":
+        return isCode ? "# # User Schema" : "## User Schema";
+      case "wikilinks":
+        return isCode ? "# User schema ^db-user-schema" : "^db-user-schema";
+      case "zettelkasten":
+        return isCode
+          ? "# **UID: 202605129001** db:user-schema"
+          : "**UID: 202605129001**\nUser schema marker.";
+      case "salp-short":
+        return "[ANC:user-schema]";
+      case "salp":
+      default:
+        return "[ANC:db:user-schema]";
+    }
+  })();
+
+  const codeMarker = isCode && marker.startsWith("[") ? `# ${marker}` : marker;
+  if (isCode) {
+    return content.replace(
+      "\n\ndef create_session",
+      `\n\n${codeMarker}\ndef create_session`,
+    );
+  }
+  return content.replace(
+    "\nAll user accounts",
+    `\n${marker}\nAll user accounts`,
+  );
+}
+
+function injectOrphanReference(system: string, content: string): string {
+  const marker = (() => {
+    switch (system) {
+      case "native":
+        return "[callback handling](api.md#oauth-callback)";
+      case "wikilinks":
+        return "[[api#^api-oauth-callback]]";
+      case "zettelkasten":
+        return "[[202605129002]]";
+      case "salp-short":
+        return "[REF:oauth-callback | callback handling]";
+      case "salp":
+      default:
+        return "[REF:api:oauth-callback | callback handling]";
+    }
+  })();
+  return `${content.trimEnd()}\n\nCallback handling is documented in ${marker}.\n`;
+}
+
+function injectShadowedAnchor(system: string, content: string): string {
+  const marker = (() => {
+    switch (system) {
+      case "native":
+        return "## Legacy MD5 Hash";
+      case "wikilinks":
+        return "^legacy-md5-hash";
+      case "zettelkasten":
+        return "**UID: 202605129003** legacy:md5-hash";
+      case "salp-short":
+        return "[ANC:md5-hash]";
+      case "salp":
+      default:
+        return "[ANC:legacy:md5-hash]";
+    }
+  })();
+  return `${content.trimEnd()}\n\n<!--\n${marker}\nLegacy MD5 password hashing - deprecated, do not use.\n-->\n`;
 }

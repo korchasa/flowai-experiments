@@ -115,6 +115,18 @@ The script uses an accumulated data approach:
 1. **Individual Run Files**: Each run creates a unique JSON file in the output directory (e.g., `public/results/2023-12-01_10-00-00_50langs_10models.json`). This file contains full details of the run.
 2. **Index File**: `public/results/reports.json` is updated with a link to the new file.
 
+## Results
+
+Retained runs copied to `results/`:
+
+| Date | Model | Files | Input tokens | Estimated cost | Evidence |
+|------|-------|------:|-------------:|---------------:|----------|
+| 2026-05-13 | `anthropic/claude-haiku-4.5` | 54/54 | 249,508 | $0.253828 | [md](results/2026-05-13-1024-tokenizers-anthropic-claude-haiku-4-5.md) + [json](results/2026-05-13-1024-tokenizers-anthropic-claude-haiku-4-5.json) |
+| 2026-05-12 | `anthropic/claude-haiku-4.5` | 54/54 | 249,508 | $0.253828 | [md](results/2026-05-12-0150-tokenizers-anthropic-claude-haiku-4-5.md) + [json](results/2026-05-12-0150-tokenizers-anthropic-claude-haiku-4-5.json) |
+
+The 2026-05-13 run confirms repeatability for the same model/corpus pair; it is not a broad
+cross-model leaderboard.
+
 ### Viewing Results
 
 Open `public/index.html` in your browser (via a local server) to view the dashboard. It automatically loads `reports.json` and fetches all linked result files, merging them into a single view.
@@ -128,4 +140,3 @@ Open `public/index.html` in your browser (via a local server) to view the dashbo
    deno run --allow-net --allow-read https://deno.land/std/http/file_server.ts
    ```
 2. Open `http://localhost:8000/public/index.html`
-

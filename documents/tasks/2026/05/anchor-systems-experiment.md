@@ -32,7 +32,7 @@ Five task types probe different failure modes:
 4. **Graph linting** — detect 3 planted anomalies in a corrupted fixture set. Tests error detection.
 5. **RAG noise resistance** — identify anchored function amid N semantically similar noise functions. Tests focus.
 
-Fixture files (static, committed) represent a synthetic technical project (~15 files, ~20 cross-references) in all four linking styles. Ground-truth JSON graph is committed alongside.
+Fixture files (static, committed) represent a synthetic technical project (~19 files, 31 cross-references) in all five linking styles. Ground-truth JSON graph is committed alongside.
 
 ### Current State
 

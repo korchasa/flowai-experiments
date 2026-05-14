@@ -1,0 +1,1547 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "anchor-systems-rag-noise",
+  "experimentName": "Anchor Systems — RAG Noise Resistance (Bench 7)",
+  "modelProvider": "openai",
+  "model": "gpt-5.4-mini",
+  "ide": "opencode",
+  "judgeModelProvider": "openai",
+  "judgeModel": "gpt-5.4",
+  "judgeRuntime": "opencode",
+  "startedAt": "2026-05-13T23:29:41.633Z",
+  "finishedAt": "2026-05-13T23:51:58.182Z",
+  "seed": 1,
+  "reps": 5,
+  "axes": {
+    "system": [
+      "native",
+      "wikilinks",
+      "zettelkasten",
+      "salp",
+      "salp-short"
+    ],
+    "noise_count": [
+      3,
+      6,
+      9
+    ]
+  },
+  "trials": [
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 3
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and reading the password-check functions to map the rule marker to the implementation.\nThe function is `check_strength`. It enforces the strength rule in the docstring: the password must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character. Unlike the other checks in the file, it returns a single boolean for this policy gate, while the others handle different concerns such as reuse history, complexity scoring, ASCII format, entropy, leaked-password lookup, or sequential-character detection.",
+      "durationMs": 14125.385667,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 3
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly names `check_strength` as the anchored function and accurately states its rule as requiring at least 12 characters, one digit, one uppercase letter, and one special character, while distinguishing it from the other noise-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and reading the password checks to map the `## Password Strength Check` rule to its function.\nI found the file and the anchored rule. Next I’m reading the function definitions around that section to identify the exact checker and contrast it with the others.\nThe function is `check_strength`. It enforces the password policy in the docstring: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks, it returns a simple boolean for baseline policy compliance, while the others handle history, complexity scoring, format, entropy, leaked-password detection, or sequential patterns.",
+      "durationMs": 14062.851792,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 3
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and reading the password-check functions around `## Password Strength Check`.\nI found the file and the section marker. Next I’m reading the file to map the rule to the matching function and compare it with the others.\nThe function is `check_strength`. It enforces the password-strength rule in the docstring: at least 12 characters, at least one digit, at least one uppercase letter, and at least one special character. Unlike the other checks, it returns a simple boolean for basic policy compliance, while the others target different concerns such as reuse history, ASCII-only format, entropy scoring, leaked-password detection, or sequential character runs.",
+      "durationMs": 22565.153749999998,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 3
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the function at the marker and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, without misidentifying any noise function as primary.",
+      "agentOutput": "I’m locating `password_utils.py` and then I’ll inspect the password-check functions around the `## Password Strength Check` marker.\nI found the file and the marker. Next I’m reading the function definitions to match the marker to the implementation and compare it with the other checks.\nThe function is `check_strength`. It enforces the password policy in the docstring: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks, it returns a simple boolean for the core strength rule; the others handle history, ASCII format, entropy, leaked-password detection, or sequential-character patterns.",
+      "durationMs": 23510.018209,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 3
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and the password-check functions, then I’ll map the `## Password Strength Check` comment to the exact implementation.\nI found the anchor comment in `password_utils.py`. Next I’m reading the file to identify the function and compare it with the other checks.\nThe function is `check_strength`. It enforces the password-strength rule in the comment: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks in the file, it returns a simple `bool` for policy compliance; the others cover history, format, entropy, leaked-password detection, or sequential-run detection.",
+      "durationMs": 14264.655707999991,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 6
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the function for `## Password Strength Check` and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other noise-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and the surrounding password checks, then I’ll map the `## Password Strength Check` marker to the exact function.\nI found the target file. Next I’m reading the password helpers and the section around the `Password Strength Check` marker to identify the exact function and compare it to the others.\nThe function is `check_strength`. It enforces the `Password Strength Check` rule: a password must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character. Unlike the other functions, which check history, format, entropy, leakage, patterns, repetition, or Unicode safety, this one is the only direct strength gate that returns a simple boolean for the core policy.",
+      "durationMs": 18105.447540999987,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 6
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the function under `## Password Strength Check` and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while treating the other functions as separate narrower checks rather than the primary answer.",
+      "agentOutput": "I’m checking `password_utils.py` and the `## Password Strength Check` section to map the rule to its function and compare it with the other checks.\nI found the marker in `password_utils.py`; now I’m reading the file to identify the exact function and the surrounding checks.\nThe function is `check_strength`. It enforces the strength policy in the docstring: the password must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character. Unlike the other checks, it is a single composite “strength” gate; the others each target one narrower concern, such as reuse history, ASCII format, entropy, leaked-password detection, sequence/repetition patterns, keyboard walks, or Unicode safety.",
+      "durationMs": 14375.646125,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 6
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the enforced rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while correctly treating the other functions as separate helper checks.",
+      "agentOutput": "I’m locating `password_utils.py` and reading the password-check functions to map the `## Password Strength Check` rule to the right implementation.\nI found the marker in the target file. Next I’m reading the file to identify the exact function and compare it with the other password checks.\nThe function is `check_strength`. It enforces the policy in `## Password Strength Check`: password length at least 12, at least one digit, at least one uppercase letter, and at least one special character. Unlike the other helpers, it returns a single strict boolean for the core password-policy gate, while the others either score, analyze, or check narrower properties like history, format, entropy, leaks, sequences, repetition, keyboard walks, or Unicode safety.",
+      "durationMs": 15837.234832999995,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 6
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the function for the `## Password Strength Check` anchor and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other noise-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and the `## Password Strength Check` marker, then I’ll map it to the function and compare it with the other password checks.\nI found the marker in `password_utils.py`; now I’m reading the file to identify the exact function and rule.\nThe function is `check_strength`. It enforces the password policy in the docstring: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks, it directly validates this specific strength rule as a boolean, while the others handle different concerns like history, format, entropy, leakage, patterns, repetition, or Unicode safety.",
+      "durationMs": 16853.686083000008,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 6
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as requiring at least 12 characters, one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and reading the password checks to map the `## Password Strength Check` rule to its function.\nI found the marker in `password_utils.py`; now I’m reading the full file to identify the exact function and contrast it with the other checks.\nThe function is `check_strength`. It enforces the strong-password rule from the docstring: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks, it returns a simple boolean for core password policy compliance, while the others cover history, scoring, format, entropy, leakage, patterns, repetition, or Unicode safety.",
+      "durationMs": 13807.91399999999,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 9
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while contrasting it from the other helper checks without misnaming any noise function as primary.",
+      "agentOutput": "I’ll inspect `password_utils.py` and map the `## Password Strength Check` rule to its implementing function.\nI found the file. Next I’m reading the password helpers and the marked rule together so I can identify the exact function and contrast it with the others.\nThe function is `check_strength`. It enforces the core password policy: at least 12 characters, at least one digit, at least one uppercase letter, and at least one special character. Unlike the other checks in the file, it directly validates “strength” as a single boolean rule; the others are narrower guards or analyses, such as history, leaked-password detection, entropy scoring, formatting, length limits, or pattern avoidance.",
+      "durationMs": 19256.944667000003,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 9
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly names `check_strength` as the function for the `## Password Strength Check` marker and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, without misidentifying any noise function.",
+      "agentOutput": "I’m locating `password_utils.py` and checking the password-check functions against the `## Password Strength Check` marker.\nI found the file. Now I’m reading the password utility functions and the strength-check section directly.\nThe function is `check_strength`. It enforces the `## Password Strength Check` rule by requiring a password to be at least 12 characters long and to include at least one digit, one uppercase letter, and one special character. Unlike the other check functions, it applies a combined strength policy in a single boolean gate rather than checking a single narrow property, returning `True` only when all conditions pass.",
+      "durationMs": 17777.531416000013,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 9
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the function for `## Password Strength Check` and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while treating the other listed functions as separate checks rather than the primary implementation.",
+      "agentOutput": "I’m reading `password_utils.py` and the surrounding checks to map the `## Password Strength Check` rule to the exact function.\nI found the marker in `password_utils.py`; now I’m reading the file to identify the matching function and compare it with the other password checks.\nThe function is `check_strength`. It enforces the password policy in the docstring: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks in the file, it returns a simple boolean for the core strength rule, while the others target narrower constraints like history, format, entropy, leakage, sequences, repetition, keyboard patterns, Unicode safety, length, whitespace, or null bytes.",
+      "durationMs": 16246.307750000007,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 9
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the function for `## Password Strength Check` and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other noise checks.",
+      "agentOutput": "I’m locating `password_utils.py` and the password-check functions, then I’ll map the `## Password Strength Check` rule to the exact implementation.\nI found the target file and the marker. Next I’m reading the file to identify the exact function and compare it with the other password checks.\nThe function is `check_strength`. It enforces the `Password Strength Check` rule by requiring a password to be at least 12 characters long and to include at least one digit, one uppercase letter, and one special character. Unlike the other checks in the file, it directly implements the core strength policy as a single boolean gate, rather than checking history, format, entropy, leakage, or other narrower properties.",
+      "durationMs": 14933.727041000006,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 9
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response correctly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and the rule block, then I’ll map it to the enforcing function.\nI found the marker. I’m reading the file now to identify the exact function and compare it with the others.\nThe function is `check_strength`. It enforces the password strength rule in the docstring: at least 12 characters, at least one digit, one uppercase letter, and one special character; unlike the other checks in the file, it returns a simple boolean for the core policy rather than checking history, format, entropy, leaks, patterns, length, whitespace, or null bytes.",
+      "durationMs": 17443.382249999995,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 3
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while not naming any noise function as the primary implementation.",
+      "agentOutput": "I’m locating `password_utils.py` and the `^sec-password-strength` marker, then I’ll map that marker to the exact function and compare it with the other password checks.\nI found the anchor in `password_utils.py`; now I’m reading the file to identify the exact function and the neighboring checks it differs from.\nThe function is `check_strength`. It enforces the password policy in `^sec-password-strength`: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks, it returns a single boolean for the core policy, while the others test history reuse, ASCII-only format, entropy, common-password leakage, or sequential runs.",
+      "durationMs": 17562.46416600002,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 3
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other noise-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and the `^sec-password-strength` marker, then I’ll map it to the enforcing function.\nI found the anchor in `password_utils.py`; now I’m reading the file to identify the exact function and its behavior.\nThe function is `check_strength`. It enforces the policy in `^sec-password-strength`: at least 12 characters, at least one digit, at least one uppercase letter, and at least one special character. Unlike the other helpers, it is the direct boolean policy gate for password validity, while the others check orthogonal properties like history, format, entropy, leakage, or sequential patterns.",
+      "durationMs": 17983.667790999985,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 3
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response correctly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other noise functions.",
+      "agentOutput": "I’m locating `password_utils.py` and the `^sec-password-strength` marker, then I’ll map it to the corresponding function.\nI found the anchor on the docstring line in `password_utils.py`. I’m reading the file now to identify the exact function and compare it with the other password checks.\nThe function is `check_strength`. It enforces the password-strength policy in `^sec-password-strength`: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks, it returns a simple boolean for a specific policy rule, while the others cover history, complexity scoring, format, entropy, leaked-password detection, or sequential-character patterns.",
+      "durationMs": 15053.790041,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 3
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states its rule as requiring at least 12 characters, one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check helpers.",
+      "agentOutput": "I’m locating `password_utils.py` and checking the password checks against `^sec-password-strength`.\nI found the anchor in `password_utils.py`. I’m reading the file to map the anchor to the exact function and compare it with the other checks.\nThe function is `check_strength(password: str) -> bool`. It enforces the password-strength rule in `^sec-password-strength`: at least 12 characters, at least one digit, at least one uppercase letter, and at least one special character. Unlike the other password-check functions, it directly returns a boolean for the core policy rule, while the others check different properties such as history, format, entropy, leaked passwords, or sequential runs.",
+      "durationMs": 20906.197790999955,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 3
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The final response explicitly identifies `check_strength` as the function tied to `^sec-password-strength` and correctly states the rule as requiring at least 12 characters, one digit, one uppercase letter, and one special character, while contrasting it with the other password-check helpers.",
+      "agentOutput": "I’m locating `password_utils.py` and the `^sec-password-strength` marker, then I’ll map it to the implementing function.\nI found the anchor in `password_utils.py`; now I’m reading the file to identify the matching function and contrast it with the other checks.\nThe function is `check_strength` in `password_utils.py:4`. It enforces the password-strength rule from `^sec-password-strength`: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other password-check functions, it returns a simple boolean for the core policy instead of checking history, estimating entropy, scoring complexity, or detecting leaked/sequential passwords.",
+      "durationMs": 24627.135042000038,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 6
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other noise-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and the `^sec-password-strength` marker, then I’ll map it to the enforcing function.\nI found the marker at the top of `password_utils.py`; now I’m reading the file to identify the matching function and compare it with the other checks.\nThe function is `check_strength`. It enforces the core password-strength rule from `^sec-password-strength`: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks in the file, which target history, format, entropy, leaks, sequential runs, repetition, keyboard patterns, or Unicode safety, this one is the direct policy gate for minimum acceptable strength.",
+      "durationMs": 16378.419874999963,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 6
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response correctly identifies `check_strength()` as the anchored function and accurately states the rule as requiring at least 12 characters, one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check helpers.",
+      "agentOutput": "I’m locating `password_utils.py` and will inspect the password checks around the `^sec-password-strength` marker.\nI found the marker in `password_utils.py`; now I’m reading the file to map the anchor to the specific check function.\nThe function is `check_strength()`. It enforces the `^sec-password-strength` rule by requiring a password to be at least 12 characters long and contain at least one digit, one uppercase letter, and one special character. Unlike the other checks in the file, which each target a narrower concern such as reuse history, ASCII-only format, entropy, leaked passwords, or keyboard/sequential patterns, this one directly encodes the core strength policy.",
+      "durationMs": 16955.641040999966,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 6
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the function for `^sec-password-strength` and accurately states the rule as at least 12 characters with at least 1 digit, 1 uppercase letter, and 1 special character, while contrasting it with the other narrower password checks.",
+      "agentOutput": "I’m locating `password_utils.py` and the `^sec-password-strength` marker, then I’ll map it to the enforcing function.\nI found the anchor in `password_utils.py`; now I’m reading the file to identify the exact function and contrast it with the other checks.\n`check_strength` implements `^sec-password-strength`. It enforces the policy “at least 12 characters, at least 1 digit, 1 uppercase letter, and 1 special character.” Unlike the other checks, which each target a narrower concern like history reuse, entropy, leaked/common passwords, patterns, or Unicode safety, this one is the direct policy gate for basic password strength.",
+      "durationMs": 48388.502916999976,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 6
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength(password: str) -> bool` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and the `^sec-password-strength` rule, then I’ll map it to the implementing function.\nI found the anchor in `password_utils.py`. Reading the file now to identify the exact function and compare it with the other password checks.\nThe function is `check_strength(password: str) -> bool`. It enforces the anchored password-strength rule by requiring at least 12 characters, at least one digit, at least one uppercase letter, and at least one special character. Unlike the other checks in the file, it directly implements the core password policy; the others validate separate concerns like reuse history, allowed format, entropy scoring, leaked/common passwords, sequential runs, repetition, keyboard patterns, or Unicode safety.",
+      "durationMs": 18218.50575000001,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 6
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the implementation of `^sec-password-strength` and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while contrasting it with the other auxiliary password checks.",
+      "agentOutput": "I’m locating `password_utils.py` and the `^sec-password-strength` rule marker, then I’ll map it to the implementing function and compare it with the other password checks.\nI found the anchor in `password_utils.py`; now I’m reading the file to identify the exact function and the neighboring password checks it should be compared against.\n`check_strength` implements `^sec-password-strength`. It enforces the main password policy: at least 12 characters, at least one digit, one uppercase letter, and one special character; unlike the other checks, it directly encodes the core strength rule from the docstring, while the rest validate orthogonal concerns like history, format, entropy, leakage, patterns, repetition, or Unicode safety.",
+      "durationMs": 16606.880582999962,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 9
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as requiring at least 12 characters, one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and the `^sec-password-strength` marker, then I’ll map it to the specific function and compare it with the other checks.\nI found the anchor in `password_utils.py`; now I’m reading the file to identify the exact function and compare its behavior to the other checks.\nThe function is `check_strength`. It enforces the policy in `^sec-password-strength`: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks, it returns a simple boolean for the core password-strength rule itself; the others target different concerns like history, format, entropy, leakage, patterns, length, whitespace, and null-byte safety.",
+      "durationMs": 16734.32383300003,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 9
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The final response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check helpers.",
+      "agentOutput": "I’m checking `password_utils.py` and the `^sec-password-strength` rule marker, then I’ll map it to the exact function and compare it with the other password checks.\nI found the anchor in `password_utils.py`; now I’m reading the file to identify the exact function tied to that rule and compare its behavior with the rest.\nThe function is `check_strength`. It enforces the `^sec-password-strength` rule by requiring a password to be at least 12 characters long and include at least one digit, one uppercase letter, and one special character. Unlike the other checks in the file, it directly encodes the primary password policy as a single boolean gate, while the others focus on narrower concerns like history, format, entropy, leaks, patterns, or whitespace.",
+      "durationMs": 14840.895459000021,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 9
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the function for `^sec-password-strength`, accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, and distinguishes it from the other helper functions as the primary strength check.",
+      "agentOutput": "I’m checking `password_utils.py` and the referenced `^sec-password-strength` rule, then I’ll map it to the exact function and compare it with the other password checks.\nI found the anchor in `password_utils.py`; now I’m reading the file contents to identify the exact function and the surrounding password-check helpers.\n`check_strength` implements `^sec-password-strength`. It enforces the core password policy: at least 12 characters, at least one digit, at least one uppercase letter, and at least one special character. Unlike the other helpers, which check secondary properties like history, format, entropy, leaks, sequences, or whitespace, this one directly encodes the primary strength rule and returns a simple `bool`.",
+      "durationMs": 17375.628999999957,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 9
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other narrower password-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and the `^sec-password-strength` reference, then I’ll map it to the function that enforces that rule.\nI found the anchor in `password_utils.py`; now I’m reading the file to identify the matching checker and compare it with the others.\nThe function is `check_strength`. It enforces the password-strength policy in `^sec-password-strength`: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks in the file, which each handle a narrower concern like history, format, entropy, or leaked/common passwords, this one is the main composite policy gate for overall strength.",
+      "durationMs": 18848.150292000035,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 9
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as requiring at least 12 characters, one digit, one uppercase letter, and one special character, while distinguishing it from the other narrower password-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and the `^sec-password-strength` rule reference, then I’ll map it to the enforcing function.\nI found the anchor in `password_utils.py`; now I’m reading the function definitions to identify the exact rule implementation.\nThe function is `check_strength`. It enforces the core password-strength rule from `^sec-password-strength`: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks in the file, it returns a simple boolean for the primary policy rule, while the rest target narrower properties such as history, format, entropy, leaked-password detection, patterns, whitespace, or length.",
+      "durationMs": 13553.23120899999,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 3
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the UID 202605121011 function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and then I’ll map UID `202605121011` to the implementing function.\nI found the target file. Next I’m reading the password checks and the UID marker to identify the exact function.\nThe function is `check_strength`. It enforces UID `202605121011` by requiring a password to be at least 12 characters long and to contain at least one digit, one uppercase letter, and one special character. Unlike the other checks, it returns a simple boolean for the core strength policy; the others handle different concerns like reuse history, ASCII format, entropy scoring, leaked-password lookup, or sequential character runs.",
+      "durationMs": 15383.003458000021,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 3
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the UID 202605121011 implementation and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and the UID marker, then I’ll map it to the enforcing function.\nI found the UID on the module docstring, so I’m reading the file to identify the matching function and compare the password checks.\n`check_strength` implements UID `202605121011`. It enforces the core strength rule: a password must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character. Unlike the other checks in the file, it directly validates the primary acceptance rule and returns a simple boolean, whereas the others check history, format, entropy, leaked-password status, sequential runs, or produce a score.",
+      "durationMs": 16283.267332999967,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 3
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the UID 202605121011 implementation and accurately states the rule as requiring at least 12 characters, one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and then I’ll trace the UID to the exact rule implementation.\nI found the file. Next I’m reading it and matching the UID to the function body and neighboring checks.\nThe function is `check_strength`. It enforces rule `UID: 202605121011`: a password must be at least 12 characters long and contain at least one digit, one uppercase letter, and one special character. Unlike the other checks in the file, it is a direct boolean strength gate for the main composition requirements, while the others test history, format, entropy, leaks, sequential runs, or return a score/analysis instead of a simple pass/fail.",
+      "durationMs": 17889.07020800002,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 3
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the UID 202605121011 implementation and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while not naming any noise function as the primary answer.",
+      "agentOutput": "I’m locating `password_utils.py` and the UID marker, then I’ll map that rule to the implementing function.\nI found the file. Next I’m reading the function definitions around the password checks to identify the UID-backed rule.\n`check_strength` implements UID `202605121011`. It enforces the rule that a password must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character. Unlike the other checks, it is the only one tied to that explicit UID/rule in the docstring and it returns a simple boolean strength gate rather than a history, score, entropy estimate, leak flag, or sequential-pattern check.",
+      "durationMs": 15369.850584,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 3
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the UID 202605121011 implementation and accurately states the rule as requiring at least 12 characters, one digit, one uppercase letter, and one special character, while distinguishing it from the neighboring noise-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and checking the UID-marked rule inside it.\nI found the file. Next I’m reading it to map UID `202605121011` to the matching function.\nThe function is `check_strength`. It enforces the rule `202605121011`: a password must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character. Unlike the other checks in the file, it is the only function explicitly tagged with that UID and it performs a direct boolean strength gate rather than a history, format, entropy, leak, or sequential-run check.",
+      "durationMs": 14243.223709000042,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 6
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "Although it correctly names `check_strength` and describes the strength rule accurately, it ties that rule to UID `202605121004` instead of the anchored UID `202605121011`, which shows anchor confusion.",
+      "agentOutput": "I’m checking `password_utils.py` and the rule UID so I can map it to the exact function and compare it with the others.\nI found the UID in `password_utils.py`; now I’m reading the file to identify the corresponding function and its behavior.\nThe function is `check_strength`. It enforces the password-strength rule from `202605121004`: at least 12 characters, at least one digit, at least one uppercase letter, and at least one special character. Unlike the other checks in the file, it directly returns a boolean for the core policy, while the others handle history, scoring, format, entropy, leaked-password detection, sequence/repetition patterns, keyboard walks, or Unicode safety.",
+      "durationMs": 15339.797999999952,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 6
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the function for UID `202605121011` and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other helper functions.",
+      "agentOutput": "I’m locating `password_utils.py` and reading the rule tagged `UID 202605121011`, then I’ll map it to the implementing function and compare it with the other password checks.\nI found the UID in `password_utils.py`. I’m reading the file now to identify the exact function and compare it to the other password-check helpers.\n`check_strength` implements UID `202605121011`. It enforces the rule that a strong password must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character. Unlike the other password-check functions, it directly validates the core strength policy from the rule; the others check separate concerns like reuse history, character format, entropy, leaked/common passwords, sequences, repetition, keyboard patterns, or Unicode safety.",
+      "durationMs": 14597.67083399999,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 6
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the function for UID 202605121011 and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and the UID marker, then I’ll map it to the exact function.\nI found the file. Next I’m reading it to match the UID comment to the corresponding check function.\nThe function is `check_strength`. It enforces the rule in UID `202605121011`: a password must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character. Unlike the other checks, it returns a direct boolean gate for this specific strength rule, while the others validate different properties such as reuse history, format, entropy, leaked/common status, sequential runs, repetition, keyboard patterns, or Unicode safety.",
+      "durationMs": 17100.816667000065,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 6
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The final response explicitly identifies `check_strength` as the UID 202605121011 implementation and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and the UID marker, then I’ll map it to the exact function and compare it with the other checks.\nI found the file; now I’m reading it to identify the UID-tagged rule and the surrounding password checks.\nThe function is `check_strength`. It enforces the UID 202605121011 rule: a strong password must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character. Unlike the other checks in the file, it returns a simple boolean for the main strength policy rather than checking history, leaks, patterns, entropy, or Unicode safety.",
+      "durationMs": 15363.959957999992,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 6
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check helpers.",
+      "agentOutput": "I’m locating `password_utils.py` and the UID marker, then I’ll map it to the exact function and compare it with the other password checks.\nI found the file, but the UID search returned nothing by exact text. I’m reading the file directly and will match the UID from nearby comments or docstrings.\nThe function is `check_strength`. It enforces the strong-password rule: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks in the file, it is a direct policy gate for overall password strength rather than a single-purpose validator like history, format, entropy, leak, sequence, repetition, keyboard-pattern, or Unicode safety.",
+      "durationMs": 19354.522665999946,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 9
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the UID 202605121011 implementation and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, without misnaming any noise function.",
+      "agentOutput": "I’ll inspect `password_utils.py` and map UID `202605121011` to the implementing function, then summarize how it differs from the other checks.\nThe function is `check_strength`. It enforces the strong-password rule in the docstring: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks, which each enforce one narrower property or return a score/boolean for a single concern, this one bundles the core strength requirements into a single composite validator.",
+      "durationMs": 16994.445875000092,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 9
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the UID 202605121011 implementation and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, without naming any noise function as primary.",
+      "agentOutput": "I’m locating `password_utils.py` and the rule marker, then I’ll map it to the exact function and compare it with the other checks.\nI found the file. Next I’m reading it to match UID `202605121011` to the relevant function and its behavior.\nThe function is `check_strength`. It enforces the core password policy in UID `202605121011`: at least 12 characters, at least one digit, at least one uppercase letter, and at least one special character. Unlike the other checks in the file, which each validate one narrower property or return non-boolean diagnostics, this one is the primary multi-constraint strength gate and returns a single `bool`.",
+      "durationMs": 13763.326374999946,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 9
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the UID 202605121011 implementation and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while not misidentifying any noise function as primary.",
+      "agentOutput": "I’m locating `password_utils.py` and reading the password checks to map UID `202605121011` to the right function.\nI found the UID in `password_utils.py`; now I’m reading the function body and the neighboring password checks to compare the rule.\n`check_strength` implements UID `202605121011`. It enforces the strength rule: password length must be at least 12 and it must contain at least one digit, one uppercase letter, and one special character. Unlike the other checks, it is a direct password-policy gate for baseline strength, while the rest focus on narrower constraints like history, format, entropy, leaks, patterns, length, whitespace, or null bytes.",
+      "durationMs": 15908.31579100003,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 9
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The final response explicitly identifies `check_strength` as the UID 202605121011 function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while contrasting it with the other noise checks.",
+      "agentOutput": "I’m checking `password_utils.py` and the UID marker to map it to the right function.\nI found the UID in `password_utils.py`; now I’m reading the file to identify the function and compare the check logic.\nThe function is `check_strength`. It enforces the baseline password rule in UID `202605121011`: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks, which target a single property such as history, entropy, leaks, or formatting, this one is a direct policy gate for overall password strength.",
+      "durationMs": 20741.71299999999,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 9
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the UID `202605121011` implementation and accurately states the rule as requiring at least 12 characters, one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and then I’ll map UID `202605121011` to the exact function and compare it with the other checks.\nI found the UID marker in `password_utils.py`; now I’m reading the file to identify the matching function and its behavior.\n`check_strength` implements UID `202605121011`. It enforces the composite strength rule: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks in the file, which each test a single property or anomaly (history, format, entropy, leaked passwords, sequential runs, repetition, keyboard walks, Unicode safety, length, whitespace, null bytes), this one bundles multiple strength requirements into one boolean gate.",
+      "durationMs": 20324.154667000053,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 3
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check helpers.",
+      "agentOutput": "I’m locating `password_utils.py` and then I’ll inspect the password-check functions against the `ANC:sec:password-strength` marker.\nI found the anchor in `password_utils.py`; now I’m reading the file to map the rule to the exact function and compare the check functions.\nThe function is `check_strength`. It enforces the anchored password-policy rule: a valid password must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character. Unlike the other checks, it returns a direct boolean for the core strength policy, while the others focus on history, format, entropy, leaked-password detection, or sequential-pattern filtering.",
+      "durationMs": 13132.312167000026,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 3
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the neighboring noise functions.",
+      "agentOutput": "I’m locating `password_utils.py` and reading the relevant section now.\nI found the file; now I’m reading it to map the anchor to the exact function.\nThe function is `check_strength`. It enforces the password-strength rule from `[ANC:sec:password-strength]`: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other password-check functions, it is the only one that directly implements the anchored policy as a boolean gate; the others check history, format, entropy, leakage, sequential patterns, or compute a score.",
+      "durationMs": 18357.595957999933,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 3
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength()` as the anchored implementation and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other noise-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and the anchored rule, then I’ll map it to the implementing function.\nI found the anchor in `password_utils.py`; now I’m reading the file to identify the exact function and its checks.\n`check_strength()` implements `[ANC:sec:password-strength]`. It enforces the core policy: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks, it is the only one that directly encodes the documented strength rule; the others test different properties such as reuse history, format, entropy, leaked/common passwords, or sequential runs.",
+      "durationMs": 29980.882207999937,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 3
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly names `check_strength()` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other noise-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and the `[ANC:sec:password-strength]` marker, then I’ll identify the matching function.\nI found the anchored section in `password_utils.py`; now I’m reading the file to map that section to the exact function and compare it with the other password checks.\nThe function is `check_strength()`. It enforces the password-strength rule from `[ANC:sec:password-strength]`: at least 12 characters, with at least one digit, one uppercase letter, and one special character. It differs from the other checks because it is a direct boolean policy gate, while the others handle history, scoring, format, entropy estimation, leaked-password detection, or sequential-pattern detection.",
+      "durationMs": 17954.261749999947,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 3
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other noise functions.",
+      "agentOutput": "I’ll inspect `password_utils.py` and map the `[ANC:sec:password-strength]` rule to the exact function.\nI found the anchor in `password_utils.py`; now I’m reading the file to identify the enforcing function and compare it with the other checks.\nThe function is `check_strength`. It enforces the password policy in the anchor: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks, it directly implements the core strength rule as a boolean gate, while the others cover history, complexity scoring, format, entropy, leaked-password detection, or sequential patterns.",
+      "durationMs": 15159.563708000001,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 6
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other noise-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and reading the relevant checks to map the `[ANC:sec:password-strength]` rule to the right function.\nThe function is `check_strength`. It enforces the password-strength rule: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks in the file, it directly implements the anchored policy rule for basic strength, while the others target separate concerns like reuse history, entropy, leaked passwords, sequential runs, repetition, keyboard patterns, or Unicode safety.",
+      "durationMs": 20435.535499999998,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 6
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check helpers.",
+      "agentOutput": "I’m locating `password_utils.py` and then I’ll read the relevant functions to map the `[ANC:sec:password-strength]` rule to the implementation.\nI found the anchor in `password_utils.py`; now I’m reading the full file to identify the exact function and compare it with the other password checks.\nThe function is `check_strength`. It enforces the password-policy rule that a strong password must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character. Unlike the other checks, it is the only one that directly encodes the core strength policy; the others handle history, format, entropy, leak detection, sequential patterns, repetition, keyboard walks, or Unicode safety.",
+      "durationMs": 17270.06579100003,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 6
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored implementation and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other secondary password checks.",
+      "agentOutput": "I’m locating `password_utils.py` and the `ANC:sec:password-strength` marker, then I’ll map it to the enforcing function.\nI found the anchor at the top of `password_utils.py`. Next I’m reading the file to identify the specific function and compare it against the other checks.\n`check_strength` implements `[ANC:sec:password-strength]`. It enforces the core password policy: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other functions, which check secondary concerns like history reuse, entropy, leaked/common passwords, or pattern avoidance, this one is the direct policy gate for basic password strength.",
+      "durationMs": 13985.152542000054,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 6
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The response correctly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check helpers.",
+      "agentOutput": "I’m locating `password_utils.py` and the `ANC:sec:password-strength` marker, then I’ll map it to the implementing function.\nI found the anchor in `password_utils.py`; now I’m reading the file to identify the exact function and compare it with the other checks.\nThe function is `check_strength`. It enforces the password-strength rule from `[ANC:sec:password-strength]`: at least 12 characters, at least one digit, at least one uppercase letter, and at least one special character. Unlike the other checks, it is a direct policy gate returning a boolean, while the others cover different concerns such as reuse history, character format, entropy scoring, leaked passwords, sequential runs, repetition, keyboard patterns, or Unicode safety.",
+      "durationMs": 18232.22212499997,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 6
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The final response explicitly identifies `check_strength` as the anchored function and accurately states the rule as requiring at least 12 characters, one digit, one uppercase letter, and one special character, while distinguishing it from the other noise-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and then I’ll inspect the password checks against the tagged rule.\nI found the anchor in `password_utils.py`; next I’m reading the file to map it to the exact function and compare it with the other checks.\nThe function is `check_strength`. It enforces the password-strength rule: at least 12 characters, at least one digit, at least one uppercase letter, and at least one special character. Unlike the other checks in the file, it directly validates the core strength policy and returns a boolean, while the others focus on separate concerns like history, format, entropy, leaks, sequences, repetition, keyboard patterns, or Unicode safety.",
+      "durationMs": 16882.293958000024,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 9
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The final response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other noise-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and then I’ll inspect the password-check functions against the `[ANC:sec:password-strength]` marker.\nI found the anchor in `password_utils.py`; next I’m reading the file to map the rule to the right function.\nThe function is `check_strength`. It enforces the password-strength rule by requiring at least 12 characters, at least one digit, at least one uppercase letter, and at least one special character. Unlike the other checks in the file, it directly implements the named policy rule from the anchor; the others handle separate concerns like history reuse, entropy scoring, format, keyboard patterns, length limits, whitespace, and null-byte safety.",
+      "durationMs": 17570.73645800003,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 9
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The final response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while treating the other password-check functions as secondary/narrower checks.",
+      "agentOutput": "I’m locating `password_utils.py` and then I’ll inspect the password-check functions against the `ANC:sec:password-strength` marker.\nI found the marker in `password_utils.py`; now I’m reading the file to identify the exact function and how it differs from the other checks.\nThe function is `check_strength`. It enforces the password-policy rule in `[ANC:sec:password-strength]`: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks in the file, it is the direct policy gate for “strong password” acceptance; the others test narrower properties such as reuse history, ASCII format, entropy, leaked/common-password status, or character-pattern safety.",
+      "durationMs": 23374.346499999985,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 9
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other narrower password-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and the anchor it mentions, then I’ll map the rule to the exact function and contrast it with the other checks.\nThe function is `check_strength`. It enforces the password-policy rule in `[ANC:sec:password-strength]`: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks in the file, which each target a narrower property like history, formatting, leakage, sequences, whitespace, or null bytes, this one is the main composite strength gate.",
+      "durationMs": 24579.29799999995,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 9
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other noise-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and reading the password checks so I can map the `ANC:sec:password-strength` rule to the right function.\nI found the anchor in `password_utils.py`; now I’m reading the file to identify the exact function and compare it with the other checks.\nThe function is `check_strength`. It enforces the password-policy rule by requiring at least 12 characters, at least one digit, at least one uppercase letter, and at least one special character. Unlike the other password-check functions, it directly implements the anchored strength policy as a boolean gate, while the others handle different concerns such as history reuse, format safety, entropy, leaked passwords, or pattern avoidance.",
+      "durationMs": 18717.376249999856,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 9
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the `[ANC:sec:password-strength]` implementation and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and reading the password checks to map the `[ANC:sec:password-strength]` rule to its implementing function.\nI found the anchor in `password_utils.py`; next I’m reading the file to identify the exact checker and compare it with the others.\n`check_strength` implements `[ANC:sec:password-strength]`. It enforces the core password policy: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks in the file, which validate other properties like history, leakage, length bounds, or formatting, this one is the primary strength gate and returns a simple boolean for policy compliance.",
+      "durationMs": 18101.87845800002,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 3
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as requiring at least 12 characters, one digit, one uppercase letter, and one special character, while contrasting it with the other password-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and the `ANC:password-strength` marker, then I’ll identify the matching function and compare it with the other password checks.\nI found the marker in the top-level `password_utils.py`; now I’m reading the file to map the anchor to the exact function and its behavior.\nThe function is `check_strength`. It enforces the policy “password must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character.” Unlike the other checks, it validates the core strength policy directly; the others focus on different concerns like reuse history, printable format, entropy scoring, leaked/common passwords, or sequential runs.",
+      "durationMs": 17168.826499999966,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 3
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and then I’ll map the `[ANC:password-strength]` marker to the function that owns that rule.\nI found the anchor at the top of `password_utils.py`; now I’m reading the file to identify the exact function and compare it to the other checks.\nThe function is `check_strength`. It enforces the password-policy rule that a valid password must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character. Unlike the other checks, it returns a simple boolean for the policy itself, while the others handle history, entropy, leaked-password detection, format, sequential runs, or a numeric complexity score.",
+      "durationMs": 17760.479291999945,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 3
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as requiring at least 12 characters, one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check functions.",
+      "agentOutput": "I’m opening `password_utils.py` and locating the `[ANC:password-strength]` marker, then I’ll summarize the matching function and how it differs from the others.\nI found the anchor at the top of `password_utils.py`; now I’m reading the file to map the anchor to the exact function and compare it with the other checks.\nThe function is `check_strength`. It enforces the password policy in the anchor: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other check functions, it returns a simple boolean for the core strength policy rather than checking history, leakage, sequential patterns, format, or producing a score/estimate.",
+      "durationMs": 16559.31687500002,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 3
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as requiring at least 12 characters, one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and then I’ll read the password-check functions around the `[ANC:password-strength]` marker.\nI found the anchor in `password_utils.py`; now I’m reading the file to map the rule to the function and compare it with the other checks.\nThe function is `check_strength`. It enforces the anchored password policy: at least 12 characters, at least one digit, at least one uppercase letter, and at least one special character. Unlike the other checks, it is a direct boolean rule validator for strength rather than checking history, estimating entropy/complexity, validating character format, detecting leaked passwords, or rejecting sequential runs.",
+      "durationMs": 16205.951624999987,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 3
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as requiring at least 12 characters, one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and checking the annotated rule marker in the file.\nI found the marker in `password_utils.py`; now I’m reading the file to map the marker to the function and compare the password checks.\nThe function is `check_strength`. It enforces the password-strength rule: at least 12 characters, at least one digit, at least one uppercase letter, and at least one special character. Unlike the other checks, it returns a simple boolean for the core policy requirement, while the others handle history, format, entropy, leaked-password detection, or sequential-pattern checks.",
+      "durationMs": 19326.004292000085,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 6
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The final response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while not naming any noise function as the primary answer.",
+      "agentOutput": "I’m checking `password_utils.py` and the related password checks, then I’ll map the `[ANC:password-strength]` rule to the exact function.\nI found the target file. Next I’m reading it and locating the `[ANC:password-strength]` marker plus the neighboring password checks.\nThe function is `check_strength`. It enforces the anchored rule that a strong password must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character. Unlike the other checks in the file, it validates a single explicit policy requirement; the others each enforce a narrower constraint or metric such as history reuse, entropy, ASCII safety, common-password leakage, patterns, repetition, keyboard walks, or Unicode normalization.",
+      "durationMs": 21414.306832999922,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 6
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response correctly identifies `check_strength()` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other noise-check functions.",
+      "agentOutput": "I’ll inspect `password_utils.py` and map the annotated rule to the function that implements it.\nI found the target file. Next I’m reading the function definitions and the `ANC:password-strength` annotation.\nThe function is `check_strength()`. It enforces the `[ANC:password-strength]` rule: a password must be at least 12 characters long and contain at least one digit, one uppercase letter, and one special character. Unlike the other checks in the file, this one directly encodes the core password-policy requirements rather than checking history, leakage, patterns, entropy, formatting, or Unicode normalization.",
+      "durationMs": 16848.171542000026,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 6
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other narrower password-check functions.",
+      "agentOutput": "I’m opening `password_utils.py` and locating the `[ANC:password-strength]` marker.\nI found the marker and am reading the file around it to identify the matching function and its neighbors.\nThe function is `check_strength`. It enforces a basic strength rule: the password must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character. Unlike the other checks in the file, which each target a single narrower property like history, entropy, sequential runs, or keyboard patterns, this one combines multiple core strength criteria into one boolean gate.",
+      "durationMs": 15054.207083999878,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 6
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other noise-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and the annotated password checks, then I’ll map the `[ANC:password-strength]` rule to the exact function.\nThe function is `check_strength`. It enforces the core password policy in the anchor: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks, it directly validates a baseline strength rule and returns a simple `bool` instead of checking history, leaks, format, entropy, patterns, repetition, or Unicode safety.",
+      "durationMs": 15820.292458000127,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 6
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other noise-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and then I’ll read the relevant section around `[ANC:password-strength]`.\nI found the file. Next I’m reading it to map the anchor to the exact function and compare it with the other password checks.\n`check_strength` implements `[ANC:password-strength]`. It enforces the core password policy: at least 12 characters, at least one digit, at least one uppercase letter, and at least one special character. Unlike the other checks, it is the direct policy gate for strength; the others test separate properties like reuse history, entropy, format, leaked passwords, sequential runs, repetition, keyboard walks, or Unicode normalization.",
+      "durationMs": 19762.76600000006,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 9
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the neighboring noise checks.",
+      "agentOutput": "I’m locating `password_utils.py` and reading the password check functions against the `[ANC:password-strength]` marker.\nI found the anchor in `password_utils.py`; now I’m reading the function definitions to map the rule to the right checker.\n`check_strength` implements `[ANC:password-strength]`. It enforces the core password policy: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other check functions, it is the only one that directly encodes the primary strength rule; the others cover adjacent constraints like reuse history, format, entropy, leaked/common passwords, patterns, length, whitespace, or null bytes.",
+      "durationMs": 16780.388833000092,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 9
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the function tied to `[ANC:password-strength]` and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other narrower noise checks.",
+      "agentOutput": "I’ll inspect `password_utils.py` and map the `[ANC:password-strength]` marker to the implementing function.\nI found the anchor. Next I’m reading the file to identify the exact function and compare it to the other checks.\nThe function is `check_strength`. It enforces the main password-strength rule: at least 12 characters, at least one digit, at least one uppercase letter, and at least one special character. Unlike the other password-check functions, which each validate a narrower property like history, format, entropy, repetition, or whitespace, this one directly encodes the core strength policy from the `[ANC:password-strength]` marker.",
+      "durationMs": 15801.983167000115,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 9
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and reading the password-check functions to map the `ANC:password-strength` marker to the exact implementation.\nI found the file. Next I’m reading it directly and checking the surrounding function definitions for the anchor comment.\nThe function is `check_strength`. It enforces the password-policy rule in `\"[ANC:password-strength]\"`: at least 12 characters, at least one digit, at least one uppercase letter, and at least one special character. It differs from the other checks because it is the only one explicitly anchored to that policy rule, while the others validate separate concerns like history, format, entropy, leaked/common passwords, patterns, or length limits.",
+      "durationMs": 17359.638542000204,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 9
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly identifies `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other narrower noise checks.",
+      "agentOutput": "I’m locating the annotated rule in `password_utils.py` and comparing the password checks around it.\nI found the anchor on the first docstring block. I’m reading the file to map that marker to the exact function and the neighboring checks.\n`check_strength` implements `[ANC:password-strength]`. It enforces a hard password-strength rule: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks, which each focus on a narrower property like history, format, entropy, leaks, or length, this one is a combined policy gate that returns a simple boolean pass/fail.",
+      "durationMs": 16192.145415999927,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 9
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly names `check_strength` as the anchored function and accurately states the rule as at least 12 characters with at least one digit, one uppercase letter, and one special character, while distinguishing it from the other password-check functions.",
+      "agentOutput": "I’m locating `password_utils.py` and reading the password checks to map the `[ANC:password-strength]` rule to the right function.\nI found the anchor near the top of the file; now I’m reading the function bodies to identify which check it tags.\nThe function is `check_strength`. It enforces the password-strength policy in the anchor: at least 12 characters, at least one digit, one uppercase letter, and one special character. Unlike the other checks, it returns a simple boolean for the core policy rather than scoring, detecting history/leaks/patterns, or validating format/safety constraints.",
+      "durationMs": 14711.597583000083,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    }
+  ],
+  "adherenceByAxis": {
+    "system": {
+      "native": 1,
+      "wikilinks": 1,
+      "zettelkasten": 0.9333333333333333,
+      "salp": 1,
+      "salp-short": 1
+    },
+    "noise_count": {
+      "3": 1,
+      "6": 0.96,
+      "9": 1
+    }
+  },
+  "durationMs": 1336562.1828750002,
+  "headline": "RAG noise (count=9) adherence — native=100% / wikilinks=100% / zettelkasten=100% / salp=100% / salp-short=100% (n=5/cell)"
+}

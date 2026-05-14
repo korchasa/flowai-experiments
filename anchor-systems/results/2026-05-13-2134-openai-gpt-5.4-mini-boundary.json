@@ -1,0 +1,512 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "anchor-systems-boundary",
+  "experimentName": "Anchor Systems — Context Boundary Detection (Bench 2)",
+  "modelProvider": "openai",
+  "model": "gpt-5.4-mini",
+  "ide": "opencode",
+  "judgeModelProvider": "openai",
+  "judgeModel": "gpt-5.4",
+  "judgeRuntime": "opencode",
+  "startedAt": "2026-05-13T21:34:02.331Z",
+  "finishedAt": "2026-05-13T21:48:22.520Z",
+  "seed": 1,
+  "reps": 5,
+  "axes": {
+    "system": [
+      "native",
+      "wikilinks",
+      "zettelkasten",
+      "salp",
+      "salp-short"
+    ]
+  },
+  "trials": [
+    {
+      "cell": {
+        "axes": {
+          "system": "native"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent's output contains parseable JSON with start_line 7 and end_line 18, which exactly matches the ground-truth function range and yields IoU = 1.0.",
+      "agentOutput": "I’m locating `auth_service.py` and the `# generate_reset_token` block now.\nI found the file; next I’m reading the relevant section to pin exact lines.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 30002.314458,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent's output contains parseable JSON with \"start_line\":7 and \"end_line\":18, which exactly matches the ground-truth function range and yields an inclusive IoU of 1.0.",
+      "agentOutput": "I’m locating `auth_service.py` and the `# generate_reset_token` anchor, then I’ll return the exact line range as JSON.\nI found the anchor at line 8. I’m reading the file to determine where that anchored block ends.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 36146.982583000005,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent output contains parseable JSON with start_line 7 and end_line 18, which exactly matches the ground truth and yields an IoU of 1.0.",
+      "agentOutput": "Inspecting `auth_service.py` to locate the `# generate_reset_token` block.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 27496.400959000006,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The agent output includes parseable JSON with \"start_line\":7 and \"end_line\":18, which exactly matches the ground truth and yields an inclusive IoU of 1.0.",
+      "agentOutput": "I’m locating `auth_service.py` and the `# generate_reset_token` anchor, then I’ll return the exact line range.\nI found the file. Next I’m reading around the anchor to determine the block boundaries precisely.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 43581.970041999986,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response includes JSON with start_line 7 and end_line 18, which exactly matches the ground-truth function range and yields an inclusive IoU of 1.0.",
+      "agentOutput": "I’ll inspect `auth_service.py` and return the anchored line range exactly.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 30606.139375,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line 7 and end_line 18, exactly matching the ground-truth function range, so the inclusive IoU is 1.0 which satisfies the >= 0.8 requirement.",
+      "agentOutput": "{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 47179.91424999997,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent output includes parsable JSON with start_line 7 and end_line 18, which exactly matches the ground-truth function range and yields an IoU of 1.0.",
+      "agentOutput": "I’ll locate `auth_service.py` and the anchored block, then return the line range as raw JSON.\nI found the file; now I’m reading it to extract the anchored block boundaries.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 55401.68783399998,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent output contains JSON with \"start_line\":7 and \"end_line\":18, which exactly matches the ground-truth function range and yields an inclusive IoU of 1.0.",
+      "agentOutput": "I’m locating `auth_service.py` and the anchored block, then I’ll return the exact line range as JSON.\nI found the file. Next I’m reading it to identify the anchored block boundaries precisely.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 44726.6655,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The agent output contains a parseable JSON object with start_line 7 and end_line 18, which exactly matches the ground truth and yields an inclusive IoU of 1.0.",
+      "agentOutput": "I’m locating `auth_service.py` and the anchored block, then I’ll return the line range as JSON only.\nI found the file; now I’m reading it to map the anchor to exact lines.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 32067.028875000018,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The agent output includes parseable JSON with \"start_line\":7 and \"end_line\":18, which exactly matches the ground truth for generate_reset_token and yields an inclusive IoU of 1.0.",
+      "agentOutput": "I’m locating `auth_service.py` and the anchored block, then I’ll return just the line range in JSON.\nI found the file. Now I’m reading it to extract the exact anchored block boundaries.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 33016.199292000034,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent's output contains parseable JSON with start_line=7 and end_line=18, which exactly matches the ground truth and yields an inclusive IoU of 1.0.",
+      "agentOutput": "I’m locating the UID anchor in `auth_service.py` and then I’ll return the exact line range.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 27348.623415999988,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent output contains a parseable JSON object with start_line 7 and end_line 18, which exactly matches the ground-truth function range and yields an inclusive IoU of 1.0.",
+      "agentOutput": "I’m locating the anchored block in `auth_service.py` and will return only the line range.\nI found the UID marker; now I’m reading the file to determine the block boundaries precisely.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 27961.246832999983,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent's output includes JSON with start_line 7 and end_line 18, which exactly matches the ground-truth function range and yields an inclusive IoU of 1.0.",
+      "agentOutput": "I’m locating `auth_service.py` and the UID anchor, then I’ll return the exact line span.\nI found the UID in `auth_service.py`; now I’m reading the surrounding block to pin down the start and end lines.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 31239.434458000003,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The agent's JSON reports start_line 7 and end_line 18, which exactly matches the ground truth for the anchored function, giving an inclusive IoU of 1.0.",
+      "agentOutput": "I’m locating the anchor in `auth_service.py` and will return just the line range.\nI found the UID marker near the top of the file. I’m reading the surrounding lines to determine the block end precisely.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 28762.438958000042,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The agent's final response contains parseable JSON with start_line 7 and end_line 18, which exactly matches the ground truth and yields an inclusive IoU of 1.0.",
+      "agentOutput": "I'll locate `auth_service.py` and search for the UID anchor, then return the exact line range.\nI found the UID marker at line 8. I’m reading the file to determine the full anchored block boundaries.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 32757.16599999997,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent reported {\"start_line\":8,\"end_line\":18}, which overlaps the ground-truth range 7-18 with inclusive IoU 11/12 = 0.9167, exceeding the 0.8 threshold and matching the anchored function rather than a different block or the whole file.",
+      "agentOutput": "I’m locating `auth_service.py` and the anchor block now.\nI found the anchor at line 8. I’m reading the surrounding block to determine its end line exactly.\n{\"start_line\":8,\"end_line\":18}",
+      "durationMs": 30859.090124999988,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent output contains a parseable JSON object with start_line 7 and end_line 18, which exactly matches the ground truth and yields an inclusive IoU of 1.0.",
+      "agentOutput": "I’m locating `auth_service.py` and the anchored block, then I’ll return the line range only.\nI found the anchor marker at line 8. I’m reading the file to determine where that anchored block ends.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 31217.57116599998,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent output contains a parseable JSON object with \"start_line\":7 and \"end_line\":18, which exactly matches the ground-truth anchored function range and yields IoU 1.0.",
+      "agentOutput": "I’m locating the anchored block in `auth_service.py` and will return the exact line range only.\nI found the anchor marker. I’m reading the file to determine where that block ends.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 48017.333125000005,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The agent reported JSON with start_line 8 and end_line 18, which overlaps the ground-truth range 7-18 with IoU 11/12 = 0.9167, exceeding the 0.8 threshold.",
+      "agentOutput": "I’m locating the anchor in `auth_service.py` and will return the exact line range only.\nI found the anchor at line 8. I’m reading the surrounding block to determine its end line exactly.\n{\"start_line\":8,\"end_line\":18}",
+      "durationMs": 30861.156582999974,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The agent output contains a parseable JSON object with start_line 7 and end_line 18, exactly matching the anchored function's ground-truth range and yielding IoU = 1.0.",
+      "agentOutput": "I’ll locate `auth_service.py`, read the relevant section, and return the exact line range for the anchored block.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 33958.18816699996,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The agent reported start_line=8 and end_line=12, which overlaps the true range 7-18 by 5 lines out of a 12-line union (IoU = 5/12 ≈ 0.42), below the required 0.8 threshold.",
+      "agentOutput": "I’m locating `auth_service.py` and the `[ANC:token-generator-v1]` anchor, then I’ll return the exact line range as JSON only.\nI found the anchor at line 8. I’m reading the surrounding block to determine its exact end line.\n{\"start_line\":8,\"end_line\":12}",
+      "durationMs": 31244.373916999903,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent’s reported JSON range is start_line=7 and end_line=18, which exactly matches the grounded function span, giving an inclusive IoU of 1.0.",
+      "agentOutput": "I’ll locate `auth_service.py` and inspect the anchored block.\nI found the file. Now I’m reading it to map the anchor to exact lines.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 29958.77137500001,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent output contains parseable JSON with \"start_line\":7 and \"end_line\":18, which exactly matches the ground-truth span so the inclusive IoU is 1.0 and it does not indicate a different function or the entire file.",
+      "agentOutput": "I’m locating the anchor in `auth_service.py` and will return only the line range.\nI found the anchor marker; now I’m reading the surrounding block to determine its exact span.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 37834.83508300001,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The agent output contains parseable JSON with start_line 7 and end_line 18, which exactly matches the ground truth for generate_reset_token and yields an inclusive IoU of 1.0.",
+      "agentOutput": "I’m locating `auth_service.py` and the anchor, then I’ll return the line range as raw JSON.\nI found the anchor; now I’m reading the file to determine where that block ends.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 29328.511707999976,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The agent output contains a parseable JSON object with start_line 7 and end_line 18, which exactly matches the ground-truth function range and gives an inclusive IoU of 1.0.",
+      "agentOutput": "I’m locating the anchor in `auth_service.py` and will return the exact line range only.\nI found the anchor marker at line 8; now I’m reading the file to determine the block bounds.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 28459.932583999936,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    }
+  ],
+  "adherenceByAxis": {
+    "system": {
+      "native": 1,
+      "wikilinks": 1,
+      "zettelkasten": 1,
+      "salp": 1,
+      "salp-short": 0.8
+    }
+  },
+  "durationMs": 860189.574375,
+  "headline": "Boundary detection adherence (IoU≥0.8) — native=100% / salp=100% / salp-short=80% / wikilinks=100% / zettelkasten=100% (n=5/cell)"
+}

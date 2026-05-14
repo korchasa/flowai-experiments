@@ -1,15 +1,31 @@
 {
   "ides": {
+    "opencode": {
+      "default_agent_model_provider": "openai",
+      "default_agent_model": "gpt-5.4-mini",
+      "judge": {
+        "runtime": "opencode",
+        "model_provider": "openai",
+        "model": "gpt-5.4",
+        "temperature": 0
+      }
+    },
     "cursor": {
+      "default_agent_model_provider": "google",
       "default_agent_model": "gemini-3-flash",
       "judge": {
+        "runtime": "opencode",
+        "model_provider": "anthropic",
         "model": "claude-haiku-4-5-20251001",
         "temperature": 0
       }
     },
     "claude": {
+      "default_agent_model_provider": "anthropic",
       "default_agent_model": "claude-sonnet-4-6",
       "judge": {
+        "runtime": "claude",
+        "model_provider": "anthropic",
         "model": "claude-sonnet-4-6",
         "temperature": 0
       }

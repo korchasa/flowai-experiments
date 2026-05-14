@@ -3,8 +3,8 @@
  *
  * Result lifecycle: the runner invokes `writeReport()` which saves two
  * sibling files under the top-level `./results/` directory:
- *   <YYYY-MM-DD>-<HHMM>-<model-slug>-<variant>.json  (full raw data / log)
- *   <YYYY-MM-DD>-<HHMM>-<model-slug>-<variant>.md    (human summary)
+ *   <YYYY-MM-DD>-<HHMM>-<provider-model-slug>-<variant>.json
+ *   <YYYY-MM-DD>-<HHMM>-<provider-model-slug>-<variant>.md
  *
  * The `HHMM` time is derived from `report.startedAt` in UTC so multiple
  * runs on the same day never collide.
@@ -52,8 +52,22 @@ export function renderMarkdown(report: ExperimentReport): string {
   lines.push(`## Run Metadata`);
   lines.push("");
   lines.push(`- **Experiment ID:** \`${report.experimentId}\``);
+  if (report.modelProvider) {
+    lines.push(`- **Model provider:** \`${report.modelProvider}\``);
+  }
   lines.push(`- **Model:** \`${report.model}\``);
   lines.push(`- **IDE:** \`${report.ide}\``);
+  if (report.judgeModel || report.judgeModelProvider || report.judgeRuntime) {
+    lines.push(`- **Judge runtime:** \`${report.judgeRuntime ?? report.ide}\``);
+    if (report.judgeModelProvider) {
+      lines.push(
+        `- **Judge model provider:** \`${report.judgeModelProvider}\``,
+      );
+    }
+    if (report.judgeModel) {
+      lines.push(`- **Judge model:** \`${report.judgeModel}\``);
+    }
+  }
   lines.push(`- **Reps per cell:** ${report.reps}`);
   lines.push(`- **Seed:** ${report.seed}`);
   lines.push(`- **Started:** ${report.startedAt}`);
@@ -185,7 +199,9 @@ export async function writeReport(
   const hh = report.startedAt.slice(11, 13);
   const mm = report.startedAt.slice(14, 16);
   const time = `${hh}${mm}`;
-  const modelSlug = report.model.replace(/[^a-zA-Z0-9._-]/g, "-");
+  const modelSlug = [report.modelProvider, report.model].filter(Boolean)
+    .join("-")
+    .replace(/[^a-zA-Z0-9._-]/g, "-");
   const baseName = `${date}-${time}-${modelSlug}-${variant}`;
   const jsonPath = join(resultsDir, `${baseName}.json`);
   const mdPath = join(resultsDir, `${baseName}.md`);

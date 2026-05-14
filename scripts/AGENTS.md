@@ -14,7 +14,7 @@
   - secret scanning of git history (`gitleaks git . --no-banner --no-color`; requires `brew install gitleaks`)
   - Note: `gitleaks dir` scans ALL files including `.gitignore`'d ones — false positives on `.env` and cache files. Always use `gitleaks git` for "no secrets in repo" checks.
 - `test <path>` — runs a single test file or suite (`deno test -A <path>`).
-- `experiment <name>` — runs an experiment variant end-to-end (spawns the live Claude CLI; requires macOS keychain auth).
+- `experiment <name>` — runs an experiment variant end-to-end via `@korchasa/ai-ide-cli`; requires auth for the selected runtime.
 - `dev` — not applicable. This repo has no long-running dev server. Use `experiment --dry-run` for quick iteration.
 - `prod` — not applicable. Experiments are run manually on developer machines; there is no deployable artifact.
 
@@ -24,7 +24,7 @@ All commands are defined as Deno tasks in [`deno.json`](../deno.json) and must b
 
 - `deno task check` — format check + lint + unit tests + gitleaks secret scan. The canonical gate: run before every commit. Requires `gitleaks` (`brew install gitleaks`).
 - `deno task test` — unit tests only (`deno test -A --ignore=compression-decompression,tokenizers,images-hard`). Use during TDD loops.
-- `deno task experiment <name> --variant <v> [flags]` — run an experiment variant. Flags: `--dry-run`, `--reps`, `--axis <name>=<csv>` (repeatable; axis names are experiment-specific — see the experiment's README), `--model`, `--ide`, `--seed`.
+- `deno task experiment <name> --variant <v> [flags]` — run an experiment variant. Flags: `--dry-run`, `--reps`, `--axis <name>=<csv>` (repeatable; axis names are experiment-specific — see the experiment's README), `--model-provider`, `--model`, `--ide`, `--seed`.
 
 ## Command Scripts
 
@@ -45,9 +45,9 @@ After cloning:
 
 ## Running experiments — prerequisites
 
-- `claude` CLI installed and authenticated. On macOS, OAuth credentials live in keychain entry `Claude Code-credentials`. If missing or expired, the runner fails with a clear error — STOP and ask the user, do not invent replacements.
+- Selected AI IDE CLI installed and authenticated (`opencode` by default for `anchor-systems`). If auth is missing or expired, the runner fails with a clear error — STOP and ask the user, do not invent replacements.
 - **CRITICAL**: Never attempt to read or write credentials directly — no `security find-generic-password`, no `.credentials.json` creation, no env var injection of tokens. Auth is always handled externally by the CLI. This is a security constraint, not a workaround opportunity.
-- `config.json` present at repo root — holds IDE defaults (`default_agent_model`, `judge` model per IDE).
+- `config.json` present at repo root — holds IDE defaults (`default_agent_model_provider`, `default_agent_model`, `judge.runtime`, `judge.model_provider`, `judge.model`).
 - Invoke all tasks from the repo root. Running from `scripts/` breaks config resolution.
 - Note: `~/.claude/CLAUDE.md` leaks into trial agents (no `settingSources` override in `invokeClaudeCli`). Experiments measuring memory-file effects must account for this baseline contamination.
 
@@ -62,4 +62,4 @@ After cloning:
 
 ## CI Scope
 
-CI runs `deno task check` directly (see [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) — same command as local, including gitleaks. CI does NOT run `deno task experiment` — experiments need live Claude CLI auth and are run manually on developer machines.
+CI runs `deno task check` directly (see [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) — same command as local, including gitleaks. CI does NOT run `deno task experiment` — experiments need live AI IDE CLI auth and are run manually on developer machines.

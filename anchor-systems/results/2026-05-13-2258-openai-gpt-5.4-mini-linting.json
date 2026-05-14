@@ -1,0 +1,512 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "anchor-systems-linting",
+  "experimentName": "Anchor Systems — Graph Diagnostics & Linting (Bench 6)",
+  "modelProvider": "openai",
+  "model": "gpt-5.4-mini",
+  "ide": "opencode",
+  "judgeModelProvider": "openai",
+  "judgeModel": "gpt-5.4",
+  "judgeRuntime": "opencode",
+  "startedAt": "2026-05-13T22:58:24.260Z",
+  "finishedAt": "2026-05-13T23:29:41.257Z",
+  "seed": 1,
+  "reps": 5,
+  "axes": {
+    "system": [
+      "native",
+      "wikilinks",
+      "zettelkasten",
+      "salp",
+      "salp-short"
+    ]
+  },
+  "trials": [
+    {
+      "cell": {
+        "axes": {
+          "system": "native"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The output names all three categories only semantically (`missing-anchor-reference`, `duplicate-anchor-id`, `commented-out-anchor`), but it also reports extra anomalies beyond the 3 planted ones, so it fabricates anomalies that do not exist under the stated rule.",
+      "agentOutput": "I’m scanning the Markdown and Python files, then I’ll cross-check declared anchors against references.\nI’ve got the file set. Next I’m extracting the anchor syntax and cross-reference patterns before checking for defects.\nI’ve identified the likely reference set. I’m now checking whether any anchors are duplicated or hidden inside comments/docstrings.\n[{\"type\":\"missing-anchor-reference\",\"id\":\"oauth-callback\",\"details\":\"`oauth.md:11` links to `api.md#oauth-callback`, but `api.md` is not present and no `oauth-callback` anchor is declared.\"},{\"type\":\"duplicate-anchor-id\",\"id\":\"password-policy\",\"details\":\"Declared twice in `password.md` (`# Password Policy` at line 1 and `## Password Policy` at line 3).\"},{\"type\":\"duplicate-anchor-id\",\"id\":\"user-schema\",\"details\":\"Declared in `auth.md:5` and again in the commented-out heading in `session_store.py:4`.\"},{\"type\":\"commented-out-anchor\",\"id\":\"lockout-duration\",\"details\":\"Declared in a commented-out heading in `auth_service.py:2` (`# # LOCKOUT_DURATION`).\"},{\"type\":\"commented-out-anchor\",\"id\":\"user-schema\",\"details\":\"Declared in a commented-out heading in `session_store.py:4` (`# # User Schema`).\"},{\"type\":\"commented-out-anchor\",\"id\":\"legacy-md5-hash\",\"details\":\"Declared inside the HTML comment block in `password.md:11-14` (`## Legacy MD5 Hash`).\"}]",
+      "durationMs": 114238.342583,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native"
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "Although the response semantically covers duplicate anchors, orphaned references, and commented-out anchors, it reports seven anomalies in a project stated to contain only three planted anomalies, so it fabricates additional issues that do not exist.",
+      "agentOutput": "Scanning the Markdown and Python files first, then I’ll check anchor declarations and inbound references.\nI’ve got the file set. Next I’m reading the docs and Python sources to extract declared anchors and `#...` references.\nI’ve read the docs. I’m now checking the Python files for anchor-style references and for any anchors hidden inside commented-out blocks.\n[{\"type\":\"duplicate-anchor-id\",\"id\":\"password-policy\",\"details\":\"Declared by both `password.md` line 1 and `password.md` line 3 (`# Password Policy` / `## Password Policy`).\"},{\"type\":\"duplicate-anchor-id\",\"id\":\"user-schema\",\"details\":\"Declared by `auth.md` line 5 and again in the commented-out line `session_store.py` line 4 (`# # User Schema`).\"},{\"type\":\"missing-anchor-target\",\"id\":\"lockout-rule\",\"details\":\"Referenced from `password.md` line 9 and `auth_service.py` line 22, but there is no `lockout.md` file or `#account-lockout-rule` anchor.\"},{\"type\":\"missing-anchor-target\",\"id\":\"oauth-callback\",\"details\":\"Referenced from `oauth.md` line 11, but there is no `api.md` file or `#oauth-callback` anchor.\"},{\"type\":\"commented-out-anchor\",\"id\":\"lockout-duration\",\"details\":\"Declared in a commented line in `auth_service.py` line 2 (`# # LOCKOUT_DURATION`).\"},{\"type\":\"commented-out-anchor\",\"id\":\"user-schema\",\"details\":\"Declared in a commented line in `session_store.py` line 4 (`# # User Schema`).\"},{\"type\":\"commented-out-anchor\",\"id\":\"legacy-md5-hash\",\"details\":\"Declared inside the HTML comment block in `password.md` lines 11-14 (`## Legacy MD5 Hash`).\"}]",
+      "durationMs": 127895.03979099999,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native"
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The response semantically covers all three target categories, but it lists seven anomalies in a project stated to contain only three planted anomalies, so it fabricates additional anomalies beyond the expected duplicate_anchor, orphaned_ref, and shadowed_anchor cases.",
+      "agentOutput": "I’m scanning the Markdown and Python files first, then I’ll verify anchors and cross-references against the full set.\n[{\"type\":\"duplicate-anchor-id\",\"id\":\"password-policy\",\"details\":\"password.md declares the same slug twice: line 1 (# Password Policy) and line 3 (## Password Policy).\"},{\"type\":\"duplicate-anchor-id\",\"id\":\"user-schema\",\"details\":\"auth.md line 5 declares User Schema, and session_store.py line 4 contains the same heading inside a comment.\"},{\"type\":\"missing-anchor-target\",\"id\":\"password-requirements\",\"details\":\"overview.md:5 links to password.md#password-requirements, but password.md only declares password-policy.\"},{\"type\":\"missing-anchor-target\",\"id\":\"oauth-callback\",\"details\":\"oauth.md:11 links to api.md#oauth-callback, but there is no api.md anchor/file in this directory.\"},{\"type\":\"commented-out-anchor\",\"id\":\"lockout_duration\",\"details\":\"auth_service.py:2 contains a commented-out heading-like anchor (# LOCKOUT_DURATION).\"},{\"type\":\"commented-out-anchor\",\"id\":\"user-schema\",\"details\":\"session_store.py:4 contains a commented-out heading-like anchor (# User Schema).\"},{\"type\":\"commented-out-anchor\",\"id\":\"legacy-md5-hash\",\"details\":\"password.md:11-14 contains a heading-like anchor (Legacy MD5 Hash) inside an HTML comment.\"}]",
+      "durationMs": 105192.57204199999,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The final JSON array reports all three required anomaly semantics via `duplicate-anchor`, `broken-reference`, and `commented-out-anchor`, which correspond to `duplicate_anchor`, `orphaned_ref`, and `shadowed_anchor` respectively.",
+      "agentOutput": "I’m scanning the Markdown and Python files first, then I’ll check anchor declarations and references against that graph.\nI have the file set. Next I’m reading the content to extract declared anchors, link targets, and any anchors hidden in commented sections.\nI’ve identified likely anchor collisions already. I still need `session.md` and `token.md` plus the Python test file to complete the reference check.\nI’ve checked the link targets. Now I’m searching for hidden anchor declarations in comments so I can separate valid anchors from commented-out ones.\nThere are three additional Markdown files with anchors. I’m reading those now so the graph is complete before I report issues.\nI have one clearly broken link already and the rest of the graph looks internally consistent. I’m doing one final sweep over all anchor-style links to make sure I didn’t miss any reference.\n[{\"type\":\"duplicate-anchor\",\"id\":\"password-policy\",\"details\":\"Declared in `password.md:1` and `password.md:3`; both headings normalize to the same anchor.\"},{\"type\":\"duplicate-anchor\",\"id\":\"user-schema\",\"details\":\"Declared in `auth.md:5` and `session_store.py:4`; both normalize to the same anchor.\"},{\"type\":\"broken-reference\",\"id\":\"oauth-callback\",\"details\":\"`oauth.md:11` links to `api.md#oauth-callback`, but `api.md` is missing and no `oauth-callback` anchor is declared anywhere.\"},{\"type\":\"commented-out-anchor\",\"id\":\"legacy-md5-hash\",\"details\":\"`password.md:11-14` contains an HTML-commented heading `## Legacy MD5 Hash`.\"},{\"type\":\"commented-out-anchor\",\"id\":\"user-schema\",\"details\":\"`session_store.py:4` has a commented line `# # User Schema` that declares a hidden `user-schema` anchor.\"},{\"type\":\"commented-out-anchor\",\"id\":\"lockout_duration\",\"details\":\"`auth_service.py:2` has a commented line `# # LOCKOUT_DURATION` that declares a hidden anchor.\"}]",
+      "durationMs": 137080.039667,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native"
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The response names `duplicate_anchor`, but it uses non-matching labels `broken_reference` and `commented_out_anchor` instead of the required anomaly type names `orphaned_ref` and `shadowed_anchor`, so it does not clearly identify at least two of the three target types by name.",
+      "agentOutput": "I’m scanning the Markdown and Python files first, then I’ll verify anchors and references against the file set.\nI found 18 source files. Next I’m extracting headings and in-document links, then I’ll compare them for duplicates, broken references, and anchors hidden in comments.\n[\n  {\"type\":\"broken_reference\",\"id\":\"oauth-callback\",\"details\":\"oauth.md:11 links to api.md#oauth-callback, but api.md does not exist in this directory.\"},\n  {\"type\":\"duplicate_anchor\",\"id\":\"password-policy\",\"details\":\"password.md declares the same anchor twice: '# Password Policy' at lines 1 and 3.\"},\n  {\"type\":\"duplicate_anchor\",\"id\":\"user-schema\",\"details\":\"auth.md:5 and session_store.py:4 both declare 'User Schema'.\"},\n  {\"type\":\"commented_out_anchor\",\"id\":\"legacy-md5-hash\",\"details\":\"password.md:11-14 contains a 'Legacy MD5 Hash' anchor inside an HTML comment block.\"},\n  {\"type\":\"commented_out_anchor\",\"id\":\"lockout_duration\",\"details\":\"auth_service.py:2-3 contains a commented-out 'LOCKOUT_DURATION' anchor.\"},\n  {\"type\":\"commented_out_anchor\",\"id\":\"user-schema\",\"details\":\"session_store.py:4 contains a commented-out 'User Schema' anchor.\"}\n]",
+      "durationMs": 111963.62054199999,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The response identifies all three required anomaly semantics: a duplicate anchor (`duplicate-anchor`), a reference to a non-existent anchor (`missing-anchor`, matching orphaned_ref), and an anchor inside a commented-out block (`commented-out-anchor`, matching shadowed_anchor).",
+      "agentOutput": "I’m scanning the Markdown and Python files first to reconstruct the anchor graph before checking for duplicates and broken references.\nI found 18 markdown/python files. Next I’m extracting every declared anchor and every cross-reference from them so I can compare the sets.\nI have the full file contents now. I’m running a pattern search for every anchor declaration and every `[[...]]` reference to verify I didn’t miss anything hidden in docstrings or comments.\nI’ve identified one duplicate anchor and one missing target already. I’m checking for anchors hidden inside explicit comment blocks so I can separate real declarations from dead ones.\n[{\"type\":\"duplicate-anchor\",\"id\":\"db-user-schema\",\"details\":\"Declared in both `auth.md:3` and `session_store.py:4`.\"},{\"type\":\"missing-anchor\",\"id\":\"api-oauth-callback\",\"details\":\"Referenced from `oauth.md:9` as `[[api#^api-oauth-callback]]`, but no declaration exists in any `.md` or `.py` file.\"},{\"type\":\"commented-out-anchor\",\"id\":\"legacy-md5-hash\",\"details\":\"Declared inside an HTML comment block in `password.md:9-12`.\"}]",
+      "durationMs": 78054.02316699992,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response identifies all three required anomaly semantics: a duplicate anchor (`duplicate_anchor`), a reference to a non-existent anchor (`missing_anchor`, equivalent to `orphaned_ref`), and an anchor hidden inside a comment (`commented_anchor`, equivalent to `shadowed_anchor`).",
+      "agentOutput": "I’m scanning the Markdown and Python files first, then I’ll check anchor declarations and link targets against each other.\nI found 18 source files. Next I’m reading them in parallel so I can extract anchor declarations, link references, and comments precisely.\n[{\"type\":\"duplicate_anchor\",\"id\":\"db-user-schema\",\"details\":\"Declared in auth.md:3 and session_store.py:4.\"},{\"type\":\"missing_anchor\",\"id\":\"api-oauth-callback\",\"details\":\"Referenced from oauth.md:9 as [[api#^api-oauth-callback]], but no declaration exists in any .md or .py file.\"},{\"type\":\"commented_anchor\",\"id\":\"legacy-md5-hash\",\"details\":\"Declared inside an HTML comment in password.md:9-12, so it is hidden from the active reference graph.\"}]",
+      "durationMs": 65804.13291699998,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks"
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The response identifies only the duplicate-anchor anomaly and a commented-out-anchor variant of shadowed_anchor, but it omits any orphaned_ref finding and also reports an extra commented-out anchor anomaly not among the three planted types.",
+      "agentOutput": "I’m scanning the markdown and Python files to extract anchors, references, and commented-out blocks before checking for graph errors.\nI’ve got the file set. Next I’m reading the document and source contents to extract declared anchors and internal `#...` references.\n[{\"type\":\"duplicate-anchor\",\"id\":\"db-user-schema\",\"details\":\"Declared in auth.md:3 and session_store.py:4; the session_store declaration is inside a comment.\"},{\"type\":\"commented-out-anchor\",\"id\":\"legacy-md5-hash\",\"details\":\"Declared inside an HTML comment block in password.md:9-12.\"},{\"type\":\"commented-out-anchor\",\"id\":\"impl-auth-lockout-timer\",\"details\":\"Declared in a top-level comment in auth_service.py:2-4.\"}]",
+      "durationMs": 82616.233625,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The response identifies all three required semantic anomaly types via equivalent labels: `duplicate-anchor` for `duplicate_anchor`, `missing-anchor-reference` for `orphaned_ref`, and `commented-out-anchor` for `shadowed_anchor`.",
+      "agentOutput": "I’m scanning the Markdown and Python files to extract anchors and references, then I’ll check for duplicates, missing targets, and anchors hidden in commented blocks.\nI found 17 source files. Next I’m reading them in parallel to build the anchor graph and check each target against the declared IDs.\n[{\"type\":\"duplicate-anchor\",\"id\":\"db-user-schema\",\"details\":\"Declared in `auth.md:3` and `session_store.py:4`.\"},{\"type\":\"missing-anchor-reference\",\"id\":\"api-oauth-callback\",\"details\":\"Referenced from `oauth.md:9` as `[[api#^api-oauth-callback]]`, but no declaration exists in any `.md` or `.py` file.\"},{\"type\":\"commented-out-anchor\",\"id\":\"legacy-md5-hash\",\"details\":\"Declared inside the HTML comment block in `password.md:9-12`.\"}]",
+      "durationMs": 54377.67875000008,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response identifies all three required anomaly semantics: a duplicate anchor declaration (\"duplicate-anchor-id\"), a reference to a non-existent anchor (\"missing-anchor\"), and an anchor inside a commented-out block (\"anchor-in-commented-out-block\").",
+      "agentOutput": "I’m scanning the Markdown and Python files first, then I’ll check anchors and references against the full set.\nI have the file set. Next I’m extracting declared anchors and cross-references from each file to compare them globally.\n[{\"type\":\"duplicate-anchor-id\",\"id\":\"db-user-schema\",\"details\":\"Declared in both `auth.md` (line 3) and `session_store.py` (line 4).\"},{\"type\":\"missing-anchor\",\"id\":\"api#^api-oauth-callback\",\"details\":\"Referenced from `oauth.md` (line 9), but no `api` file or `^api-oauth-callback` anchor exists in the directory.\"},{\"type\":\"anchor-in-commented-out-block\",\"id\":\"legacy-md5-hash\",\"details\":\"Declared inside an HTML comment block in `password.md` (lines 9-12).\"}]",
+      "durationMs": 65516.10058299999,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The response semantically identifies all three target anomaly classes (`duplicate_anchor`, `missing_anchor` as an orphaned reference, and `commented_out_anchor` as a shadowed anchor), but it also reports an extra fourth anomaly (`commented_out_anchor` for `202605129001`) beyond the three planted anomalies, so it fabricates a non-existent issue.",
+      "agentOutput": "I’m scanning the Markdown and Python files to build the anchor graph and check for duplicates, missing targets, and commented-out anchors.\nI’ve got the file set. Next I’m reading the documents and Python source to extract declared anchors and all cross-references.\n[{\"type\":\"duplicate_anchor\",\"id\":\"202605129001\",\"details\":\"Declared in auth.md:4 and session_store.py:4.\"},{\"type\":\"missing_anchor\",\"id\":\"202605129002\",\"details\":\"Referenced from oauth.md:10 but no declaration was found in any .md or .py file.\"},{\"type\":\"commented_out_anchor\",\"id\":\"202605129003\",\"details\":\"Declared inside an HTML comment in password.md:10-13.\"},{\"type\":\"commented_out_anchor\",\"id\":\"202605129001\",\"details\":\"Declared in a commented line in session_store.py:4.\"}]",
+      "durationMs": 67893.26150000002,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The final response identifies all three required anomaly semantics: a duplicate anchor (\"duplicate-anchor\"), a broken reference to a non-existent anchor (\"missing-anchor\"), and anchors declared inside commented-out blocks (\"commented-out-anchor\").",
+      "agentOutput": "I’m mapping the Markdown and Python files first, then I’ll scan anchors and references for conflicts and broken links.\nI’ve got the file set. Next I’m reading the docs and Python sources to extract declared anchors, comment blocks, and cross-references.\nI’ve found one commented-out anchor block already. I’m reading the remaining docs and Python files to verify the full graph before reporting anything.\nI’ve identified one broken reference already. I’m doing a quick cross-check of all UID markers now to avoid missing a duplicate or a commented-out declaration.\n[{\"type\":\"duplicate-anchor\",\"id\":\"202605129001\",\"details\":\"Declared in `auth.md:4` and `session_store.py:4`.\"},{\"type\":\"missing-anchor\",\"id\":\"202605129002\",\"details\":\"Referenced from `oauth.md:10`, but no declaration exists in any `.md` or `.py` file.\"},{\"type\":\"commented-out-anchor\",\"id\":\"202605129001\",\"details\":\"Declared in a commented-out line in `session_store.py:4` (`# **UID: 202605129001** db:user-schema`).\"},{\"type\":\"commented-out-anchor\",\"id\":\"202605129003\",\"details\":\"Declared inside an HTML comment in `password.md:10-13`.\"}]",
+      "durationMs": 80663.563708,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The final response reports all three planted anomaly semantics: a duplicate anchor ID (`duplicate-anchor-id`), a broken reference to a missing anchor (`missing-anchor-reference`), and an anchor declared inside a commented-out block (`commented-out-anchor`).",
+      "agentOutput": "I’m scanning the Markdown and Python files first, then I’ll build the anchor/reference map and check it for collisions, broken targets, and anchors hidden in commented-out blocks.\nI’ve got the file set. Next I’m reading the contents and extracting headings, explicit anchor syntax, and intra-doc links so I can validate the graph against the actual targets.\nI’ve finished the docs pass. I’m reading the Python sources now to catch any anchors or references emitted in code comments/docstrings and to verify the markdown references against implementation details where relevant.\nI’ve finished the manual read. I’m doing one quick pattern pass to make sure I didn’t miss any `[[...]]` references or hidden `UID:` declarations before I return the audit result.\nThe pattern pass surfaced one more Markdown file and one likely broken reference. I’m reading that file now to confirm the exact errors before I format the JSON.\n[{\"type\":\"duplicate-anchor-id\",\"id\":\"202605129001\",\"details\":\"Declared in `auth.md:4` and in a commented-out line in `session_store.py:4`.\"},{\"type\":\"missing-anchor-reference\",\"id\":\"202605129002\",\"details\":\"Referenced in `oauth.md:10`, but no declaration exists in any `.md` or `.py` file.\"},{\"type\":\"commented-out-anchor\",\"id\":\"202605129003\",\"details\":\"Declared inside an HTML comment block in `password.md:11`.\"}]",
+      "durationMs": 77637.011833,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "Although the response semantically identifies all three target anomaly types (`duplicate_anchor`, `orphaned_ref`, and `shadowed_anchor`), it reports a fourth anomaly (`202605129003` in `password.md`) beyond the three planted anomalies, so it fabricates an extra issue.",
+      "agentOutput": "I’m scanning the Markdown and Python files first, then I’ll check anchors and references against each other.\nI found one commented-out UID already, so I’m checking the remaining files for duplicate IDs and broken links next.\n[{\"type\":\"duplicate_anchor_id\",\"id\":\"202605129001\",\"details\":\"Declared in `auth.md:4` and again in a commented-out line in `session_store.py:4`.\"},{\"type\":\"missing_anchor_reference\",\"id\":\"202605129002\",\"details\":\"Referenced from `oauth.md:10` but no active declaration exists in any `.md` or `.py` file.\"},{\"type\":\"anchor_in_commented_block\",\"id\":\"202605129001\",\"details\":\"Declared in a commented-out Python line in `session_store.py:4` (`# **UID: 202605129001** db:user-schema`).\"},{\"type\":\"anchor_in_commented_block\",\"id\":\"202605129003\",\"details\":\"Declared inside an HTML comment block in `password.md:10-13`.\"]}",
+      "durationMs": 68229.43891600007,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response identifies all three planted anomaly types semantically via `duplicate-anchor`, `missing-anchor-reference`, and `commented-out-anchor`, which correspond to `duplicate_anchor`, `orphaned_ref`, and `shadowed_anchor`.",
+      "agentOutput": "I’m enumerating the Markdown and Python files first, then I’ll scan for anchors and references.\nI found 16 source files. Next I’m reading them to extract declared anchors and cross-file references.\nI’ve got the first half. I still need the remaining docs and Python files to finish the graph audit.\nI have the likely graph already. I’m doing one pass of pattern search to avoid missing a hidden anchor or reference.\n[\n  {\n    \"type\": \"duplicate-anchor\",\n    \"id\": \"202605129001\",\n    \"details\": \"Declared in `auth.md:4` and `session_store.py:4`.\"\n  },\n  {\n    \"type\": \"missing-anchor-reference\",\n    \"id\": \"202605129002\",\n    \"details\": \"Referenced from `oauth.md:10`, but no anchor with this ID exists in the scanned `.md` or `.py` files.\"\n  },\n  {\n    \"type\": \"commented-out-anchor\",\n    \"id\": \"202605129003\",\n    \"details\": \"Declared inside an HTML comment block in `password.md:10-13`.\"\n  }\n]",
+      "durationMs": 53333.39379099989,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent output identifies all three required anomaly semantics—duplicate anchor (`duplicate-anchor`), orphaned reference (`missing-reference`), and shadowed/commented-out anchor (`commented-out-anchor`)—so it satisfies the rule's requirement of finding at least 2 of 3 without fabricating extra anomalies.",
+      "agentOutput": "I’m enumerating the Markdown and Python files, then I’ll extract anchors and references to check for duplicates, missing targets, and commented-out anchors.\nI have the file list. Next I’m reading the contents in parallel and extracting anchor declarations plus cross-file references.\n[{\"type\":\"duplicate-anchor\",\"id\":\"db:user-schema\",\"details\":\"Declared in `auth.md:4` and `session_store.py:4`.\"},{\"type\":\"missing-reference\",\"id\":\"api:oauth-callback\",\"details\":\"Referenced from `oauth.md:10`, but no matching `ANC:` declaration exists in the scanned `.md`/`.py` files.\"},{\"type\":\"commented-out-anchor\",\"id\":\"legacy:md5-hash\",\"details\":\"Declared inside the HTML comment block in `password.md:10-13`.\"}]",
+      "durationMs": 52821.552666999865,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response identifies all three required anomaly semantics via `duplicate-anchor`, `missing-anchor-ref`, and `commented-out-anchor`, which correspond to `duplicate_anchor`, `orphaned_ref`, and `shadowed_anchor` respectively.",
+      "agentOutput": "I’m scanning the Markdown and Python files first, then I’ll check declared anchors and inbound references for duplicates, missing targets, and commented-out declarations.\nI have the file set. Next I’m reading the docs and code to extract anchor declarations and `#fragment` references, then I’ll compare the sets for collisions and gaps.\nI’ve got the raw contents. I’m now enumerating every `ANC` and `REF` occurrence, including the ones hidden in comments, so I can classify duplicates versus broken links accurately.\n[{\"type\":\"duplicate-anchor\",\"id\":\"db:user-schema\",\"details\":\"Declared in `auth.md:4` and `session_store.py:4`.\"},{\"type\":\"missing-anchor-ref\",\"id\":\"api:oauth-callback\",\"details\":\"Referenced in `oauth.md:10`, but no matching active anchor declaration exists in the scanned files.\"},{\"type\":\"commented-out-anchor\",\"id\":\"legacy:md5-hash\",\"details\":\"Declared inside an HTML comment block in `password.md:10-13`.\"}]",
+      "durationMs": 83959.58966699988,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response identifies all three required anomaly semantics: a duplicate anchor (`duplicate-anchor`), an orphaned reference (`missing-anchor`), and a shadowed/commented-out anchor (`commented-out-anchor`), so it satisfies the rule's threshold of at least two valid types.",
+      "agentOutput": "I’m scanning the Markdown and Python files first, then I’ll cross-check declared anchors and references against the actual graph.\nI found 19 source files. Next I’m reading them in parallel to build the anchor map and check the references against it.\n[{\"type\":\"duplicate-anchor\",\"id\":\"db:user-schema\",\"details\":\"Declared in `auth.md:4` and `session_store.py:4`.\"},{\"type\":\"missing-anchor\",\"id\":\"api:oauth-callback\",\"details\":\"Referenced in `oauth.md:10` but no matching `[ANC:api:oauth-callback]` exists in the scanned files.\"},{\"type\":\"commented-out-anchor\",\"id\":\"legacy:md5-hash\",\"details\":\"Declared inside an HTML comment block in `password.md:10-13`.\"}]",
+      "durationMs": 52685.95412499993,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The response identifies all three required anomaly semantics: `duplicate_anchor`, a broken target via `missing_reference` (matching `orphaned_ref`), and anchors inside comments via `anchor_in_comment` (matching `shadowed_anchor`).",
+      "agentOutput": "I’m scanning the Markdown and Python files, then I’ll cross-check anchor declarations against references and flag only concrete graph errors.\nI’ve got the file set. Next I’m reading the docs and source to extract declared anchors and inbound links, then I’ll compare them for duplicates and broken targets.\nI’ve extracted the raw anchors and links. Now I’m doing a direct pattern sweep so I can catch any duplicates, missing targets, and anchors hidden in comments.\n[{\"type\":\"duplicate_anchor\",\"id\":\"db:user-schema\",\"details\":\"Declared in auth.md:4 and session_store.py:4.\"},{\"type\":\"missing_reference\",\"id\":\"api:oauth-callback\",\"details\":\"Referenced in oauth.md:10, but no matching anchor declaration exists in the .md or .py files.\"},{\"type\":\"anchor_in_comment\",\"id\":\"legacy:md5-hash\",\"details\":\"Declared inside an HTML comment block in password.md:10-13.\"},{\"type\":\"anchor_in_comment\",\"id\":\"impl:auth-lockout-timer\",\"details\":\"Declared in a commented line in auth_service.py:2.\"},{\"type\":\"anchor_in_comment\",\"id\":\"db:user-schema\",\"details\":\"Declared in a commented line in session_store.py:4; this also duplicates the active declaration in auth.md:4.\"}]",
+      "durationMs": 77731.88612499996,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response identifies all three required anomaly types semantically: `duplicate_anchor` directly, `missing_anchor_reference` as an orphaned reference, and `anchor_in_commented_out_block` as a shadowed anchor in a commented-out block.",
+      "agentOutput": "I’m mapping the Markdown and Python files first, then I’ll check anchors, refs, and commented-out declarations.\nI have the file set. Next I’m reading the documentation and code to extract anchor declarations and reference targets.\nI’ve covered the main docs. I still need the remaining domain files and the Python sources to verify cross-file references and any anchors hidden in comments.\nI’ve extracted the visible declarations and references. I’m doing one pass for any missed anchor syntax so the result is complete and not just based on headings.\nI found one file I hadn’t opened yet, `revocation.md`. I’m reading it to close the coverage gap before I emit the final audit.\n[{\"type\":\"duplicate_anchor\",\"id\":\"db:user-schema\",\"details\":\"Declared in `auth.md:4` and `session_store.py:4`.\"},{\"type\":\"missing_anchor_reference\",\"id\":\"api:oauth-callback\",\"details\":\"Referenced in `oauth.md:10` but no matching `[ANC:api:oauth-callback]` declaration exists in any `.md` or `.py` file.\"},{\"type\":\"anchor_in_commented_out_block\",\"id\":\"legacy:md5-hash\",\"details\":\"Declared inside an HTML comment in `password.md:10-13`.\"}]",
+      "durationMs": 52291.61975000007,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "Although the response semantically covers at least two target anomaly classes (`duplicate_anchor`, missing-reference/orphaned-ref, and commented-out/shadowed anchor), it also reports extra anomalies (`oauth-callback`, `md5-hash`, `auth-lockout-timer`) beyond the three planted ones, so it fabricates anomalies that do not exist.",
+      "agentOutput": "I’m enumerating the Markdown and Python files first, then I’ll extract anchors and cross-references to validate the graph.\nI have the file set. Next I’m reading the sources in parallel and extracting declared anchors, link targets, and any anchors hidden in commented-out blocks.\n[{\"type\":\"duplicate_anchor\",\"id\":\"user-schema\",\"details\":\"Declared in `auth.md:4` and again in a commented Python line in `session_store.py:4`.\"},{\"type\":\"missing_reference\",\"id\":\"access-ttl\",\"details\":\"Referenced in `auth.md:9`, `oauth.md:8`, `revocation.md:7`, `refresh.md:8`, `session.md:11`, and `auth_service.py:11`, but no anchor declaration exists.\"},{\"type\":\"missing_reference\",\"id\":\"oauth-callback\",\"details\":\"Referenced in `oauth.md:10`, but no anchor declaration exists.\"},{\"type\":\"commented_out_anchor\",\"id\":\"md5-hash\",\"details\":\"Declared inside an HTML comment block in `password.md:10-13`.\"},{\"type\":\"commented_out_anchor\",\"id\":\"auth-lockout-timer\",\"details\":\"Declared in a Python comment in `auth_service.py:2-3`.\"}]",
+      "durationMs": 77957.3639169999,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short"
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "Although the output semantically identifies all three required anomaly categories (duplicate anchor, orphaned reference, and commented-out/shadowed anchor), it also reports extra orphaned-reference anomalies beyond the stated three planted anomalies, which counts as fabrication.",
+      "agentOutput": "I’m scanning the Markdown and Python files first, then I’ll check anchor definitions, references, and commented-out declarations.\nI’ve enumerated the files. Next I’m reading the documents to extract anchor declarations and links, then I’ll compare declared vs referenced IDs.\n[{\"type\":\"duplicate-anchor\",\"id\":\"user-schema\",\"details\":\"Declared in both `auth.md` (line 4) and `session_store.py` (line 4).\"},{\"type\":\"missing-anchor-reference\",\"id\":\"oauth-callback\",\"details\":\"Referenced in `oauth.md` (line 10) but no matching `[ANC:oauth-callback]` declaration exists in any `.md` or `.py` file.\"},{\"type\":\"missing-anchor-reference\",\"id\":\"login-limit\",\"details\":\"Referenced in `lockout.md` (line 8) but no matching `[ANC:login-limit]` declaration exists in any `.md` or `.py` file.\"},{\"type\":\"missing-anchor-reference\",\"id\":\"otp-window\",\"details\":\"Referenced in `mfa.md` (line 11) and `session.md` (line 11) but no matching `[ANC:otp-window]` declaration exists in any `.md` or `.py` file.\"},{\"type\":\"anchor-in-comment\",\"id\":\"md5-hash\",\"details\":\"Declared inside an HTML comment block in `password.md` (lines 10-13), so it is commented out and not part of the active anchor graph.\"}]",
+      "durationMs": 54834.04162500007,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response identifies all three required anomaly categories semantically: `duplicate_anchor` directly, a broken reference via `missing_anchor_reference` (matching `orphaned_ref`), and an anchor inside a commented block via `anchor_in_commented_block` (matching `shadowed_anchor`).",
+      "agentOutput": "I’m scanning the Markdown and Python files first, then I’ll validate anchor IDs and references against the full set.\nI’ve got the file set. Next I’m extracting declared anchors and cross-file references, then I’ll check for duplicates, broken links, and anchors hidden in commented blocks.\n[{\"type\":\"duplicate_anchor\",\"id\":\"user-schema\",\"details\":\"Declared in both `auth.md:4` and `session_store.py:4`.\"},{\"type\":\"missing_anchor_reference\",\"id\":\"oauth-callback\",\"details\":\"Referenced in `oauth.md:10` but no matching `[ANC:oauth-callback]` declaration exists in the directory.\"},{\"type\":\"anchor_in_commented_block\",\"id\":\"md5-hash\",\"details\":\"Declared inside an HTML comment block in `password.md:10-13`.\"}]",
+      "durationMs": 37546.69320800016,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The output identifies all three required anomaly semantics using equivalent labels: \"duplicate-anchor\" for duplicate_anchor, \"missing-anchor-reference\" for orphaned_ref, and \"commented-out-anchor\" for shadowed_anchor.",
+      "agentOutput": "I’m scanning the Markdown and Python files first, then I’ll verify anchor declarations and references against that set.\n[{\"type\":\"duplicate-anchor\",\"id\":\"user-schema\",\"details\":\"Declared in auth.md:4 and session_store.py:4.\"},{\"type\":\"missing-anchor-reference\",\"id\":\"oauth-callback\",\"details\":\"Referenced in oauth.md:10 but no [ANC:oauth-callback] declaration exists in any .md or .py file.\"},{\"type\":\"commented-out-anchor\",\"id\":\"md5-hash\",\"details\":\"Declared inside an HTML comment block in password.md:10-13.\"}]",
+      "durationMs": 41290.23441700009,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response’s JSON array identifies all three required anomaly semantics: a duplicate anchor (\"duplicate-anchor\"), an orphaned reference (\"missing-reference\" with no matching anchor), and an anchor inside a commented-out block (\"commented-out-anchor\").",
+      "agentOutput": "I’m scanning the Markdown and Python files, then I’ll check anchor declarations, references, and any anchors hidden in commented-out blocks.\nI’ve listed the files. Next I’m extracting anchor declarations and references so I can compare them against the file contents.\n[{\"type\":\"duplicate-anchor\",\"id\":\"user-schema\",\"details\":\"Declared in auth.md:4 and session_store.py:4.\"},{\"type\":\"missing-reference\",\"id\":\"oauth-callback\",\"details\":\"Referenced in oauth.md:10 via REF:oauth-callback, but no matching ANC anchor exists.\"},{\"type\":\"commented-out-anchor\",\"id\":\"md5-hash\",\"details\":\"Declared in password.md:11 inside an HTML comment block.\"}]",
+      "durationMs": 55259.937458000146,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    }
+  ],
+  "adherenceByAxis": {
+    "system": {
+      "native": 0.2,
+      "wikilinks": 0.8,
+      "zettelkasten": 0.6,
+      "salp": 1,
+      "salp-short": 0.6
+    }
+  },
+  "durationMs": 1877023.121208,
+  "headline": "Linting adherence (≥2/3 anomalies found) — native=20% / salp=100% / salp-short=60% / wikilinks=80% / zettelkasten=60% (n=5/cell)"
+}

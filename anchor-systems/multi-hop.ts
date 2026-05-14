@@ -12,9 +12,25 @@
  */
 
 import type { Cell, Experiment, ExperimentReport } from "../shared/types.ts";
-import { loadGroundTruth, shortId, writeFixtures } from "./shared.ts";
+import {
+  acceptedIds,
+  loadGroundTruth,
+  surfaceId,
+  writeFixtures,
+} from "./shared.ts";
 
 const gt = loadGroundTruth();
+
+const TARGET_ANCHOR_CHAINS: Record<string, string[]> = {
+  shallow: ["auth:session-timeout"],
+  medium: ["auth:mfa-required", "mfa:totp-window", "rate:otp-window"],
+  deep: [
+    "auth:mfa-required",
+    "mfa:totp-window",
+    "rate:otp-window",
+    "session:otp-ttl",
+  ],
+};
 
 function buildQuery(system: string, target: string): string {
   const t = gt.multi_hop_targets[target];
@@ -58,7 +74,7 @@ export const experiment: Experiment = {
     target: ["shallow", "medium", "deep"] as const,
   },
 
-  defaults: { reps: 5, ide: "claude" },
+  defaults: { reps: 5, ide: "opencode" },
 
   async setupCell(cell: Cell, ctx) {
     await writeFixtures(ctx.sandboxPath, String(cell.axes.system));
@@ -72,24 +88,28 @@ export const experiment: Experiment = {
     const system = String(cell.axes.system);
     const target = String(cell.axes.target);
     const t = gt.multi_hop_targets[target];
-    const chainStr = t.chain.join(" → ");
+    const fileChain = t.chain.join(" → ");
+    const canonicalChain = TARGET_ANCHOR_CHAINS[target] ?? [t.anchor_id];
+    const surfaceChain = canonicalChain.map((id) => surfaceId(gt, system, id));
     const q = buildQuery(system, target);
-    // For salp-short, anchors appear as short IDs in fixture files.
-    const finalAnchorId = system === "salp-short"
-      ? shortId(gt, t.anchor_id)
-      : t.anchor_id;
+    const finalAnchorId = surfaceId(gt, system, t.anchor_id);
+    const finalAccepted = acceptedIds(gt, system, t.anchor_id).join(", ");
+    const intermediate = surfaceChain.slice(0, -1);
     return {
       rule:
         `The agent was asked to answer "${t.description}" by traversing references ` +
-        `in a "${system}" project. The correct chain is: ${chainStr}. ` +
-        `The final answer anchor is: ${finalAnchorId}. ` +
-        `Pass if: (a) the agent mentions the final anchor ID "${finalAnchorId}", ` +
+        `in a "${system}" project. The correct file traversal is: ${fileChain}. ` +
+        `The expected surface anchor chain is: ${surfaceChain.join(" -> ")}. ` +
+        `The final answer anchor is "${finalAnchorId}" (also accept: ${finalAccepted}). ` +
+        `Pass if: (a) the agent mentions an accepted final anchor ID, ` +
         `(b) the agent's explanation is factually consistent with the anchor's description ` +
         `("${
           gt.anchors.find((a) => a.id === t.anchor_id)?.description ?? ""
         }"), ` +
-        `(c) for medium/deep targets, at least one intermediate anchor from the chain is named. ` +
-        `Fail if the agent hallucinates anchor IDs not present in the chain.`,
+        `(c) for medium/deep targets, at least one expected intermediate anchor is named ` +
+        `(${intermediate.join(", ") || "none required"}). ` +
+        `Do not fail merely because the agent uses a canonical ID instead of a surface ID. ` +
+        `Fail if the agent invents non-existent anchors or gives a contradictory final answer.`,
       userQuery: q,
     };
   },

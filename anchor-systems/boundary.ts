@@ -62,7 +62,7 @@ export const experiment: Experiment = {
     ] as const,
   },
 
-  defaults: { reps: 5, ide: "claude" },
+  defaults: { reps: 5, ide: "opencode" },
 
   async setupCell(cell: Cell, ctx) {
     await writeFixtures(ctx.sandboxPath, String(cell.axes.system));
@@ -79,18 +79,16 @@ export const experiment: Experiment = {
     const system = String(cell.axes.system);
     const q = QUERY_BASE.replace("ANCHOR_REF", anchorRef(system));
     const { start_line, end_line } = BT;
-    const groundLen = end_line - start_line + 1; // 12
-    const minOverlap = Math.ceil(groundLen * 0.8); // 10
     return {
       rule:
         `The agent was asked to identify the line range of the function anchored at ` +
         `"${anchorRef(system)}" in auth_service.py. ` +
         `Ground truth: start_line=${start_line}, end_line=${end_line} ` +
-        `(function generate_reset_token, ${groundLen} lines). ` +
-        `Pass if the agent's reported range overlaps with [${start_line}, ${end_line}] ` +
-        `by at least ${minOverlap} lines (IoU ≥ 0.8). ` +
-        `Specifically: pass if reported start_line ≤ ${start_line + 1} ` +
-        `AND reported end_line ≥ ${end_line - 1}. ` +
+        `(function generate_reset_token). ` +
+        `Parse the agent's JSON start_line/end_line and compute inclusive range IoU: ` +
+        `intersection_len = max(0, min(reported_end, ${end_line}) - max(reported_start, ${start_line}) + 1); ` +
+        `union_len = max(reported_end, ${end_line}) - min(reported_start, ${start_line}) + 1; ` +
+        `IoU = intersection_len / union_len. Pass only if IoU >= 0.8. ` +
         `Fail if the agent reports a range that covers a different function ` +
         `or the entire file, or if it cannot parse the anchor.`,
       userQuery: q,

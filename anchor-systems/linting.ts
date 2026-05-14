@@ -12,10 +12,8 @@
  *   3. shadowed_anchor  — [ANC:legacy:md5-hash] inside a commented-out
  *      block in password.md (unreachable anchor).
  *
- * Note: all systems (including salp-short) receive the SALP-based corrupted
- * fixtures, since the linting task tests anomaly-type detection, not syntax
- * familiarity. This makes the test harder for non-SALP systems and is
- * intentional.
+ * Each system receives its own syntax-specific corrupted fixture set so the
+ * axis measures graph diagnostics within that system, not SALP familiarity.
  *
  * Axis:   system (5 linking systems — same anomaly content, different familiarity).
  * Reps:   5.
@@ -45,7 +43,7 @@ export const experiment: Experiment = {
   description:
     "Measures whether an AI agent can detect three classes of anchor-graph " +
     "anomalies (duplicate, orphaned, shadowed) in a corrupted project. " +
-    "All five systems receive the same SALP-based corrupted fixtures. " +
+    "Each system receives equivalent syntax-specific corrupted fixtures. " +
     "Pass if the agent identifies at least 2 of 3 anomaly types.",
 
   axes: {
@@ -58,10 +56,10 @@ export const experiment: Experiment = {
     ] as const,
   },
 
-  defaults: { reps: 5, ide: "claude" },
+  defaults: { reps: 5, ide: "opencode" },
 
-  async setupCell(_cell: Cell, ctx) {
-    await writeCorruptedFixtures(ctx.sandboxPath);
+  async setupCell(cell: Cell, ctx) {
+    await writeCorruptedFixtures(ctx.sandboxPath, String(cell.axes.system));
   },
 
   query(_cell) {
@@ -74,6 +72,7 @@ export const experiment: Experiment = {
       rule:
         `The agent audited a "${system}" project with 3 planted anomalies:\n` +
         `${ANOMALY_SUMMARY}\n\n` +
+        `The anomalies are expressed in the selected system's syntax; use the semantic type, not the exact token spelling. ` +
         `Pass if the agent's JSON output identifies at least 2 of these 3 anomaly types. ` +
         `Matching on type name is sufficient ("duplicate_anchor", "orphaned_ref", ` +
         `"shadowed_anchor") — exact IDs or file names are a bonus. ` +

@@ -2,6 +2,10 @@ import type { LLMMessage, LLMResponse } from "./llm_types.ts";
 
 export interface ModelConfig {
   model: string;
+  /** Model provider/routing prefix, e.g. "anthropic" for OpenCode. */
+  model_provider?: string;
+  /** Runtime used for this LLM call. Defaults to Claude for compatibility. */
+  runtime?: "claude" | "opencode";
   temperature: number;
   jsonSchema?: Record<string, unknown>;
   provider?: {
@@ -14,6 +18,7 @@ export interface ModelConfig {
 }
 
 export interface IdeConfig {
+  default_agent_model_provider?: string;
   default_agent_model: string;
   judge: ModelConfig;
 }
@@ -55,18 +60,17 @@ export async function loadConfig(
   }
 }
 
-interface ClaudeCliEvent {
-  type?: string;
-  result?: string;
-  structured_output?: Record<string, unknown>;
-  total_cost_usd?: number;
-  usage?: Record<string, unknown>;
-  message?: {
-    content?: Array<{ type: string; text?: string }>;
-  };
+/** Returns the runtime model reference, preserving bare model ids. */
+export function modelRef(
+  config: Pick<ModelConfig, "model" | "model_provider">,
+): string {
+  if (!config.model_provider || config.model.includes("/")) {
+    return config.model;
+  }
+  return `${config.model_provider}/${config.model}`;
 }
 
-/** Chat completion via Claude CLI (`claude -p`). No API key needed — uses existing CLI auth. */
+/** Chat completion via ai-ide-cli. No API key is read by this harness. */
 export async function cliChatCompletion(
   messages: LLMMessage[],
   configOrModel: ModelConfig | string,
@@ -83,94 +87,87 @@ export async function cliChatCompletion(
   const userMsg = messages.filter((m) => m.role !== "system")
     .map((m) => m.content).join("\n\n");
 
-  const args = [
-    "-p",
-    "--model",
-    config.model,
-    "--output-format",
-    "json",
-    "--no-session-persistence",
-    "--verbose",
-    "--tools",
-    "StructuredOutput",
-    "--strict-mcp-config",
-  ];
-
-  if (systemMsg) {
-    args.push("--system-prompt", systemMsg);
-  }
-
-  if (config.jsonSchema) {
-    args.push("--json-schema", JSON.stringify(config.jsonSchema));
-  }
-
-  if (appendSystemPromptFile) {
-    args.push("--append-system-prompt-file", appendSystemPromptFile);
-  }
-
-  // Pass user message via stdin to avoid E2BIG when trace is large
   const userMsgBytes = new TextEncoder().encode(userMsg).length;
   if (userMsgBytes > 100_000) {
     console.warn(
-      `  [llm] Large stdin payload: ${(userMsgBytes / 1024).toFixed(0)}KB`,
+      `  [llm] Large prompt payload: ${(userMsgBytes / 1024).toFixed(0)}KB`,
     );
   }
-  const cmd = new Deno.Command("claude", {
-    args,
-    stdin: "piped",
-    stdout: "piped",
-    stderr: "piped",
-    env: { ...Deno.env.toObject(), CLAUDECODE: "" },
-    signal,
-  });
 
-  const process = cmd.spawn();
-  const writer = process.stdin.getWriter();
-  await writer.write(new TextEncoder().encode(userMsg));
-  await writer.close();
-  const output = await process.output();
-  const stdout = new TextDecoder().decode(output.stdout);
+  const { invokeClaudeCli, invokeOpenCodeCli, defaultRegistry } = await import(
+    "@korchasa/ai-ide-cli"
+  );
 
-  if (!output.success) {
-    const stderr = new TextDecoder().decode(output.stderr);
-    // Extract result event for better diagnostics
-    let resultInfo = "";
-    try {
-      const events = JSON.parse(stdout) as ClaudeCliEvent[];
-      const resultEvt = events.find((e) => e.type === "result");
-      if (resultEvt) {
-        resultInfo = ` result=${JSON.stringify(resultEvt).slice(0, 500)}`;
-      }
-    } catch (_) {
-      resultInfo = ` stdout_len=${stdout.length}`;
-    }
+  let structuredOutput: Record<string, unknown> | undefined;
+  const claudeArgs: Record<string, string | null> = {
+    "--no-session-persistence": "",
+    "--strict-mcp-config": "",
+  };
+  if (config.jsonSchema) {
+    claudeArgs["--tools"] = "StructuredOutput";
+    claudeArgs["--json-schema"] = JSON.stringify(config.jsonSchema);
+  }
+  if (appendSystemPromptFile) {
+    claudeArgs["--append-system-prompt-file"] = appendSystemPromptFile;
+  }
+
+  const runtime = config.runtime ?? "claude";
+  const result = runtime === "opencode"
+    ? await invokeOpenCodeCli({
+      processRegistry: defaultRegistry,
+      model: modelRef(config),
+      taskPrompt: userMsg,
+      systemPrompt: systemMsg,
+      permissionMode: "bypassPermissions",
+      maxRetries: 1,
+      retryDelaySeconds: 2,
+      timeoutSeconds: 300,
+      env: {},
+      signal,
+      hooks: {
+        onResult(event: unknown) {
+          structuredOutput = (event as {
+            structured_output?: Record<string, unknown>;
+          }).structured_output;
+        },
+      },
+    })
+    : await invokeClaudeCli({
+      processRegistry: defaultRegistry,
+      model: config.model,
+      taskPrompt: userMsg,
+      systemPrompt: systemMsg,
+      permissionMode: "bypassPermissions",
+      maxRetries: 1,
+      retryDelaySeconds: 2,
+      timeoutSeconds: 300,
+      strictMcpConfig: true,
+      claudeArgs,
+      env: { CLAUDECODE: "" },
+      signal,
+      hooks: {
+        onResult(event: unknown) {
+          structuredOutput = (event as {
+            structured_output?: Record<string, unknown>;
+          }).structured_output;
+        },
+      },
+    });
+
+  if (result.error || !result.output) {
     throw new Error(
-      `Claude CLI failed (exit ${output.code}): stderr=${
-        stderr || "(empty)"
-      }${resultInfo}`,
+      `${runtime} CLI failed via ai-ide-cli: ${
+        result.error ?? "missing output"
+      }`,
     );
   }
 
-  const events = JSON.parse(stdout) as ClaudeCliEvent[];
-  const resultEvent = events.find((e) => e.type === "result");
-
-  if (!resultEvent) {
-    throw new Error("Claude CLI: no result event in output");
-  }
-
-  // With --json-schema: structured_output contains validated JSON
-  if (config.jsonSchema && resultEvent.structured_output) {
+  if (config.jsonSchema && structuredOutput) {
     return {
-      content: JSON.stringify(resultEvent.structured_output),
+      content: JSON.stringify(structuredOutput),
       usage: undefined,
     };
   }
 
-  // Without --json-schema: extract text from last assistant event
-  const assistantEvents = events.filter((e) => e.type === "assistant");
-  const lastAssistant = assistantEvents[assistantEvents.length - 1];
-  const contentBlocks = lastAssistant?.message?.content;
-  const text = contentBlocks?.find((b) => b.type === "text")?.text ?? "";
-
-  return { content: text, usage: undefined };
+  return { content: result.output.result, usage: undefined };
 }

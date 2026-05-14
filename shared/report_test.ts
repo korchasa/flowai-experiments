@@ -48,8 +48,12 @@ Deno.test("renderMarkdown: contains headline and token table", () => {
     schemaVersion: 1,
     experimentId: "claude-md-length-single-file",
     experimentName: "CLAUDE.md length (single file)",
+    modelProvider: "anthropic",
     model: "claude-opus-4-6",
     ide: "claude",
+    judgeModelProvider: "anthropic",
+    judgeModel: "claude-sonnet-4-6",
+    judgeRuntime: "claude",
     startedAt: "2026-04-11T10:00:00Z",
     finishedAt: "2026-04-11T11:00:00Z",
     seed: 1,
@@ -71,6 +75,12 @@ Deno.test("renderMarkdown: contains headline and token table", () => {
   }
   if (!md.includes("claude-opus-4-6")) {
     throw new Error("model missing");
+  }
+  if (!md.includes("Model provider:** `anthropic`")) {
+    throw new Error("model provider missing");
+  }
+  if (!md.includes("Judge model:** `claude-sonnet-4-6`")) {
+    throw new Error("judge model missing");
   }
 });
 

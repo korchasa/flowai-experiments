@@ -1,0 +1,1547 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "anchor-systems-multi-hop",
+  "experimentName": "Anchor Systems — Multi-Hop Reasoning (Bench 4)",
+  "modelProvider": "openai",
+  "model": "gpt-5.4-mini",
+  "ide": "opencode",
+  "judgeModelProvider": "openai",
+  "judgeModel": "gpt-5.4",
+  "judgeRuntime": "opencode",
+  "startedAt": "2026-05-13T21:48:22.926Z",
+  "finishedAt": "2026-05-13T22:58:23.666Z",
+  "seed": 1,
+  "reps": 5,
+  "axes": {
+    "system": [
+      "native",
+      "wikilinks",
+      "zettelkasten",
+      "salp",
+      "salp-short"
+    ],
+    "target": [
+      "shallow",
+      "medium",
+      "deep"
+    ]
+  },
+  "trials": [
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "target": "shallow"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "Although the response cites the accepted final anchor `session.md#session-timeout-policy` and gives the correct 30-minute value, it lists unsupported intermediate anchors (`overview.md#auth-service-overview`, `auth.md#mfa-requirement`) instead of the expected `auth.md → session.md` traversal, so it does not satisfy the required anchor path.",
+      "agentOutput": "I’m locating the relevant documentation and link path first, then I’ll trace the anchors to the final definition.\nI found the session policy link target. Next I’m reading that document and the surrounding references to extract the exact anchor chain and wording.\nI have the policy text. I’m checking the link path so I can report the exact intermediate anchor trail rather than only the final target.\n- Final anchor: `session.md#session-timeout-policy`\n- Intermediate anchors traversed: `overview.md#auth-service-overview`, `auth.md#mfa-requirement`\n\nPlain-English answer: the maximum session idle timeout is **30 minutes**. It is enforced as an **absolute inactivity timeout** from the last activity, not a sliding window; when it expires, the server returns **401** and clears the session cookie.",
+      "durationMs": 52054.863583,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "target": "shallow"
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "Although it cites the accepted final anchor `session.md#session-timeout-policy` and gives the 30-minute value, it names a different traversal (`overview.md#auth-service-overview` -> `auth.md#mfa-requirement`) instead of the expected `auth.md` -> `session.md` path and adds unsupported enforcement details (`401`, cookie clearing, and 'absolute, not sliding').",
+      "agentOutput": "I’m locating the relevant docs and the anchor chain that defines the timeout rule.\nI found the session-related docs. Next I’m tracing the markdown links to the specific rule that sets the ceiling.\n- Final anchor: `session.md#session-timeout-policy`\n- Intermediate anchors traversed: `overview.md#auth-service-overview` -> `auth.md#mfa-requirement`\n\nPlain-English answer: the maximum session idle timeout is **30 minutes**. If there is no activity for 30 minutes, the session expires; the server responds with **401** and clears the session cookie. The timeout is **absolute**, not sliding, so activity does not extend it beyond the last-activity window.",
+      "durationMs": 51355.379250000005,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "target": "shallow"
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The answer correctly states a 30-minute idle timeout and matching enforcement behavior, but it does not mention an accepted final anchor ID such as `session.md#session-timeout-policy` or `auth:session-timeout`, only the bare `session-timeout-policy` fragment.",
+      "agentOutput": "I’m locating the documentation path for session timeout, then I’ll trace the linked anchors to the definition that states the max idle timeout and its rule.\nI found the session policy entry point. Next I’m reading the linked session document and the surrounding references to extract the exact anchor chain and wording.\nFinal answer anchor: `session-timeout-policy`\n\nIntermediate anchors traversed: none\n\nPlain-English answer: the maximum session idle timeout is **30 minutes**. The enforcement rule is **absolute inactivity timeout**: if there is no activity for 30 minutes, the server **returns 401 and clears the session cookie**; sliding expiry is not supported.",
+      "durationMs": 31874.038124999992,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "target": "shallow"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "Although it cites the accepted final anchor `session.md#session-timeout-policy` and gives the 30-minute value, the explanation adds unsupported and internally contradictory claims (`absolute from last activity` but `no sliding expiry`, plus specific 401/cookie behavior) that are not clearly justified by the stated anchor description.",
+      "agentOutput": "I’ll trace the docs graph, then extract the timeout value and enforcement rule from the linked anchors.\nI found the doc set. Next I’m following the session/auth links to the specific timeout rule.\n- Final anchor ID: `session-timeout-policy` in [`session.md`](session.md#session-timeout-policy)\n- Intermediate anchors traversed: none\n\nPlain-English answer: sessions time out after **30 minutes of inactivity**. Enforcement is server-side: on expiry the server returns **401** and clears the session cookie. The timeout is **absolute from last activity**, so there is **no sliding expiry**.",
+      "durationMs": 41259.27516600001,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "target": "shallow"
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The response does not cite an accepted final anchor ID in the required form and adds unsupported details like '401', cookie clearing, and 'sliding expiry is not supported,' which go beyond and risk contradicting the documented 'Maximum session idle timeout (30 minutes)' rule.",
+      "agentOutput": "I’m locating the document chain that defines the timeout and its rule, then I’ll trace the markdown links to the final anchor.\nI found a likely document set around sessions and auth. Next I’m reading the index and session-related pages to follow the anchor chain.\nI have the target rule text. I’m checking whether there’s a longer link chain so I can report the exact anchors traversed, not just the destination.\n- Final anchor: `session-timeout-policy` in `session.md`\n- Intermediate anchors traversed: `auth-service-overview`\n- Answer: the maximum session idle timeout is `30 minutes`. It is enforced server-side: after 30 minutes of inactivity, the server returns `401` and clears the session cookie. Sliding expiry is not supported; the timer is absolute from the last activity.",
+      "durationMs": 47174.79212500001,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "target": "medium"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it names the final anchor as `session.md#session-otp-ttl` instead of an accepted final anchor like `ratelimit.md#otp-rate-window`, and it cites a different traversal chain (`mfa.md#sms-otp-rules`) than the required authoritative path.",
+      "agentOutput": "I’m locating the relevant documentation and following the linked path to the definition.\nI found multiple definitions. I’m tracing the linked path to the authoritative OTP validity entry and extracting the anchor chain.\n- Final anchor: `session.md#session-otp-ttl`\n- Intermediate anchors traversed: `overview.md` -> `auth.md#mfa-requirement` -> `mfa.md#sms-otp-rules`\n- OTP validity window: `90 seconds`\n\nPlain English: OTP codes expire after 90 seconds. That rule is defined most directly in `session.md` under `Session OTP TTL`, and the same 90-second window is also referenced in `mfa.md#sms-otp-rules` and `ratelimit.md#otp-rate-window`.",
+      "durationMs": 49283.75170799997,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "target": "medium"
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it explicitly identifies the final anchor as `session.md#session-otp-ttl` instead of an accepted final anchor like `ratelimit.md#otp-rate-window`, even though it correctly mentions 90 seconds and one intermediate anchor.",
+      "agentOutput": "I’m going to trace the documentation links to the OTP settings, then extract the anchor chain and the final definition.\nI found multiple OTP references. Next I’m reading the linked docs to reconstruct the path and confirm the exact section anchors.\nI have the candidate definition sections. I’m checking the document graph once more to make sure the answer follows linked anchors rather than just matching text.\n- Final anchor: `session.md#session-otp-ttl`\n- Intermediate anchors traversed: `auth.md#mfa-requirement`\n- Plain-English answer: OTPs are valid for 90 seconds. The session policy defines this as the session-level OTP validity window, and `ratelimit.md#otp-rate-window` repeats the same 90-second value for consistency.",
+      "durationMs": 52004.154750000045,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "target": "medium"
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it identifies `session.md#session-otp-ttl` as the final definition instead of the required accepted final anchor `ratelimit.md#otp-rate-window`, even though it correctly mentions `auth.md#mfa-requirement` and the 90-second window.",
+      "agentOutput": "I’m locating the OTP-related documentation and following the link chain to the definition.\nI found multiple definitions that all point to the same 90-second window. I’m checking the link path and the exact anchor IDs now.\n- Final definition: `session.md#session-otp-ttl`\n- Intermediate anchors traversed: `overview.md#auth-service-overview` -> `auth.md#mfa-requirement` -> `session.md#session-otp-ttl`\n- Corroborating anchors: `ratelimit.md#otp-rate-window`, `mfa.md#sms-otp-rules`\n\nPlain English: the OTP validity window is **90 seconds**. The session docs define it directly, and the rate-limit and MFA docs repeat the same 90-second value.",
+      "durationMs": 41465.06987499999,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "target": "medium"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it names `session.md#session-otp-ttl` as the final definition anchor instead of an accepted final anchor such as `ratelimit.md#otp-rate-window`, even though it correctly mentions `90 seconds` and includes `auth.md#mfa-requirement` as an intermediate anchor.",
+      "agentOutput": "I’m locating the OTP docs and following the linked trail to the definition.\nI found multiple references. I’m reading the linked sections to trace which anchor actually defines the validity window, not just mentions it.\nI’ve identified two sections that state the same 90-second window. I’m checking the link graph to see which one is the canonical target and what anchors are traversed to get there.\n- Duration: `90 seconds`\n- Final definition anchor: `session.md#session-otp-ttl`\n- Intermediate anchors traversed: `overview.md#auth-service-overview` -> `auth.md#mfa-requirement` -> `mfa.md#sms-otp-rules` -> `ratelimit.md#otp-rate-window`\n\nPlain English: OTPs are only valid for 90 seconds. The clearest explicit definition is in the session policy section, and the same 90-second window is repeated in the rate-limit and MFA docs.",
+      "durationMs": 54043.25437500002,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "target": "medium"
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it gives the final anchor as `session.md#session-otp-ttl` instead of the required accepted final anchor `ratelimit.md#otp-rate-window`, and its stated traversal omits the expected intermediate anchors while claiming the definition is in the session document.",
+      "agentOutput": "I’m locating the relevant docs and following the markdown links to the source of truth.\nI found multiple references; I’m checking the linked headings to trace the exact anchor chain and confirm the canonical definition.\nI have the candidate definitions. I’m checking the inbound links so I can report the actual navigation path rather than just the first match.\n- Final anchor: `session.md#session-otp-ttl`\n- Intermediate anchors traversed: `mfa.md#sms-otp-rules` -> `ratelimit.md#otp-rate-window`\n- Answer: the OTP validity window is `90 seconds`. It is defined in the session document, and the same duration is repeated in the rate-limit and MFA docs as a consistency check.",
+      "durationMs": 45072.12875000003,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "target": "deep"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it does not mention an accepted final anchor ID such as `session.md#session-otp-ttl` or `session:otp-ttl`, and it also introduces `session-timeout-policy`, which is not one of the expected traversed anchors.",
+      "agentOutput": "I’m locating the docs that mention OTP, session lifetime, and any linked explanation chain, then I’ll trace the anchors and answer from the source files.\nI found the likely answer nodes. Now I’m reading the session and auth docs to trace the link chain and verify the exact anchor IDs before I answer.\nI have the direct references. I’m checking whether the docs tie the OTP window to session expiry explicitly, or whether the rationale is inferred from the session boundary and replay prevention language.\n- Final anchor: `session-otp-ttl`\n- Intermediate anchors traversed: `mfa-requirement`, `session-timeout-policy`, `otp-rate-window`\n- Plain-English answer: the docs do not say the OTP window matches the full 30-minute session lifetime. They say OTPs are short-lived, server-checked, and coordinated with the OTP rate window to prevent replay attacks while allowing clock skew. MFA is also required on every new session and again after session expiry, so the OTP has to be valid only within the authentication/session boundary, not beyond it.",
+      "durationMs": 55718.49237500003,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "target": "deep"
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "Although it names the accepted final anchor `session.md#session-otp-ttl` and gives a mostly consistent 90-second explanation, it reports an incorrect traversal by adding unsupported anchors (`overview.md#auth-service-overview`, `session.md#session-timeout-policy`) and omitting the expected `mfa.md#totp-time-window` link in the required chain.",
+      "agentOutput": "I’m locating the docs that mention OTP validity and session lifetime, then I’ll follow the link chain to the final anchor.\nI found the likely chain in `mfa.md`, `ratelimit.md`, and `session.md`. Next I’m reading the headings and links so I can report the exact anchor IDs, not just the topic names.\n- Final answer anchor: `session.md#session-otp-ttl`\n- Intermediate anchors traversed: `overview.md#auth-service-overview` -> `auth.md#mfa-requirement` -> `session.md#session-timeout-policy` -> `ratelimit.md#otp-rate-window`\n- Plain-English explanation: The docs keep OTPs short-lived and tied to the session auth flow so they are only usable when MFA is being performed. That reduces replay risk, keeps behavior consistent across the session and rate-limit logic, and tolerates small clock skew. The docs do not say the OTP window equals the full 30-minute session timeout; they say it is a 90-second session-level window aligned with the OTP rate window.",
+      "durationMs": 56099.40483300004,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "target": "deep"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response names the accepted final anchor `session.md#session-otp-ttl`, includes expected intermediate anchors such as `auth.md#mfa-requirement`, `mfa.md#totp-time-window`, and `ratelimit.md#otp-rate-window`, and explains consistently that the 90-second OTP TTL is aligned with the OTP rate window rather than the broader session lifetime.",
+      "agentOutput": "I'll trace the documentation links from the top-level docs to the specific anchor that explains the OTP/session alignment, then I’ll summarize the chain and the reason.\nI found the likely source chain: `overview.md` and `auth.md` point to `session.md`, and `session.md` points to the OTP rate window in `ratelimit.md`. I’m reading those sections now to extract the exact anchor IDs and the stated rationale.\nI’ve confirmed the key statement in `session.md`: the OTP window is not described as matching the session lifetime itself. The docs say it is matched to the OTP rate window, while session lifetime is handled separately. I’m checking the entry links so I can report the navigation chain cleanly.\n- Final anchor: `session.md#session-otp-ttl`\n- Intermediate anchors traversed: `overview.md#auth-service-overview`, `auth.md#mfa-requirement`, `mfa.md#totp-time-window`, `ratelimit.md#otp-rate-window`\n- Plain-English answer: the docs do **not** say the OTP window matches the full session lifetime. They say the session-level OTP window is 90 seconds and is shared with the OTP rate window so the timing rules stay consistent, replay attacks are harder, and clock skew is tolerated. The actual session lifetime is separate: 30 minutes of inactivity, after which the user must re-authenticate with MFA.",
+      "durationMs": 74326.23404200003,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "target": "deep"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "Although it names the accepted final anchor `session.md#session-otp-ttl` and one expected intermediate anchor `ratelimit.md#otp-rate-window`, it also invents the non-expected anchor `mfa.md#sms-otp-rules` and gives a contradictory explanation by saying the OTP window is separate from the session timeout rather than aligned as defined at the final anchor.",
+      "agentOutput": "I’m locating the relevant docs and the anchor chain that explains the OTP/session lifetime relationship.\nI found the doc set. Next I’m tracing the link path from the OTP material to the session lifetime rationale, then I’ll extract the anchor IDs.\nI’ve identified the likely target anchor in `session.md`. I’m reading the linked documents to verify the reasoning chain and the exact anchor names.\nI have the content needed. I’m checking the repository’s navigation pattern so I can report the anchor trail in the same way the docs are linked.\n- Final anchor: `session.md#session-otp-ttl`\n- Intermediate anchors traversed: `mfa.md#sms-otp-rules`, `ratelimit.md#otp-rate-window`\n- Plain-English answer: the OTP window is set to 90 seconds so it matches the server-side OTP rate window and stays consistent across the flow. The docs say this helps prevent replay attacks while still allowing for clock skew. Note: this is separate from the 30-minute session timeout.",
+      "durationMs": 66167.80662499997,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "target": "deep"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response names an accepted final anchor (`session.md#session-otp-ttl`), includes an expected intermediate anchor (`ratelimit.md#otp-rate-window`), and explains consistently that the OTP window is 90 seconds to match the session-level OTP TTL and rate window.",
+      "agentOutput": "I’m locating the docs that mention OTP validity and session lifetime, then I’ll follow the markdown links to the source anchor and extract the rationale.\nI found the likely definition in `session.md`; now I’m reading the linked sections to confirm the rationale and the exact anchor IDs.\nI have the core rationale, and I’m checking whether any linked doc adds a stricter explanation or broader context before I answer.\n- Final anchor ID: `session-otp-ttl` (`session.md#session-otp-ttl`)\n- Intermediate anchors traversed: `sms-otp-rules` (`mfa.md#sms-otp-rules`), `otp-rate-window` (`ratelimit.md#otp-rate-window`)\n\nPlain English: the OTP window is set to the same 90 seconds as the session OTP TTL so the server applies one consistent expiry rule. That keeps OTP handling aligned with rate limiting, reduces replay risk, and still leaves room for small clock skew.",
+      "durationMs": 53444.812957999995,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "target": "shallow"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The response names the accepted final anchor `^auth-session-timeout` and gives the correct 30-minute value, but it also claims an unsupported intermediate anchor `overview#^auth-session-timeout` and adds enforcement details (`no sliding expiry`, `401`, cookie clearing) that are not evidenced by the rule’s described anchor.",
+      "agentOutput": "I’m locating the docs that define session timeout and the linked anchor chain, then I’ll extract the exact value and rule from the final source.\nI found the session anchor references. Next I’m reading the session and auth docs to extract the exact anchored statement and the enforcement clause.\n- Final anchor: `session#^auth-session-timeout`\n- Intermediate refs traversed: `overview#^auth-session-timeout`, `auth#^auth-session-timeout`\n- Answer: the maximum session idle timeout is **30 minutes**. It is enforced as an **absolute timeout from last activity** with **no sliding expiry**; when it expires, the server returns **401** and clears the session cookie, and the user must re-authenticate.",
+      "durationMs": 43365.98020899994,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "target": "shallow"
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "Although it cites the accepted final anchor `^auth-session-timeout` and the 30-minute value, the answer adds an unsupported and internally contradictory enforcement claim ('absolute inactivity limit from the last activity, not a sliding window') and includes an extra `overview.md#^auth-session-timeout` traversal not in the specified `auth.md -> session.md` chain.",
+      "agentOutput": "- Final anchor: `session.md#^auth-session-timeout`\n- Intermediate anchors traversed: `overview.md#^auth-session-timeout`, `auth.md#^auth-session-timeout`\n- Plain-English answer: the maximum session idle timeout is **30 minutes**. It is enforced as an **absolute inactivity limit** from the last activity, not a sliding window; when it expires, the server returns **401** and clears the session cookie.",
+      "durationMs": 72549.31516700005,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "target": "shallow"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response names an accepted final anchor ID (`session#^auth-session-timeout`, containing `^auth-session-timeout`) and states a 30-minute inactivity limit, which is consistent with the anchor description \"Maximum session idle timeout (30 minutes),\" while no intermediate anchor was required.",
+      "agentOutput": "I’m tracing the docs graph for the idle-timeout setting, then I’ll follow wikilinks to the defining anchor and extract the enforcement rule.\nI found the direct session anchor. I’m checking the linked pages around it so I can report the exact traversal path and not just the final line.\n- Final anchor: `session#^auth-session-timeout`\n- Intermediate anchors traversed: none\n- Plain-English answer: the maximum session idle timeout is **30 minutes of inactivity**. It is enforced as an **absolute timeout from the last activity**; there is **no sliding expiry**, and when it expires the server returns **401** and clears the session cookie.",
+      "durationMs": 54659.53662499995,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "target": "shallow"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The response names the accepted final anchor `^auth-session-timeout` and gives the correct 30-minute value, but it invents an unsupported intermediate anchor `overview#^auth-session-timeout`, which violates the required traversal `auth.md -> session.md`.",
+      "agentOutput": "I’m going to trace the wikilinks in the local docs and source to find the authoritative definition, then report the anchor chain and a plain-English summary.\nI found the likely doc set. Next I’m reading the session/auth docs and the implementation to follow the linked anchors instead of guessing from filenames.\nI have the target definition. I’m checking where that anchor is referenced so I can report the actual path I followed, not just the final line.\n- Final answer anchor: `session#^auth-session-timeout`\n- Intermediate anchors traversed: `overview#^auth-session-timeout`, `auth#^auth-session-timeout`\n\nPlain-English answer: the maximum session idle timeout is 30 minutes. If a session is inactive that long, the server invalidates it by returning `401` and clearing the session cookie. The timeout is not sliding, so it stays tied to the last activity time rather than extending on access.",
+      "durationMs": 76650.15433400008,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "target": "shallow"
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The response names the accepted final anchor `^auth-session-timeout` and gives the correct 30-minute value, but its enforcement explanation is contradictory (`absolute timeout from the last activity, not a sliding one`) and adds unsupported details beyond the anchor’s described rule.",
+      "agentOutput": "I’m locating the docs that define session idle timeout and then I’ll follow the wikilinks to the source anchor.\nI found the session doc; next I’m reading the linked sections to trace the definition and any policy that constrains it.\nI have the defining anchor. I’m checking whether any other docs refine the timeout rule so I can report the traversal accurately.\nDefined at `session.md#^auth-session-timeout`.\n\nIntermediate anchors traversed: none.\n\nPlain-English answer: the session idle timeout is 30 minutes. It is enforced as an absolute timeout from the last activity, not a sliding one. When it expires, the server returns `401` and clears the session cookie; clients should watch `X-Session-Expires` to warn users before expiry.",
+      "durationMs": 46452.887958000065,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "target": "medium"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The response gives a contradictory final answer by claiming the canonical definition is `session.md#^session-otp-ttl` instead of the expected final anchor `^rate-otp-window`, even though it correctly mentions `^auth-mfa-required` and `^rate-otp-window` elsewhere and states the 90-second window.",
+      "agentOutput": "I’m locating the OTP-related docs and then following their wikilinks to the defining source.\nI found multiple candidate definitions. I’m reading the linked docs to verify which anchor is the final source and how the references chain together.\nI’ve got the chain and the probable defining anchor. I’m checking for any other anchor that claims the same OTP window so I can report the exact source cleanly.\n- Final definition: `session.md#^session-otp-ttl`\n- Intermediate anchors traversed: `auth.md#^auth-mfa-required`, `mfa.md#^mfa-sms-otp`, `ratelimit.md#^rate-otp-window`\n- Plain English: The OTP validity window is **90 seconds**. The canonical definition is in `session.md` at `^session-otp-ttl`; `mfa.md` and `ratelimit.md` repeat the same 90-second rule for OTPs.",
+      "durationMs": 54369.64841699996,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "target": "medium"
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it gives the final anchor as `session.md#^session-otp-ttl` instead of an accepted `^rate-otp-window` ID and names `mfa.md#^mfa-sms-otp` rather than an expected intermediate anchor such as `^auth-mfa-required` or `^mfa-totp-window`, making the claimed traversal inconsistent with the required chain.",
+      "agentOutput": "I’m locating the OTP-related docs and following wikilinks to the defining anchor.\nI found the core definition. I’m checking the linked docs to verify the exact anchor chain and whether the 90-second value is defined once or repeated elsewhere.\n- Final anchor: `session.md#^session-otp-ttl`\n- Intermediate anchor traversed: `mfa.md#^mfa-sms-otp`\n- Duration: `90 seconds`\n\nPlain English: the session-level OTP validity window is 90 seconds. `mfa.md` points to `session.md#^session-otp-ttl` as the place where that rule is defined; `ratelimit.md#^rate-otp-window` repeats the same 90-second value.",
+      "durationMs": 77220.77449999982,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "target": "medium"
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it names `session.md#^session-otp-ttl` instead of the required final anchor `^rate-otp-window` and does not include an expected intermediate anchor like `^auth-mfa-required` or `^mfa-totp-window`, even though the 90-second duration itself is correct.",
+      "agentOutput": "I’m locating the OTP reference chain in the docs, then I’ll trace the wikilinks to the definition and extract the anchor IDs.\nI found candidate definitions in `session.md`, `ratelimit.md`, and `mfa.md`. I’m reading the linked chain to see which anchor is the authoritative final definition and which anchors are just references.\nI have the definition and a cross-reference. I’m verifying whether the docs treat `session#^session-otp-ttl` or `ratelimit#^rate-otp-window` as the primary anchor so I can give you the exact traversal path.\n- Final definition anchor: `session.md#^session-otp-ttl`\n- Duration: `90 seconds`\n- Intermediate anchors traversed: `mfa.md#^mfa-sms-otp`, `ratelimit.md#^rate-otp-window`\n- Plain-English: OTPs are valid for 90 seconds. The session-level rule is defined in `session.md`, and `ratelimit.md` repeats the same 90-second window so the rate limit and OTP validity stay aligned.",
+      "durationMs": 54700.87204100005,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "target": "medium"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it names `session#^session-otp-ttl` instead of an accepted final anchor like `^rate-otp-window`, provides no expected intermediate anchor such as `^auth-mfa-required` or `^mfa-totp-window`, and therefore does not match the required wikilink traversal evidence even though it states the 90-second duration.",
+      "agentOutput": "I’ll trace the wikilinks through the docs and extract the anchor chain to the OTP validity setting.\nI found the OTP trail: `mfa.md` points to session OTP timing, and `session.md` likely holds the final duration. I’m reading those anchors now.\nI have the final definition. I’m checking whether there’s a longer wikilink chain so I can report every anchor I traversed, not just the destination.\n- Final anchor: `session#^session-otp-ttl`\n- Intermediate anchors: none\n- Answer: the OTP validity window is `90 seconds`. It is defined in `session.md` at `^session-otp-ttl`, and `mfa.md` links to it as the session-level OTP validity source.",
+      "durationMs": 43699.01366699999,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "target": "medium"
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it names the final anchor as `session#^session-otp-ttl` instead of the required accepted final anchor `^rate-otp-window`, includes a non-expected intermediate anchor `mfa#^mfa-sms-otp`, and says the session docs define the window even though the expected defining anchor is the rate-limit anchor describing a 90-second OTP window shared with `session:otp-ttl`.",
+      "agentOutput": "I’m locating the OTP references in the docs, then I’ll follow the wikilinks to the defining anchor and extract the exact duration.\nI found multiple OTP definitions. I’m checking the linked chain so I can answer from the doc path the project itself implies, not just the first match.\nI have the candidate answer. I’m checking the repository’s doc conventions so I can report the exact anchor chain in the form this project expects.\n- Final anchor: `session#^session-otp-ttl`\n- Intermediate anchors traversed: `auth#^auth-mfa-required`, `mfa#^mfa-sms-otp`, `ratelimit#^rate-otp-window`\n- Plain English: OTPs are valid for **90 seconds**. The session docs define that window, and the MFA and rate-limit docs repeat the same 90-second rule for consistency.",
+      "durationMs": 57472.35029199999,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "target": "deep"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The response names an accepted final anchor (`session#^session-otp-ttl`) and expected intermediates (`^auth-mfa-required`, `^rate-otp-window`), but it also invents `overview#^auth-session-timeout`, which the rule explicitly says should cause failure.",
+      "agentOutput": "I’m locating the docs that mention OTP, session lifetime, and any wikilink chain to the final explanation.\nI found the likely answer chain. I’m reading the linked docs around `session#^session-otp-ttl` and the related MFA/rate-limit anchors to confirm the exact wording and rationale.\nI checked the direct OTP/session anchors. I’m now verifying whether the “session lifetime” phrasing appears elsewhere, so the explanation matches the documentation trail rather than just one sentence.\n- Final answer anchor: `session#^session-otp-ttl`\n- Intermediate anchors traversed: `overview#^auth-session-timeout` -> `auth#^auth-mfa-required` -> `ratelimit#^rate-otp-window`\n\nPlain English: the OTP window is kept session-scoped and short so an old code can’t be replayed after the session context changes. The docs say this is to keep the OTP/rate window consistent, prevent replay attacks, and allow for small clock skew; after session expiry, MFA is required again.",
+      "durationMs": 83965.70925000007,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "target": "deep"
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "Although it names the accepted final anchor `session#^session-otp-ttl` and one valid intermediate anchor `^rate-otp-window`, it also invents `mfa#^mfa-sms-otp`, which is not part of the documented traversal or accepted anchor chain.",
+      "agentOutput": "I’m locating the documentation nodes that mention OTP validity and session lifetime, then I’ll follow the wikilinks to the source of the final statement.\nI found the likely target in `session.md`; I’m reading the linked nodes now to confirm the chain and extract the exact anchor IDs.\n- Final anchor: `session#^session-otp-ttl`\n- Intermediate anchors traversed: `mfa#^mfa-sms-otp`, `ratelimit#^rate-otp-window`\n- Plain-English answer: the docs say the 90-second OTP window is kept consistent with the OTP rate window, not the 30-minute session timeout. The reason is to prevent replay attacks while still allowing for clock skew, and the server enforces it by checking OTP timestamps itself and rejecting client-supplied timestamps.",
+      "durationMs": 46422.91458299989,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "target": "deep"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response names the final anchor as `session#^session-otp-ttl`, includes expected intermediate anchors such as `auth#^auth-mfa-required` and `ratelimit#^rate-otp-window`, and gives a consistent explanation that the 90-second OTP TTL is kept in sync with session/rate-limit timing to reduce replay risk.",
+      "agentOutput": "I’ll trace the wikilink chain in the docs, find the anchor that states the answer, and then report the anchor IDs plus a plain-English summary.\nI found the likely answer anchor in `session.md`; now I’m tracing which pages link into it so I can report the traversal chain, not just the final sentence.\nThe docs don’t literally say “aligned with the session lifetime” in the first hit, so I’m searching for the exact rationale chain around session expiry, OTP TTL, and rate windows.\nI have the core anchors. I’m doing one last pass for any file that explicitly ties OTP validity to session lifetime so I don’t overstate the rationale.\n- Final answer anchor: `session#^session-otp-ttl`\n- Intermediate anchors traversed: `auth#^auth-mfa-required`, `session#^auth-session-timeout`, `ratelimit#^rate-otp-window`\n- Plain-English explanation: OTPs are kept short-lived so they only work during an active session. When a session expires, the user must re-authenticate and pass MFA again, and the shared 90-second OTP window keeps session expiry, OTP acceptance, and rate limiting consistent while reducing replay risk.",
+      "durationMs": 67129.80787500017,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "target": "deep"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "Although it names the accepted final anchor `^session-otp-ttl` and expected intermediates like `^auth-mfa-required` and `^rate-otp-window`, it also invents the non-expected anchor `session#^auth-session-timeout`, which the rule says should cause failure.",
+      "agentOutput": "I’m locating the docs and the anchor chain for OTP/session lifetime, then I’ll trace the wikilinks to the final definition.\nI found the likely definition chain. Next I’m reading the linked sections to confirm the exact anchor path and the rationale.\n- Final anchor: `session#^session-otp-ttl`\n- Intermediate anchors traversed: `auth#^auth-mfa-required`, `session#^auth-session-timeout`, `ratelimit#^rate-otp-window`\n\nPlain English: the OTP window is kept tied to session state so the server can reject stale or replayed codes, enforce it from the session timestamp, and keep behavior consistent with the rate-limit window. When the session expires, the user must re-authenticate with MFA.",
+      "durationMs": 43707.5187919999,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "target": "deep"
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "Although it names the accepted final anchor `^session-otp-ttl` and one expected intermediate anchor, it invents an unsupported intermediate anchor (`session#^auth-session-timeout`) and gives a partly contradictory rationale by saying sessions expire separately rather than cleanly grounding the answer in the documented rule that the 90-second session-level OTP TTL is aligned with `rate:otp-window`.",
+      "agentOutput": "I’m locating the docs and anchor chain that explain the OTP/session alignment, then I’ll trace the wikilinks to the final definition.\nI found the relevant anchor chain in `session.md`, `mfa.md`, and `ratelimit.md`. I’m reading those definitions now to extract the exact rationale and anchor IDs.\nThe docs don’t state “session lifetime” as the reason directly; they describe the OTP window as a session-level control. I’m checking the code to confirm whether the same TTL is enforced in the session store and whether that matches the docs.\n- Final anchor: `session#^session-otp-ttl`\n- Intermediate anchors traversed: `auth#^auth-mfa-required` -> `session#^auth-session-timeout` -> `ratelimit#^rate-otp-window`\n- Plain English: the OTP window is kept short and session-scoped so codes stay fresh, are rejected server-side if stale, and are harder to replay. The docs say the 90-second OTP window is shared with the rate window for consistency and to allow clock skew; sessions themselves expire separately after inactivity, and MFA is required again after expiry.",
+      "durationMs": 69965.28712500003,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "target": "shallow"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "Although it cites the accepted final anchor `202605121001` and the 30-minute value, the explanation adds unsupported and internally inconsistent enforcement details (`server-side 401`, cookie clearing, and `sliding expiry is not supported` while also saying it is measured from `last activity`), so it does not clearly satisfy the rule.",
+      "agentOutput": "I’m tracing the reference chain in the docs to find the anchor that defines the timeout rule, then I’ll report the path and the plain-English meaning.\nI found the docs set. Next I’m locating the UID anchor chain in the session-related pages, then I’ll verify the final definition and any intermediate hops.\nI found the definition anchor in `session.md`. I’m checking which docs point to it so I can report the traversal chain, not just the terminal anchor.\n- Final answer anchor: `202605121001`\n- Intermediate anchors traversed: none\n- Plain English: the maximum session idle timeout is **30 minutes**. It is enforced **server-side**: after 30 minutes of inactivity, the server returns **401** and clears the session cookie. Sliding expiry is **not** supported, so the timeout is fixed from the **last activity**.",
+      "durationMs": 62159.959625000134,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "target": "shallow"
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "Although the response names the accepted final anchor `202605121001` and states the 30-minute limit, it adds an unsupported intermediate anchor `202605121003` and includes internally contradictory enforcement wording (`no activity for 30 minutes` but `no sliding renewal` and `absolute from the last activity`), so it does not clearly satisfy the rule.",
+      "agentOutput": "I’m tracing the anchor chain for the idle-timeout rule and will report the exact final anchor plus the path I followed.\nI found the session anchor reference. Next I’m opening that anchor and the linked anchors around it to extract the exact limit and enforcement language.\nI have the defining session anchor. I’m checking the surrounding auth docs to confirm the enforcement behavior and whether any other anchor changes the limit.\n- Final anchor: `202605121001`\n- Intermediate anchors traversed: `202605121003`\n- Plain-English answer: the maximum session idle timeout is **30 minutes**. It is enforced **server-side**: if there is no activity for 30 minutes, the session expires, the server returns **401**, and clears the session cookie. Sliding renewal is **not** supported; the timeout is absolute from the last activity.",
+      "durationMs": 51024.34566699993,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "target": "shallow"
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "Although the response correctly cites final anchor `202605121001` and the 30-minute timeout, it lists unsupported intermediate anchors (`202605121003`, `202605121005`, `202605121006`) instead of the expected direct traversal to the final anchor, so it does not clearly satisfy the required anchor chain.",
+      "agentOutput": "I’m locating the source anchors for the session timeout rule, then I’ll follow the UID links to the final definition.\nI found the likely document set. Next I’m reading the session-related docs and their link targets to reconstruct the anchor chain.\nI have the core answer. I’m doing one last pass for any linked rule that clarifies enforcement wording before I answer.\n- Final anchor: `202605121001`\n- Intermediate anchors traversed: `202605121003`, `202605121005`, `202605121006`\n- Answer: The maximum session idle timeout is `30 minutes`. It is enforced server-side as an absolute inactivity limit from the last activity; when it expires, the server returns `401` and clears the session cookie. Sliding expiry is not supported.",
+      "durationMs": 41704.052333000116,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "target": "shallow"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "Although it names the accepted final anchor `202605121001` and gives the correct 30-minute timeout, it also claims traversal through `refresh.md` and intermediate anchor `202605121006`, which conflicts with the specified correct path `auth.md → session.md` and introduces an unsupported anchor.",
+      "agentOutput": "I’m locating the relevant documentation anchors and following the UID references to the source definition.\nI found one explicit session reference in `refresh.md`. Next I’m tracing the linked anchor IDs to the actual session policy definition.\n- Final anchor: `202605121001`\n- Intermediate anchor traversed: `202605121006`\n- Answer: the maximum session idle timeout is `30 minutes of inactivity`. Enforcement is server-side: when the timeout is exceeded, the server returns `401` and clears the session cookie. Sliding expiry is not supported, so the timeout is measured from the last activity and does not extend automatically.",
+      "durationMs": 43768.94204100012,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "target": "shallow"
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "Although the response names the accepted final anchor `202605121001` and the correct value `30 minutes`, it also introduces an unsupported intermediate anchor `202605121003` and extra enforcement details (`401`, cookie clearing, `X-Session-Expires`, no sliding expiry) that are not established by the rule’s stated anchor description.",
+      "agentOutput": "I’m locating the referenced documentation chain and the anchor that states the timeout rule.\nI found a session-focused doc set. Next I’m tracing the UID links to the source anchor that defines the timeout constraint.\n- Final anchor: `202605121001`\n- Intermediate anchor(s): `202605121003`\n- Answer: the maximum session idle timeout is `30 minutes` of inactivity. It is enforced server-side: after that window the server returns `401` and clears the session cookie. Sliding expiry is not supported, so clients should watch `X-Session-Expires` to warn users before expiry.",
+      "durationMs": 52801.82866700017,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "target": "medium"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it names `[[202605121016]]` in `session.md` as the final anchor instead of the accepted final anchor `202605121009`/`rate:otp-window`, and it gives a contradictory location for the canonical definition.",
+      "agentOutput": "I’m tracing the UID references first, then I’ll read the relevant anchor chain and extract the OTP validity window and its defining location.\nI found multiple mentions of OTP validity, but I need the anchor chain to the canonical definition, so I’m reading the linked docs and anchor headings next.\nThe canonical value appears in the session anchor, but I’m checking whether the document graph points there through MFA or rate-limiting anchors so I can report the exact traversal.\nI have the 90-second value in two places. I’m checking the Python implementation to confirm which document the runtime actually follows, so I can name the right anchor confidently.\nI’ve verified the value in the session anchor and the matching rate-limit anchor. I’m wrapping up with the anchor IDs and a short explanation.\n- Final anchor: `[[202605121016]]` in `session.md`\n- Intermediate anchors traversed: `[[202605121007]]` and `[[202605121009]]`\n- Answer: OTP validity is `90 seconds`. The session-level definition is in `session.md`, and `ratelimit.md` repeats the same 90-second window for consistency.",
+      "durationMs": 65983.71604199987,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "target": "medium"
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "The response is contradictory because it claims the final definition anchor is `202605121016` in `session.md` instead of the required accepted final anchor `202605121009`, even though it separately mentions `202605121009` only as a supporting reference.",
+      "agentOutput": "I’m tracing the OTP setting through the docs by following UID links and reading the source that defines it.\nI found the likely definitions in `mfa.md`, `session.md`, and `ratelimit.md`. I’m reading those anchors now to confirm the source chain and the exact definition location.\nThe docs already show the value is 90 seconds. I’m checking the Python constants so I can point to the implementation location, not just the prose.\n- Final definition anchor: `202605121016` in `session.md`\n- Intermediate anchors traversed: `202605121003` in `auth.md`, `202605121007` in `mfa.md`\n- Supporting echo: `202605121009` in `ratelimit.md`\n\nPlain-English answer: the OTP validity window is `90 seconds`. The docs define it most directly in `session.md` as the session-level OTP validity window, and the MFA docs repeat the same `90-second` value for SMS OTP codes.",
+      "durationMs": 55266.156582999974,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "target": "medium"
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it identifies `202605121016` as the final definition anchor instead of the expected accepted final anchor `202605121009`, and it does not name either expected intermediate anchor `202605121003` or `202605121008`.",
+      "agentOutput": "I’m tracing the UID references through the docs to find the OTP window definition and the anchor chain that leads to it.\nI found the doc set. Next I’m locating the OTP/MFA references and the UID-linked anchor trail that reaches the actual definition.\nThe references point toward `mfa.md` and `session.md`. I’m reading those anchors now to confirm the exact window and the chain of linked IDs.\n- Final definition: `202605121016` in `session.md`\n- Intermediate anchor traversed: `202605121007` in `mfa.md`\n- Cross-check anchor: `202605121009` in `ratelimit.md`\n\nPlain English: the OTP validity window is **90 seconds**. The clearest definition is in `session.md` under `UID: 202605121016`, which says the session-level OTP validity window is 90 seconds. `mfa.md` points to that anchor, and `ratelimit.md` confirms the same 90-second window.",
+      "durationMs": 40510.027459000004,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "target": "medium"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it identifies the final anchor as `202605121016` in `session.md` instead of the accepted terminal anchor `202605121009`, and its reported chain contradicts the expected `auth.md -> mfa.md -> ratelimit.md` traversal even though it correctly states the 90-second duration.",
+      "agentOutput": "I'll trace the UID-linked docs first, then follow references until I reach the OTP validity definition.\nI found the docs set. Next I'm searching for OTP references and anchor IDs to build the reference chain.\nI found the candidate references: `mfa.md`, `session.md`, and `ratelimit.md` all point at OTP timing. I'm reading those sections to identify the exact anchor chain and the authoritative definition.\nI have the core definition now. I’m checking whether the session anchor is the terminal definition or if it only points to a lower-level source, so I can report the correct chain.\nThe chain is consistent: `mfa.md` points to `session.md`, and `session.md` points to `ratelimit.md` for the shared window. I’m doing one last pass for any other direct definition so I don’t miss a better anchor.\nI have the terminal definition and the corroborating reference. I’m wrapping up the answer with the exact anchor chain and the duration.\n- Final anchor: `202605121016` in `session.md`\n- Intermediate anchors traversed: `202605121007` in `mfa.md` -> `202605121016` -> `202605121009` in `ratelimit.md`\n- Answer: the OTP validity window is `90 seconds`\n\nPlain English: the service treats OTP codes as valid for 90 seconds. That is stated directly in the session-level OTP definition, and the same 90-second window is also used for the OTP rate window to keep the rules consistent.",
+      "durationMs": 47837.23279199982,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "target": "medium"
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The response names the accepted final anchor `202605121009` and correctly states the 90-second OTP window, but it fails the medium/deep requirement because it does not include either expected intermediate anchor (`202605121003` or `202605121008`) and instead reports a different traversal.",
+      "agentOutput": "I’m tracing the OTP references through the docs first, then I’ll pin the final anchor and the path of intermediate anchors.\nI found three likely definition points. Now I’m reading the surrounding anchors to determine the canonical one and the reference chain.\nI have enough to identify the canonical definition, but I’m checking whether any other anchor defines the same window more directly so I can report the traversal accurately.\n- Final anchor: `202605121009` in `ratelimit.md`\n- Traversed anchors: `202605121007` -> `202605121016` -> `202605121009`\n- Plain English: OTP codes are valid for `90 seconds`. The canonical definition is in the rate-limiting doc, and the session doc repeats the same 90-second window for session-level OTP validity.",
+      "durationMs": 52487.39187499974,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "target": "deep"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "Although it cites the accepted final anchor `202605121016` and one expected intermediate anchor `202605121009`, the explanation is contradictory because it says the actual session lifetime is separate from OTP validity instead of cleanly grounding the answer in `202605121016`'s definition that the session-level OTP TTL (90 s) is aligned with `rate:otp-window`.",
+      "agentOutput": "I’m tracing the UID chain in the docs to find the final anchor and the supporting intermediate anchors.\nI found the likely explanation in `session.md`; I’m reading the linked anchors to confirm the exact anchor chain and wording.\nI have the main chain. I’m checking the surrounding anchors to make sure the “why” is grounded in the doc links, not just the local sentence.\n- Final answer anchor: `202605121016`\n- Intermediate anchors traversed: `202605121009`, `202605121001`\n\nPlain-English answer: the OTP window is set to the same 90-second boundary as the OTP rate window so the server can enforce one consistent rule, reject replayed or stale codes, and tolerate small clock skew. The actual session lifetime is separate: sessions expire after 30 minutes of inactivity (`202605121001`), while OTP validity is a short server-side check (`202605121016`, backed by `202605121009`).",
+      "durationMs": 45179.809082999825,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "target": "deep"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response cites the accepted final anchor `202605121016`, names expected intermediate anchors `202605121003` and `202605121009`, and its explanation matches the stated rationale that the OTP TTL is the shared 90-second session/rate-limit window rather than the separate 30-minute inactivity session lifetime.",
+      "agentOutput": "I’m locating the relevant anchors and following the UID chain to the final definition.\nI found the likely answer path in `session.md` and `mfa.md`. Next I’m resolving the UID chain to the anchor that actually states the rationale.\nThe current evidence says the OTP window is aligned with the OTP rate window, not the 30-minute inactivity timeout. I’m checking whether another anchor explains the session-lifetime alignment the question refers to.\nI’ve traced the path and confirmed the key detail: the docs distinguish session lifetime from the OTP window. I’m wrapping up with the anchor IDs and the exact rationale from the final anchor.\n- Final anchor: `202605121016`\n- Intermediate anchors traversed: `202605121003` -> `202605121001` -> `202605121009`\n- Plain-English answer: the OTP window is kept short so a code expires quickly, and it is matched to the shared 90-second OTP rate/session TTL for consistency. The docs say this reduces replay risk and allows for clock skew. The 30-minute session lifetime is separate.",
+      "durationMs": 54086.51875000028,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "target": "deep"
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "Although the response cites the accepted final anchor `202605121016` and names expected intermediates like `202605121003` and `202605121009`, it reports an off-chain anchor `202605121001` instead of the expected `202605121008` and adds rationale beyond the documented definition `Session-level OTP TTL (90 s) aligned with rate:otp-window`.",
+      "agentOutput": "I’m tracing the UID-linked docs first, then I’ll synthesize the chain into a plain-English answer.\nI found the key cross-reference in `session.md`; now I’m reading the anchor definitions to verify the exact rationale and the path to it.\nI have the defining line for OTP validity. I’m checking the rest of the UID map so I can report the exact traversal cleanly.\n- Final anchor: `202605121016`\n- Intermediate anchors traversed: `202605121003`, `202605121001`, `202605121009`\n- Plain English: the docs do **not** say OTP is valid for the whole session. They say the OTP window is 90 seconds, enforced server-side from the session store, and shared with `session:otp-ttl` to keep behavior consistent. The reason is to reduce replay risk and tolerate clock skew, while MFA is required at session creation and after session expiry.",
+      "durationMs": 67059.1100829998,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "target": "deep"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The response cites the accepted final anchor `202605121016`, includes expected intermediate anchors `202605121003` and `202605121009`, and explains that OTP validity uses the same 90-second session OTP/rate-limit window rather than the 30-minute session timeout, which is consistent with the anchor description.",
+      "agentOutput": "I’m tracing the UID-linked docs first, then I’ll summarize the chain that explains the OTP/session alignment.\nI found the repo instructions but not the expected `pages/` catalog in this folder, so I’m checking whether the answer lives in another local docs tree or if the project is organized differently.\nI’ve narrowed it to the session, MFA, and rate-limit docs. Next I’m reading the linked pages to reconstruct the exact rationale and the anchor chain.\n- Final answer anchor: `[[202605121016]]`\n- Intermediate anchors traversed: `[[202605121001]]`, `[[202605121009]]`, `[[202605121003]]`\n- Plain-English answer: the docs do **not** align OTP validity with the 30-minute session inactivity timeout. They align it with the **session OTP TTL/rate window** instead, using the same 90-second window so the server can reject stale codes consistently. The stated reason is to **prevent replay attacks** while still allowing for **clock skew**.",
+      "durationMs": 67934.24170799972,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "target": "deep"
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "Although it cites the accepted final anchor `202605121016` and gives a broadly consistent 90-second TTL explanation, it reports an incorrect traversal (`202605121001 -> 202605121009`) instead of the expected reference chain that includes anchors like `202605121003` and `202605121008`.",
+      "agentOutput": "I’m locating the docs that mention OTP validity and session lifetime, then I’ll follow the anchor chain to the final answer.\nI found the likely chain in `session.md`, `mfa.md`, and `ratelimit.md`. Next I’m reading the anchor definitions so I can trace the exact IDs, not just the prose.\nI’ve got the core definitions. I’m checking whether the docs describe a literal match to session lifetime or only a shorter session-scoped TTL, because that changes the explanation.\n- Final answer anchor: `202605121016`\n- Intermediate anchors traversed: `202605121001` -> `202605121009`\n\nPlain English: the OTP window is not tied to the full 30-minute session lifetime. It is a short 90-second session-scoped window so the server can reject stale codes, reduce replay risk, tolerate small clock skew, and keep the OTP TTL consistent across session and rate-limit logic.",
+      "durationMs": 52598.64412500011,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "target": "shallow"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The response names an accepted final anchor ID in canonical form (`ANC:auth:session-timeout`) and gives a factually consistent explanation that the maximum idle timeout is 30 minutes, with no contradictory anchor or answer.",
+      "agentOutput": "I’m locating the docs that define session timeout rules, then I’ll follow the reference chain to the final definition.\nI found the doc set. Next I’m searching the session-related anchors and reference links that point to the timeout rule.\nFinal anchor: `ANC:auth:session-timeout`\n\nIntermediate anchors traversed: none\n\nPlain English: the maximum session idle timeout is 30 minutes. It is enforced server-side: after 30 minutes of inactivity, the server returns `401` and clears the session cookie. The timeout is absolute from the last activity, so sliding expiry is not used.",
+      "durationMs": 48491.347666000016,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "target": "shallow"
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "The response names the final anchor `auth:session-timeout` and gives `30 minutes`, but its claimed traversal does not match the expected `auth.md → session.md` path and it adds unsupported enforcement details (`401`, cookie clearing, no sliding expiry) beyond the anchor description.",
+      "agentOutput": "I’m tracing the documentation anchors first, then I’ll follow the `REF:ns:id` chain to the final definition.\nI found the policy reference; next I’m locating the actual `auth:session-timeout` anchor and any chain of supporting anchors.\nDefined at `ANC:auth:session-timeout` in `session.md`.\n\nTraversed refs:\n- `REF:auth:session-timeout` in `overview.md`\n- `REF:auth:session-timeout` in `auth.md`\n- `REF:auth:session-timeout` in `refresh.md`\n- `REF:auth:session-timeout` in `token.md`\n\nAnswer:\n- Maximum session idle timeout: `30 minutes`.\n- Enforcement rule: the session expires after 30 minutes of inactivity, the server returns `401` and clears the session cookie, and the timeout is absolute from last activity with no sliding expiry.\n\nPlain English:\nIf a user leaves the app idle for half an hour, the session is ended by the server. Any later request gets a 401, and the user must log in again.",
+      "durationMs": 41266.40883400012,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "target": "shallow"
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "Although the response names the final anchor as `ANC:auth:session-timeout` and gives the 30-minute value, its enforcement explanation adds unsupported and internally contradictory claims (`absolute timeout from the last activity` while `sliding expiry is not supported`, plus `401`/cookie clearing) rather than staying factually consistent with the anchor’s stated description.",
+      "agentOutput": "I’m tracing the reference chain in the project docs to find the defined answer and the anchors that lead to it.\nI found the session-timeout reference in multiple docs; next I’m resolving the anchor it points to and any nested references behind it.\n- Final anchor: `ANC:auth:session-timeout` in `session.md`\n- Intermediate anchors traversed: none\n- Answer: the maximum session idle timeout is **30 minutes of inactivity**. It is enforced as an **absolute timeout from the last activity**: sliding expiry is not supported, and when it expires the server returns **401** and clears the session cookie.",
+      "durationMs": 49619.51416699961,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "target": "shallow"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The response names the accepted final anchor `auth:session-timeout` and gives a factually consistent answer that the maximum session idle timeout is 30 minutes, with no invented anchor IDs or contradiction about the core value.",
+      "agentOutput": "I’m locating the anchor chain for session idle timeout and will trace the `[REF:ns:id]` links to the defining section.\nI found the docs set. Next I’m tracing the anchor references around `session.md` and related auth docs to resolve the final definition.\nI’ve located the target anchor in `session.md`. I’m checking the inbound references so I can report the traversal path cleanly, not just the final section.\n- Final anchor: `auth:session-timeout`\n- Intermediate anchors traversed: none; `overview.md` and `auth.md` both point directly to `auth:session-timeout`\n\nPlain-English answer: the maximum session idle timeout is **30 minutes of inactivity**. Enforcement is **server-side and absolute**: sliding expiry is not supported, so the timer is measured from the last activity, and when it expires the server returns **401** and clears the session cookie.",
+      "durationMs": 46707.34975000005,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "target": "shallow"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response names the accepted final anchor `auth:session-timeout`, states the timeout as 30 minutes, and gives a non-contradictory enforcement explanation, with no invented anchor IDs.",
+      "agentOutput": "I’m locating the reference chain for session timeout and the anchor IDs that define it.\nI found the reference chain into `auth:session-timeout`; next I’m reading the linked anchors to extract the exact timeout and enforcement rule.\nI have the defining anchor and its rule. I’m checking whether there’s an additional anchor hop before the final definition so I can report the traversal precisely.\n- Final anchor: `auth:session-timeout` in `session.md`\n- Intermediate anchors traversed: none\n- Answer: the maximum session idle timeout is **30 minutes of inactivity**. Enforcement is **server-side**: when it expires, the server returns **401**, clears the session cookie, and uses an **absolute timeout** with **no sliding expiry**.\n\n",
+      "durationMs": 55702.38358299993,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "target": "medium"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it identifies `ANC:session:otp-ttl` as the final anchor instead of the required accepted final anchor `rate:otp-window`, and it also cites a non-expected intermediate anchor `ANC:mfa:sms-otp` rather than the documented traversal through `mfa:totp-window`.",
+      "agentOutput": "I’m locating the OTP-related anchors and tracing the reference chain before answering.\nI found multiple 90-second OTP references. Now I’m reading the linked anchors to verify the path and the defining source.\nI have the duration. I’m checking the higher-level references to report a clean traversal path instead of just the leaf node.\n- Final anchor: `ANC:session:otp-ttl` in `session.md`\n- Intermediate anchors traversed: `ANC:auth:mfa-required` -> `ANC:mfa:sms-otp`\n- Corroborating cross-reference: `ANC:rate:otp-window` in `ratelimit.md`\n\nPlain English: OTPs are valid for 90 seconds. The session-level rule in `session.md` is the canonical definition, and `mfa.md` plus `ratelimit.md` point to the same 90-second window for consistency.",
+      "durationMs": 51271.71766600013,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "target": "medium"
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "The response is contradictory because it names `session:otp-ttl` in `session.md` as the final authoritative anchor instead of the expected final answer anchor `rate:otp-window`, even though it does mention the correct duration of 90 seconds and an intermediate anchor.",
+      "agentOutput": "I’m locating the OTP references and anchor chain in the docs, then I’ll trace the final definition and report the anchor path.\nI found the likely definition chain. I’m reading the exact anchor blocks now so I can cite the final anchor and any hop anchors precisely.\n- Final anchor: `ANC:session:otp-ttl` in `session.md`\n- Intermediate anchors traversed: `ANC:mfa:totp-window`, `ANC:rate:otp-window`\n- Plain-English answer: OTPs are valid for 90 seconds. The authoritative definition is in `session.md` under `session:otp-ttl`; `mfa.md` and `ratelimit.md` both point to that same 90-second window for consistency.",
+      "durationMs": 41790.93287499994,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "target": "medium"
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The response names `ANC:rate:otp-window` and correctly states the 90-second window, but it contradicts the required final answer by claiming the final/canonical anchor is `ANC:session:otp-ttl` in `session.md` instead of `rate:otp-window`.",
+      "agentOutput": "I’m locating the OTP-related anchors and following the reference chain to the final definition.\nI found multiple OTP-related anchors. Now I’m tracing which one is the canonical definition and whether other pages just reference it.\nI have the target anchors. I’m checking the reference path so I can report the traversal, not just the final line.\n- Final anchor: `ANC:session:otp-ttl` in `session.md`\n- Intermediate anchor traversed: `ANC:mfa:totp-window`\n- Related corroborating anchor: `ANC:rate:otp-window` in `ratelimit.md`\n\nPlain English: the OTP validity window is **90 seconds**. The canonical definition is in `session.md` under `session:otp-ttl`; `ratelimit.md` repeats the same 90-second window and says it is shared with the session OTP TTL.",
+      "durationMs": 45430.216583999805,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "target": "medium"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it names `ANC:session:otp-ttl` as the final anchor instead of the required final answer anchor `rate:otp-window`, and its traversal/explanation contradict the rule by treating `session.md` as canonical rather than the rate-limit anchor that defines the 90-second OTP window shared with `session:otp-ttl`.",
+      "agentOutput": "I’m tracing the OTP validity setting through the project references and source docs.\nI found multiple OTP-related definitions; now I’m following the reference chain to the canonical one.\nI’ve confirmed the duration in two places; the session anchor looks like the primary definition, with the rate-limit doc mirroring it.\nI’m checking whether the repo has a canonical path or index for the OTP docs before I pin the answer.\n- Final anchor: `ANC:session:otp-ttl` in `session.md`\n- Intermediate anchors traversed: `ANC:mfa:sms-otp` in `mfa.md`, `ANC:rate:otp-window` in `ratelimit.md`\n- Answer: the OTP validity window is `90 seconds`. The canonical session-level definition is in `session.md`, and `ratelimit.md` repeats the same 90-second window for consistency.",
+      "durationMs": 62378.18462500023,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "target": "medium"
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it names `session:otp-ttl` as the final defining anchor instead of the required accepted final anchor `rate:otp-window`, omits the expected intermediate anchors (`auth:mfa-required` or `mfa:totp-window`), and gives a contradictory location for where the answer is defined.",
+      "agentOutput": "I’m locating the OTP documentation and tracing the reference chain so I can answer from the project sources, not guess.\nI found the relevant OTP statements in `mfa.md`, `session.md`, and `ratelimit.md`. Next I’m reading the anchor blocks to confirm which one is the authoritative definition and what it references.\n- Final answer anchor: `session:otp-ttl`\n- Intermediate anchors traversed: `mfa:sms-otp`, `rate:otp-window`\n- Plain English: the OTP validity window is **90 seconds**. It is defined in `session.md` under `session:otp-ttl`, and the same 90-second window is repeated in `mfa.md` and `ratelimit.md` for SMS OTPs and rate-window consistency.",
+      "durationMs": 45540.66204100009,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "target": "deep"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "Although it names the accepted final anchor `session:otp-ttl` and the expected intermediate `rate:otp-window`, the answer contradicts the expected conclusion by claiming OTP validity is not aligned with session lifetime and cites likely non-expected anchors (`mfa:sms-otp`, `auth:session-timeout`) instead of the documented chain.",
+      "agentOutput": "I’m going to trace the reference chain in the docs and source to find the anchor that explains the OTP/session alignment.\nI found the likely path: `mfa` points to `session:otp-ttl`, and `session` explains the alignment. I’m reading those anchors and the rate window they reference.\nI’ve got the core reason from `session:otp-ttl`, but I’m checking the surrounding auth docs to make sure there isn’t a more specific definition of “session lifetime” that changes the interpretation.\nI’ve confirmed the docs don’t define a separate reason elsewhere; the answer is concentrated in the session and rate anchors. I’m checking the Python constants to see whether they corroborate the 90-second window.\nFinal answer anchor: `ANC:session:otp-ttl`\n\nIntermediate anchors traversed: `ANC:mfa:sms-otp` -> `ANC:rate:otp-window` -> `ANC:session:otp-ttl`  \nCross-check for session lifetime: `ANC:auth:session-timeout`\n\nPlain English: the docs do **not** align OTP validity with the full session lifetime. They keep OTP validity short at 90 seconds and share it with the OTP rate window so the system stays consistent, reduces replay risk, and tolerates clock skew. Session lifetime is separate. After a session expires, MFA is required again.",
+      "durationMs": 69186.89283299958,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "target": "deep"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response names the accepted final anchor `session:otp-ttl`, includes expected intermediate anchors `auth:mfa-required` and `rate:otp-window`, and explains consistently that the OTP TTL is 90 seconds and aligned with the OTP rate window rather than the full session duration.",
+      "agentOutput": "I’m locating the anchor chain in the project docs, then I’ll trace the `[REF:ns:id]` references to the final explanation.\nI found the likely source chain in `session.md`, `mfa.md`, and `ratelimit.md`. I’m reading those anchor blocks to extract the exact reasoning and the anchor IDs.\nI have the direct answer in `session.md`. I’m checking whether `auth:session-timeout` adds a higher-level reason so I can include the full reference chain instead of only the local anchor.\nI have enough to answer, but I’m checking one more hop for any explicit note tying OTP use to MFA at session creation or expiry, so the explanation stays exact.\n- Final anchor: `session:otp-ttl`\n- Intermediate anchors traversed: `auth:mfa-required`, `auth:session-timeout`, `rate:otp-window`\n\nPlain-English answer: the docs do **not** say the OTP window matches the full 30-minute session timeout. They say the session-level OTP window is **90 seconds** and is aligned with the OTP rate window so the code stays valid only for the short authentication step, which helps prevent replay attacks and handles clock skew. MFA is required when a new session is created and again after session expiry, so the OTP is tied to that boundary, not to the whole session duration.",
+      "durationMs": 62788.83004199993,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "target": "deep"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response names the accepted final anchor `session:otp-ttl`, includes the expected intermediate anchor `rate:otp-window`, and gives a consistent explanation that the OTP TTL is 90 seconds and aligned with the OTP rate window for consistent server-side validation.",
+      "agentOutput": "I’m locating the OTP/session references and tracing the anchor chain to the final explanation.\nI found the likely path: `session.md` points to `rate:otp-window`, and that should explain the alignment with session lifetime. I’m reading the linked anchors now to confirm the rationale and any intermediate references.\nI have the local OTP-window and session anchors. I’m checking whether the session-timeout anchor itself links back into this rule, so I can report the exact traversal instead of inferring it.\n- Final anchor: `session:otp-ttl`\n- Intermediate anchor traversed: `rate:otp-window`\n\nPlain-English answer: the OTP window is kept to 90 seconds and shared with the OTP rate window so the server treats OTP timing consistently. That prevents replay of stale codes, tolerates clock skew, and works with server-side timestamp checks instead of trusting the client.",
+      "durationMs": 77799.03874999983,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "target": "deep"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The response fails because although it names `session:otp-ttl` and `rate:otp-window`, it introduces a likely non-existent anchor `auth:session-timeout` and gives a contradictory explanation that denies the expected session-level OTP TTL alignment described at `session:otp-ttl`.",
+      "agentOutput": "I’m locating the source anchors first, then I’ll trace the reference chain to the definition that explains the alignment.\nI found the documentation set. Next I’m searching for the OTP/session references and then following the anchor chain across the linked docs.\nI’ve got the likely starting anchors. Now I’m reading the linked docs to confirm the exact rationale and the final defining anchor.\nI found the main explanation in `session.md`, but I’m checking whether `auth:session-timeout` is the upstream anchor that gives the reason for the alignment.\n- Final anchor: `ANC:session:otp-ttl`\n- Intermediate anchors traversed: `ANC:auth:session-timeout`, `ANC:rate:otp-window`\n- Plain-English answer: the docs do **not** say the OTP window is aligned with the full session lifetime. They say it is 90 seconds, matched to the OTP rate window, so the server can reject stale codes, prevent replay attacks, and tolerate clock skew. The session lifetime is a separate 30-minute inactivity timeout.",
+      "durationMs": 62963.56491700001,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "target": "deep"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response names the accepted final anchor `session:otp-ttl`, includes expected intermediate anchors `mfa:totp-window` and `rate:otp-window`, and explains the 90-second OTP TTL as being shared/aligned with `rate:otp-window`, which is consistent with the documented anchor description.",
+      "agentOutput": "I’m locating the anchor chain that defines the OTP/session relationship, then I’ll trace the [REF:ns:id] links back to the final explanation.\nI found the likely core anchor in `session.md`; now I’m tracing the upstream references to confirm whether the rationale is stated there or only inherited from another anchor.\nI’ve confirmed the rationale exists in `session.md` and is reinforced by `ratelimit.md`. I’m checking whether any upstream document points to `session:otp-ttl`, so I can report the exact traversal path instead of just the local explanation.\nI have the answer text. I’m doing one last pass for wording that links OTP TTL to the session model, so I can explain it without overclaiming a relationship that the docs do not make.\n- Final anchor: `session:otp-ttl`\n- Intermediate anchors traversed: `mfa:totp-window` -> `rate:otp-window`\n- Plain English: the docs say the OTP window is kept at 90 seconds so the server can reject stale codes, reduce replay risk, and still tolerate clock skew. `rate:otp-window` says it is shared with `session:otp-ttl` for consistency, and `session:otp-ttl` gives the reason directly.\n\nOne correction: the files do not say it is aligned with the full session lifetime; they say it is aligned with the OTP rate window.",
+      "durationMs": 123474.7570410003,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "target": "shallow"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The response names the accepted final anchor ID `session-timeout` and gives a factually consistent answer that the maximum idle timeout is 30 minutes with server-side enforcement after inactivity, without inventing contradictory anchors.",
+      "agentOutput": "I’m locating the referenced anchors and tracing the `[REF:id]` chain to the final definition.\nI found the `session-timeout` reference chain. Next I’m reading the docs that define that anchor and any linked enforcement rule.\n- Final anchor ID: `session-timeout`\n- Intermediate anchors traversed: none\n- Plain-English answer: the maximum session idle timeout is `30 minutes`. It is enforced server-side: after 30 minutes of inactivity, the server returns `401` and clears the session cookie. Sliding expiry is not supported, so the timeout is absolute from the last activity.",
+      "durationMs": 37581.39962500008,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "target": "shallow"
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "The response names the accepted final anchor `session-timeout` and states the correct 30-minute limit, but it fails the traversal requirement because it explicitly says `Intermediate anchors traversed: none` instead of naming at least one expected intermediate anchor from the `auth.md -> session.md` chain.",
+      "agentOutput": "I’m locating the documentation anchors for session idle timeout, then I’ll follow the reference chain to the final rule.\nI found the session doc; next I’m tracing its `REF:` links and reading the referenced anchors until the rule is stated explicitly.\nI have the target anchor. I’m checking the reference path in the higher-level docs so I can report the anchor trail, not just the final value.\n- Final anchor: `session-timeout`\n- Intermediate anchors traversed: none\n- Answer: The maximum session idle timeout is **30 minutes**. It is enforced as an **absolute timeout from the last activity**; sliding expiry is not supported. On expiry, the server returns **401** and clears the session cookie.\n\n",
+      "durationMs": 39633.98108300008,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "target": "shallow"
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The response names an accepted final anchor ID (`session-timeout`) and gives the correct 30-minute value, but its enforcement explanation is internally contradictory (`absolute` yet measured from last activity) and therefore not clearly consistent with the anchor’s described rule.",
+      "agentOutput": "I’m locating the relevant anchors and following the reference chain to the final definition.\nI found the session-timeout references. Next I’m reading the source anchors to trace the definition chain and extract the enforcement rule.\n- Final anchor: `session-timeout`\n- Intermediate anchors traversed: none\n- Answer: the maximum session idle timeout is **30 minutes of inactivity**. Enforcement is **server-side and absolute**: the timeout is measured from the last activity, sliding expiry is not supported, and when it expires the server returns `401` and clears the session cookie.\n\n",
+      "durationMs": 37149.55929100001,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "target": "shallow"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The response names the accepted final anchor ID `session-timeout` and gives a factually consistent explanation that the maximum idle timeout is 30 minutes, without introducing any contradictory anchor or timeout value.",
+      "agentOutput": "I’m tracing the documented anchors first, then I’ll follow the `REF:id` chain to the definitive timeout rule.\nI found the timeout reference chain. Next I’m reading the session policy and the surrounding references to extract the exact numeric cap and the enforcement wording.\n- Final anchor: `session-timeout`\n- Intermediate anchors traversed: none\n\nPlain-English answer: the maximum session idle timeout is **30 minutes of inactivity**. The server enforces it by **expiring the session after that idle period, returning `401`, and clearing the session cookie**. It is **absolute**, not sliding, so activity does not extend the timeout beyond the last activity window.",
+      "durationMs": 46571.07520800037,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "target": "shallow"
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "Although the response names an accepted final anchor ID via `ANC:session-timeout` and gives the 30-minute value, its enforcement explanation is internally contradictory (`from the last activity` but `no sliding expiry`) and adds unsupported details, so it is not clearly consistent with the expected `Maximum session idle timeout (30 minutes)` rule.",
+      "agentOutput": "I’m locating the documentation anchors and reference chain first, then I’ll trace the `REF:` links to the defining section and extract the rule.\nI found the cross-reference entry points. Next I’m locating the anchor definition for `session-timeout` and any upstream references that describe the enforcement logic.\nI’ve confirmed the target anchor exists in `session.md`. I’m reading the anchor section and its referencing docs to make the answer precise and cite the traversal path.\n- Final anchor: `ANC:session-timeout`\n- Intermediate anchors traversed: none\n- Answer: the maximum session idle timeout is **30 minutes of inactivity**. It is enforced as an **absolute timeout from the last activity**: there is no sliding expiry, and when it expires the server returns `401` and clears the session cookie.",
+      "durationMs": 39545.5688339998,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "target": "medium"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it identifies the final anchor as `otp-ttl` instead of the required accepted final anchor `otp-window` (or `rate:otp-window`), and it also reports no intermediate anchors despite the expected traversal including `mfa-required` or `totp-window`.",
+      "agentOutput": "I’m locating the docs that define OTP timing and following the anchor trail from there.\nI found the auth docs set. Next I’m tracing OTP mentions and the `[REF:id]` links to the definition.\nI found two candidate definitions: one for the session OTP TTL and one for the OTP rate window. I’m reading both to identify the definitive source and the reference chain.\nI’m checking the MFA anchor path so I can report the exact traversal chain, not just the terminal definition.\n- Final anchor: `[ANC:otp-ttl]` in `session.md`\n- Intermediate anchors traversed: none\n- Plain-English answer: the OTP validity window is `90 seconds`. It is defined in `session.md` under `otp-ttl`, and `ratelimit.md` has the matching `otp-window` note that also says OTPs are valid for `90 seconds`.",
+      "durationMs": 95230.24154100008,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "target": "medium"
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "The response correctly gives `otp-window` as the final anchor and states the 90-second window, but it fails the medium/deep traversal requirement because it names only `otp-ttl` instead of at least one expected intermediate anchor such as `mfa-required` or `totp-window`.",
+      "agentOutput": "I’m locating the OTP-related anchors and following the reference chain to the source definition.\nI found two likely definitions: one in the session docs and one in the OTP rate window docs. I’m reading the reference chain to determine which one the docs treat as the final source of truth.\nI’ve got the main definition. I’m checking whether the session doc is only a mirror or an additional source, so I can name the correct final anchor and the hops accurately.\n- Final anchor: `ANC:otp-window` in `ratelimit.md`\n- Intermediate anchor(s): `ANC:otp-ttl` in `session.md`\n- Answer: The OTP validity window is `90 seconds`. `session.md` says the session-level OTP validity window is 90 seconds and points to the OTP rate window, and `ratelimit.md` defines that OTP codes are valid for a 90-second window.",
+      "durationMs": 45926.07108400017,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "target": "medium"
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The response is contradictory because it explicitly identifies the final anchor as `session.md [ANC:otp-ttl]` instead of the required accepted final anchor `otp-window`, even though it later mentions `ratelimit.md [ANC:otp-window]` as only a repeated definition.",
+      "agentOutput": "I’m tracing the `[REF:id]` chain to the OTP definition and will report the anchor path plus the actual duration.\nI found two candidate definitions with matching 90-second values. I’m checking the reference chain so I can report the exact anchor path, not just the first matching file.\nI’ve isolated the two relevant anchors. Next I’m reading the surrounding sections to distinguish the actual validity window from the related rate-limit window.\nI’ve confirmed the repository uses a short anchor chain. I’m reading the entry anchor file too so I can report the exact traversal the docs imply.\n1. Final anchor: `session.md [ANC:otp-ttl]`\n2. Intermediate anchor traversed: `mfa.md [ANC:totp-window]`\n3. Plain-English answer: the OTP validity window is `90 seconds`. The canonical session-level rule is defined in `session.md` under `otp-ttl`; `ratelimit.md [ANC:otp-window]` repeats the same 90-second window for consistency.",
+      "durationMs": 65354.57995800022,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "target": "medium"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it identifies the final definition as `session.md` at `ANC:otp-ttl` instead of the required accepted final anchor `otp-window`/`rate:otp-window`, even though it correctly mentions `mfa-required` and `totp-window` and states the 90-second duration.",
+      "agentOutput": "I’m locating the OTP references and tracing the anchor chain to the final definition.\nI found the relevant anchors. Next I’m checking the reference chain to see which anchor actually defines the validity window, not just mentions it.\nI’ve got two consistent definitions: one in `session.md` and one in `ratelimit.md`. I’m checking the reference paths now so I can report the exact traversal, not just the endpoint.\nI found the entry point for MFA. I’m reading that anchor next to see the path from the general requirement down to the OTP timing rule.\n- Final definition: `session.md` at `ANC:otp-ttl`\n- Intermediate anchors traversed: `auth.md` `ANC:mfa-required`, `mfa.md` `ANC:sms-otp`, `mfa.md` `ANC:totp-window`, `ratelimit.md` `ANC:otp-window`\n- Plain-English answer: OTPs are valid for `90 seconds`. The session-level validity window is defined in `session.md`, and the same `90-second` window is also stated in `ratelimit.md` for the OTP rate window, so the docs are consistent.",
+      "durationMs": 58346.6655410002,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "target": "medium"
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it identifies `[ANC:otp-ttl]` in `session.md` as the final definition instead of an accepted final anchor like `otp-window`, even though the rule expects the answer to terminate at the `otp-window` anchor that defines the 90-second OTP validity window shared with `session:otp-ttl`.",
+      "agentOutput": "I’m tracing the docs for the OTP setting and following the reference anchors to the definition.\nI found two candidate anchors. I’m checking which one is the actual definition chain for OTP validity versus the supporting rate-window reference.\n- Final definition: `[ANC:otp-ttl]` in `session.md`\n- Intermediate anchors traversed: `[ANC:totp-window]` in `mfa.md`, `[ANC:otp-window]` in `ratelimit.md`\n- Answer: the OTP validity window is `90 seconds`. `session.md` is the canonical place that defines it, and `ratelimit.md` repeats the same `90-second` window for consistency.",
+      "durationMs": 64155.52441699989,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "target": "deep"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "Although it names the accepted final anchor `otp-ttl` and one expected intermediate anchor `otp-window`, it invents `session-timeout` and gives a contradictory explanation by saying the OTP window is separate from the session lifetime instead of reflecting the documented `otp-ttl` rationale ('Session-level OTP TTL (90 s) aligned with rate:otp-window').",
+      "agentOutput": "I’ll trace the `[REF:id]` chain in the docs and extract the anchor trail plus the final explanation.\nI found the likely chain: `session-timeout -> otp-ttl` and I’m reading those anchors to pin down the rationale.\nI’ve got the key anchor text. I’m checking the OTP rate window source so the explanation is grounded in the full reference chain.\n- Final answer anchor: `otp-ttl`\n- Intermediate anchors traversed: `session-timeout`, `otp-window`\n- Plain-English answer: the OTP window is kept at 90 seconds so OTP checking stays consistent with OTP rate limiting, which helps prevent replay attacks and still tolerates clock skew. It is separate from the session lifetime, which is 30 minutes of inactivity.",
+      "durationMs": 50247.27029100014,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "target": "deep"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response names the accepted final anchor `otp-ttl`, includes expected intermediate anchors `totp-window` and `otp-window`, and gives a consistent explanation that the 90-second OTP TTL is intentionally kept aligned with the session/rate-limit window.",
+      "agentOutput": "I’m tracing the `REF:id` chain in the docs and source to find where the OTP/session relationship is defined, then I’ll summarize the reason in plain English.\nI found the likely path: `session.md` explains the alignment, and it points back to the OTP window policy. I’m reading the relevant anchor blocks now to extract the exact ID chain and rationale.\nThe direct explanation is in `session.md`, but I’m checking the surrounding session and auth anchors so I can report the full reference path instead of just the nearest paragraph.\n- Final anchor: `otp-ttl` in `session.md`\n- Intermediate anchors traversed: `totp-window` in `mfa.md`, `otp-window` in `ratelimit.md`\n\nPlain-English answer: the OTP window is kept in lockstep with the session-scoped OTP window so the server enforces one consistent 90-second rule everywhere. The docs say this prevents replay attacks, allows for clock skew, and avoids mismatches between rate limiting and session validation.",
+      "durationMs": 56040.42433300009,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "target": "deep"
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "Although the response correctly cites the final anchor `otp-ttl` and mentions `otp-window`, it also invents `session-timeout` as an intermediate anchor, which the rule explicitly says should cause failure.",
+      "agentOutput": "I’m locating the relevant docs and following the anchor trail to the final definition.\nI found the direct statement in `session.md`; now I’m tracing the referenced policy anchors to verify the rationale chain.\nI have the core answer; I’m checking the rate-window anchor to see whether the document chain explicitly ties OTP timing back to session behavior.\n- Final anchor: `otp-ttl`\n- Intermediate anchors traversed: `session-timeout`, `otp-window`\n- Plain-English answer: The docs do not say the OTP window matches the full session timeout. They say the OTP TTL is 90 seconds, enforced server-side through the session, and kept in sync with the OTP rate window. That keeps the rules consistent, reduces replay risk, and tolerates clock skew.",
+      "durationMs": 69583.3858330003,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "target": "deep"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "Although the response names an accepted final anchor (`otp-ttl`) and valid intermediate anchors (`mfa-required`, `otp-window`), its explanation focuses on replay prevention and clock drift instead of the documented rationale that the session-level OTP TTL (90 s) is aligned with `rate:otp-window`, so it does not clearly satisfy the rule.",
+      "agentOutput": "I’m tracing the reference chain in the project docs to find the final anchor that explains the OTP/session alignment.\nI found the doc set. Next I’m searching for the `REF:` links to build the exact traversal chain to the OTP/session explanation.\nI found the likely final statement in `session.md`. I’m reading the surrounding docs to confirm the chain and the exact rationale.\nI have the likely answer anchor. I’m checking the reference graph for the shortest valid path to it so I can report the traversed IDs accurately.\nI’m checking the Python implementation too, in case the docs are mirrored in code with a more explicit rationale.\n- Final anchor: `otp-ttl`\n- Intermediate anchors traversed: `mfa-required`, `otp-window`\n- Plain-English answer: the OTP window is kept short and server-enforced so the same code can’t be replayed later, and so small clock differences don’t break valid logins. It’s coordinated with the OTP rate window for consistency; the session itself still has its own lifetime, and after that the user must re-authenticate with MFA.",
+      "durationMs": 77348.35079099983,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "target": "deep"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response cites the final anchor as `ANC:otp-ttl` (acceptable canonical form of `otp-ttl`), names an expected intermediate anchor (`otp-window`), and gives a consistent explanation that the 90-second OTP TTL is aligned with the OTP/rate-limit window rather than the longer 30-minute session timeout.",
+      "agentOutput": "I’m locating the anchor chain first, then I’ll follow the references to the final explanation.\nI found the docs set. Next I’m searching for the OTP/session references and then I’ll walk the anchor chain.\nI have the likely target anchor. I’m checking the surrounding docs to confirm the exact rationale and the reference path.\nI’ve got the docs answer; I’m doing one last source check in the Python code so the explanation matches the implementation too.\n- Final answer anchor: `ANC:otp-ttl`\n- Intermediate anchor(s): `ANC:otp-window`\n- Plain English: the OTP window is kept at 90 seconds so the server uses one consistent short-lived rule for both OTP acceptance and rate limiting. That reduces replay risk, tolerates small clock skew, and lets the session store enforce the rule server-side. The 30-minute session timeout is separate; the docs do not tie OTP validity to that timeout.",
+      "durationMs": 69080.62354200007,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    }
+  ],
+  "adherenceByAxis": {
+    "system": {
+      "native": 0.13333333333333333,
+      "wikilinks": 0.13333333333333333,
+      "zettelkasten": 0.13333333333333333,
+      "salp": 0.4,
+      "salp-short": 0.26666666666666666
+    },
+    "target": {
+      "shallow": 0.24,
+      "medium": 0,
+      "deep": 0.4
+    }
+  },
+  "durationMs": 4200787.354792,
+  "headline": "Multi-hop (deep) adherence — native=40% / wikilinks=20% / zettelkasten=40% / salp=60% / salp-short=40% (n=5/cell)"
+}

@@ -19,6 +19,18 @@ the next reader cannot decode, or distort technical claims? This benchmark quant
 - Compare **models** (Claude Opus / Sonnet / Haiku, GPT-4o, Gemini Pro, etc.).
 - Compare **document classes** (SRS, SDS, ADRs, runbooks, READMEs, post-mortems).
 
+## Results
+
+Retained runs copied to `results/`:
+
+| Date | Scenario | Overall facts | Critical facts | Inventions | Compression ratio | Decompression ratio | Evidence |
+|------|----------|--------------:|---------------:|-----------:|------------------:|--------------------:|----------|
+| 2026-05-13 | `adr-record-decision--compressed-style--claude` | 100% | 100% | 0 | 0.713 | 1.635 | [md](results/2026-05-13-1119-compression-adr-record-decision.md) + [json](results/2026-05-13-1119-compression-adr-record-decision.json) |
+| 2026-05-12 | `adr-record-decision--compressed-style--claude` | 100% | 100% | 0 | 0.713 | 1.635 | [md](results/2026-05-12-0152-compression-adr-record-decision.md) + [json](results/2026-05-12-0152-compression-adr-record-decision.json) |
+
+Both retained artifacts report the same metrics for this scenario/style/model combination. This is
+evidence for the named scenario only, not a broad compression benchmark matrix.
+
 ## Non-goals
 
 - Generating new content (only compressing/decompressing existing).

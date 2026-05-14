@@ -145,6 +145,7 @@ Deno.test("runExperiment: runs all cells and produces report", async () => {
     experiment: exp,
     variant: "test",
     model: "mock-model",
+    modelProvider: "mock-provider",
     ide: "claude",
     adapter,
     reps: 2,
@@ -156,8 +157,12 @@ Deno.test("runExperiment: runs all cells and produces report", async () => {
 
   // 2 tokens × 2 rules × 2 reps = 8 trials
   assertEquals(report.trials.length, 8);
+  assertEquals(report.modelProvider, "mock-provider");
   assertEquals(report.model, "mock-model");
   assertEquals(report.ide, "claude");
+  assertEquals(report.judgeModelProvider, undefined);
+  assertEquals(report.judgeModel, "mock-judge");
+  assertEquals(report.judgeRuntime, "claude");
   assertEquals(report.experimentId, "test-exp");
   assertEquals(report.headline, "trials: 8");
   // All should pass since fake judge returns pass for "output" substring
@@ -257,4 +262,47 @@ Deno.test("runExperiment: captures agent spawn errors as failed trials", async (
       }`,
     );
   }
+});
+
+Deno.test("runExperiment: non-zero agent exit skips judge", async () => {
+  const exp = makeExperiment();
+  const adapter = new MockAdapter();
+  let judgeCalls = 0;
+
+  const spawn: SpawnAgentFn = () =>
+    Promise.resolve({
+      output: "runtime authentication failed",
+      exitCode: 1,
+      tokens: { input: 1, output: 2, cacheRead: 3, cacheWrite: 4 },
+    });
+  const judge: JudgeFn = () => {
+    judgeCalls++;
+    return Promise.resolve({ pass: true, reason: "should not run" });
+  };
+
+  const report: ExperimentReport = await runExperiment({
+    experiment: exp,
+    variant: "test",
+    model: "mock-model",
+    ide: "claude",
+    adapter,
+    reps: 1,
+    seed: 1,
+    judgeConfig: { model: "mock-judge", temperature: 0 },
+    axesFilter: { tokens: [100], rule: ["format"] },
+    spawnAgent: spawn,
+    judge,
+  });
+
+  assertEquals(report.trials.length, 1);
+  assertEquals(judgeCalls, 0);
+  assertEquals(report.trials[0].pass, false);
+  assertEquals(report.trials[0].exitCode, 1);
+  assertEquals(report.trials[0].agentOutput, "runtime authentication failed");
+  assertEquals(report.trials[0].tokensUsed, {
+    input: 1,
+    output: 2,
+    cacheRead: 3,
+    cacheWrite: 4,
+  });
 });

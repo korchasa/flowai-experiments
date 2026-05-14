@@ -76,7 +76,7 @@ export const experiment: Experiment = {
     noise_count: [3, 6, 9] as const,
   },
 
-  defaults: { reps: 5, ide: "claude" },
+  defaults: { reps: 5, ide: "opencode" },
 
   async setupCell(cell: Cell, ctx) {
     const system = String(cell.axes.system);

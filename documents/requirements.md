@@ -18,7 +18,7 @@
 - **Context:** Extracted from the `flow` repo at commit `f311142` (2026-04-11). The sister `flow` repo owns the AssistFlow framework and regression-test benchmarks. This repo owns the empirical-studies pipeline. Clean-slate copy: no git history preserved across the split.
 - **Assumptions/Constraints:**
   - Deno 2.x runtime, TypeScript only.
-  - Experiments run on developer machines — CI runs only `deno task check`. Live `claude` CLI is required for real runs; auth is via macOS keychain (`claude login`). The CLI reads credentials natively — no file copying needed.
+  - Experiments run on developer machines — CI runs only `deno task check`. Live AI IDE CLIs are required for real agent-spawning runs; auth is owned by the selected runtime and invoked through `@korchasa/ai-ide-cli`.
   - Results are committed to the repo under `<name>/results/` and form the historical record. They must not be deleted or rewritten.
   - All tasks are invoked from the repo root; `config.json` is resolved CWD-relative.
 
@@ -90,11 +90,12 @@
 
 ### 3.8 FR-EXP-ADAPTERS
 
-- **Desc:** Pluggable agent adapters. Initial: `claude` (hierarchical memory via ancestor `CLAUDE.md` files) and `cursor` (`.cursorrules` at project root only, single-file-only).
+- **Desc:** Pluggable agent adapters. Current set: `claude`, `cursor`, and `opencode`.
 - **Scenario:** Runner selects adapter from CLI `--ide <id>`. Adapter handles memory-file placement, CLI spawning, env isolation.
 - **Acceptance:**
-  - [x] `claude` adapter spawns `claude -p` with isolated config. Evidence: `shared/adapters/claude.ts`, `shared/adapters/claude_test.ts`.
+  - [x] `claude` adapter supports Claude memory placement. Evidence: `shared/adapters/claude.ts`, `shared/adapters/claude_test.ts`.
   - [x] `cursor` adapter supports single-file variant. Evidence: `shared/adapters/cursor.ts`, `shared/adapters/cursor_test.ts`.
+  - [x] `opencode` adapter is available and spawned through `@korchasa/ai-ide-cli`. Evidence: `shared/adapters/opencode.ts`, `shared/runner.ts`.
   - [x] Adapter registry `mod.ts` exposes the set. Evidence: `shared/adapters/mod.ts`.
 
 ### 3.9 FR-EXP.TOKENIZERS
@@ -129,13 +130,13 @@
 - **Scenario:** Five variants under `anchor-systems/`: `mapping`, `boundary`, `multi-hop`, `linting`, `rag-noise`. All tasks are answer-only (read files, respond with text or JSON — no file edits). Static fixture sets (15 Markdown + 4 code files per system, 5 systems + 1 `corrupted/` set) committed under `fixtures/` with `ground-truth.json`. Invoked as `deno task experiment anchor-systems --variant <v>`.
 - **Acceptance:**
   - [x] Fixture sets for all 5 systems (native, wikilinks, zettelkasten, salp, salp-short): 19 files each + `corrupted/` (19 files, salp+anomalies) + `ground-truth.json`. Evidence: `anchor-systems/fixtures/`.
-  - [x] `mapping` variant: system axis, F₁ of extracted JSON graph. Evidence: `anchor-systems/mapping.ts`, `anchor-systems/results/2026-05-12-0038-claude-haiku-4-5-mapping.md`.
-  - [x] `boundary` variant: system axis, IoU ≥ 0.8 on code block line-ranges. Evidence: `anchor-systems/boundary.ts`, `anchor-systems/results/2026-05-12-0059-claude-haiku-4-5-boundary.md`.
-  - [x] `multi-hop` variant: system × target (shallow/medium/deep), hop-accuracy across reference chains. Evidence: `anchor-systems/multi-hop.ts`, `anchor-systems/results/2026-05-12-0105-claude-haiku-4-5-multi-hop.md`.
-  - [x] `linting` variant: system axis, F₁ ≥ 0.7 detection of 3 planted anomalies. Evidence: `anchor-systems/linting.ts`, `anchor-systems/results/2026-05-12-0144-claude-haiku-4-5-linting.md`.
-  - [x] `rag-noise` variant: system × noise_count [3, 6, 9], focus on anchor-bearing function vs noise neighbours. Evidence: `anchor-systems/rag-noise.ts`, `anchor-systems/results/2026-05-12-0158-claude-haiku-4-5-rag-noise.md`.
+  - [x] `mapping` variant: system axis, F₁ of extracted JSON graph. Evidence: `anchor-systems/mapping.ts`.
+  - [x] `boundary` variant: system axis, IoU ≥ 0.8 on code block line-ranges. Evidence: `anchor-systems/boundary.ts`.
+  - [x] `multi-hop` variant: system × target (shallow/medium/deep), hop-accuracy across reference chains. Evidence: `anchor-systems/multi-hop.ts`.
+  - [x] `linting` variant: system axis, F₁ ≥ 0.7 detection of 3 planted anomalies. Evidence: `anchor-systems/linting.ts`.
+  - [x] `rag-noise` variant: system × noise_count [3, 6, 9], focus on anchor-bearing function vs noise neighbours. Evidence: `anchor-systems/rag-noise.ts`.
   - [x] `deno task check` green. Evidence: `deno task check 2>&1 | tail -5`.
-  - [x] First live run results committed for all 5 variants on `claude-haiku-4-5`. Evidence: `anchor-systems/results/2026-05-12-*-claude-haiku-4-5-*.md`.
+  - [x] Corrected OpenCode live run results committed for all 5 variants. Evidence: `anchor-systems/results/2026-05-13-2101-openai-gpt-5.4-mini-mapping.md`, `anchor-systems/results/2026-05-13-2134-openai-gpt-5.4-mini-boundary.md`, `anchor-systems/results/2026-05-13-2148-openai-gpt-5.4-mini-multi-hop.md`, `anchor-systems/results/2026-05-13-2258-openai-gpt-5.4-mini-linting.md`, `anchor-systems/results/2026-05-13-2329-openai-gpt-5.4-mini-rag-noise.md`.
 
 ### 3.13 FR-REPO.LAYOUT
 
@@ -152,16 +153,16 @@
 - **Perf/Reliability/Sec/Scale/UX:**
   - **Perf:** no global wall-clock budget. One variant run on Haiku 4.5 takes ~20 min for ~75–90 trials. Opus runs take longer.
   - **Reliability:** runner is fail-fast. A single failing trial does NOT stop the sweep — the verdict is recorded as `exitCode != 0`, adherence includes it. Trials never retry silently.
-  - **Sec:** no secrets in results. The judge never sees user filesystem beyond the sandbox. Auth via macOS keychain (`claude login`); the CLI reads credentials natively. No credentials are copied or committed.
+  - **Sec:** no secrets in results. The judge never sees user filesystem beyond the sandbox. Runtime auth is external to the harness and handled by the selected AI IDE CLI. No credentials are copied or committed.
   - **Scale:** cartesian sweeps scale as `|axes₁| × |axes₂| × ... × reps`. Keep small.
   - **UX:** CLI is invoked from repo root. `--dry-run` prints the sweep plan without spawning agents.
 
 ## 5. Interfaces
 
 - **CLI:** `deno task experiment <name> --variant <v> [--model <m>] [--ide <id>] [--reps <n>] [--axis <name>=<csv>]… [--seed <n>] [--dry-run]`. `--axis` is the sole axis-override mechanism: repeatable, accepts any axis declared by the variant, rejects unknown names. No axis-specific flag (e.g. `--sizes`, `--rules`) is hard-coded at the engine level.
-- **Config:** `config.json` — IDE defaults (`default_agent_model`, `judge` model). Resolved CWD-relative.
+- **Config:** `config.json` — IDE defaults (`default_agent_model_provider`, `default_agent_model`, `judge.runtime`, `judge.model_provider`, `judge.model`). Resolved CWD-relative.
 - **Memory files:** adapters write per-trial `CLAUDE.md` / `AGENTS.md` (claude) or `.cursorrules` (cursor) into the sandbox.
-- **Env isolation (claude adapter):** spawn args include `--strict-mcp-config --disable-slash-commands` to strip account-level MCP and slash commands. Auth via macOS keychain; no `CLAUDE_CONFIG_DIR` override. `~/.claude/CLAUDE.md` is visible to trial agents — acceptable for experiments that don't test memory injection. Built-in tools/skills/agents embedded in the `claude` binary still contribute ~26k baseline on haiku — this is the measurement target, not a leak.
+- **Env isolation:** runtime calls go through `@korchasa/ai-ide-cli`. Claude calls use `--strict-mcp-config --disable-slash-commands` where applicable; OpenCode calls receive `<provider>/<model>` as the runtime model reference. Runtime-level global memory may still affect experiments that measure memory injection and must be accounted for explicitly.
 - **Experiment extension point:** `shared/types.ts` exports the `Experiment` interface — new experiments implement `{id, name, description, axes, defaults, setupCell, query, judgePrompt, headline}` plus optional `renderCustom?(report)` for experiments whose payload is not pass/fail adherence (e.g. metric tables extracted from raw agent output — see FR-EXP.CONTEXT-ANATOMY).
 - **Env (OpenRouter-based experiments):** `OPENROUTER_API_KEY` — required for `experiment:tokenizers` and `experiment:images-hard`. See `.env.example`. Not used by agent-spawning experiments.
 

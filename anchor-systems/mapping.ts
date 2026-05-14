@@ -7,21 +7,21 @@
  * Axis:   system (5 linking systems).
  * Reps:   5.
  * Metric: adherence = fraction of trials where JSON contains all 20 anchors
- *         and 25 references (judge uses F₁ threshold ≥ 0.85 → pass/fail).
+ *         and 31 references (judge uses ≤3 missing entries → pass/fail).
  */
 
 import type { Cell, Experiment, ExperimentReport } from "../shared/types.ts";
-import { loadGroundTruth, shortId, writeFixtures } from "./shared.ts";
+import { loadGroundTruth, surfaceId, writeFixtures } from "./shared.ts";
 
 const gt = loadGroundTruth();
 
 function expectedJson(system: string): string {
   const anchors = gt.anchors.map((a) => ({
-    id: system === "salp-short" ? shortId(gt, a.id) : a.id,
+    id: surfaceId(gt, system, a.id),
     file: a.file,
   }));
   const references = gt.references.map((r) => ({
-    ref_id: system === "salp-short" ? shortId(gt, r.ref_id) : r.ref_id,
+    ref_id: surfaceId(gt, system, r.ref_id),
     source_file: r.source_file,
   }));
   return JSON.stringify({ anchors, references }, null, 2);
@@ -41,7 +41,7 @@ export const experiment: Experiment = {
     "Measures how precisely an AI agent extracts all anchor definitions and " +
     "cross-references from 19 project files expressed in five linking systems " +
     "(Native Markdown, Wikilinks, Zettelkasten UID, SALP, SALP-short). " +
-    "Pass if extracted JSON contains ≥85% of ground-truth anchors and references.",
+    "Pass if extracted JSON contains nearly all ground-truth anchors and references.",
 
   axes: {
     system: [
@@ -53,7 +53,7 @@ export const experiment: Experiment = {
     ] as const,
   },
 
-  defaults: { reps: 5, ide: "claude" },
+  defaults: { reps: 5, ide: "opencode" },
 
   async setupCell(cell: Cell, ctx) {
     await writeFixtures(ctx.sandboxPath, String(cell.axes.system));
@@ -69,9 +69,10 @@ export const experiment: Experiment = {
     return {
       rule:
         `The agent extracted anchor/reference pairs from a "${system}" project. ` +
-        `Ground truth (20 anchors, 25 references):\n${expected}\n\n` +
+        `Ground truth for this system's surface IDs (20 anchors, 31 references):\n${expected}\n\n` +
         `Pass if the agent's JSON is missing no more than 3 entries total ` +
         `(anchors + references combined). Minor formatting differences are OK. ` +
+        `Canonical IDs are also acceptable when they unambiguously map to these surface IDs. ` +
         `Fail if it contains hallucinated entries that do not exist in the ground truth.`,
       userQuery: QUERY,
     };

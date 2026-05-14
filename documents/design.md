@@ -42,7 +42,7 @@ flowchart LR
 
 ### 3.1 CLI (`scripts/task-experiment.ts`)
 
-- **Purpose:** Entry point. Parses flags (`--variant`, `--model`, `--ide`, `--reps`, `--axis <name>=<csv>` repeatable, `--seed`, `--dry-run`), loads the variant file dynamically, invokes the runner. Axis-override keys are validated against `experiment.axes` — unknown names fail fast. No experiment-specific flag (e.g. `--sizes`, `--rules`) is hard-coded at the CLI level; those belong inside each variant.
+- **Purpose:** Entry point. Parses flags (`--variant`, `--model`, `--model-provider`, `--ide`, `--reps`, `--axis <name>=<csv>` repeatable, `--seed`, `--dry-run`), loads the variant file dynamically, invokes the runner. Axis-override keys are validated against `experiment.axes` — unknown names fail fast. No experiment-specific flag (e.g. `--sizes`, `--rules`) is hard-coded at the CLI level; those belong inside each variant.
 - **Interfaces:** `deno task experiment <name> [flags]`.
 - **Deps:** `runner`, variant module, `config.json`.
 
@@ -89,8 +89,9 @@ flowchart LR
 - **Purpose:** Encapsulate IDE-specific memory-file placement and agent spawning.
 - **Interfaces:** `AgentAdapter` (see `adapters/types.ts`): `name`, `writeMemory(sandbox, files)`, `spawn(sandbox, query): Promise<{output, exitCode, durationMs, tokensUsed?}>`.
 - **Deps:** `shared/spawned_agent.ts`, `shared/llm.ts`, `shared/usage.ts`.
-- **Registry:** `adapters/mod.ts` exposes `{claude, cursor}`.
-- **Claude adapter:** spawns `claude -p <query> --strict-mcp-config --disable-slash-commands` with env `CLAUDE_CONFIG_DIR=<cleanroom temp dir>`, `CLAUDECODE=""`. The adapter's `getCleanroomEnv` copies one file into the cleanroom dir at run-start — `~/.claude/.credentials.json` — and nothing else, so the spawned CLI authenticates normally but sees no global `CLAUDE.md`, no plugins, no marketplace, no MCP config. The `--strict-mcp-config` + `--disable-slash-commands` flags further strip account-level MCP servers and slash commands from the system prompt. Built-in tools/skills/agents embedded in the `claude` binary remain in the baseline by design (see FR-EXP.CONTEXT-ANATOMY). Cross-platform — no macOS-keychain dependency. Memory layout supports hierarchical `CLAUDE.md`.
+- **Registry:** `adapters/mod.ts` exposes `{claude, cursor, opencode}`.
+- **Claude adapter:** places memory files for Claude-compatible runs. Runtime invocation goes through `@korchasa/ai-ide-cli` rather than direct `Deno.Command("claude")`.
+- **OpenCode adapter:** writes root `AGENTS.md` and runs through `@korchasa/ai-ide-cli` `invokeOpenCodeCli`. Model provider and model are combined as `<provider>/<model>` for OpenCode runtime calls.
 - **Cursor adapter:** writes `.cursorrules` at sandbox root. Does not support hierarchical memory — `tree-sum` variant is Claude-only.
 
 ### 3.8 Experiment Variants
@@ -118,6 +119,7 @@ flowchart LR
 - **Entities:** `Cell`, `CellContext`, `JudgeRequest`, `TrialResult`, `Experiment`, `ExperimentReport` — all defined in `shared/types.ts`.
 - **Schemas:**
   - `ExperimentReport` is `schemaVersion: 1`. Breaking changes bump the version.
+  - `ExperimentReport.modelProvider`, `judgeModelProvider`, `judgeModel`, and `judgeRuntime` capture runtime/model selection for result comparability.
   - `TrialResult.tokensUsed` is optional — some adapter paths do not expose usage.
   - `ExperimentReport.customMarkdown` is optional — populated by `Experiment.renderCustom?` when present; rendered verbatim before the Caveats block.
   - `adherenceByAxis` is `Record<primaryAxis, Record<axisValue, rate>>`.
