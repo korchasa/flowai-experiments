@@ -100,75 +100,70 @@ Retained OpenCode sweep, `reps=5`, seed `1`.
 | `linting` | [md](results/2026-05-13-2258-openai-gpt-5.4-mini-linting.md) + [json](results/2026-05-13-2258-openai-gpt-5.4-mini-linting.json) | `openai/gpt-5.4-mini` | `opencode` | `openai/gpt-5.4` via `opencode` | 25 | 31.3 min |
 | `rag-noise` | [md](results/2026-05-13-2329-openai-gpt-5.4-mini-rag-noise.md) + [json](results/2026-05-13-2329-openai-gpt-5.4-mini-rag-noise.json) | `openai/gpt-5.4-mini` | `opencode` | `openai/gpt-5.4` via `opencode` | 75 | 22.3 min |
 
-### Adherence by Variant and System
+### Format Summary
 
-| Variant | System | Adherence | Trials | Pass | Fail |
-|---------|--------|-----------|--------|------|------|
-| `mapping` | `native` | 0.0% | 5 | 0 | 5 |
-| `mapping` | `wikilinks` | 60.0% | 5 | 3 | 2 |
-| `mapping` | `zettelkasten` | 80.0% | 5 | 4 | 1 |
-| `mapping` | `salp` | 80.0% | 5 | 4 | 1 |
-| `mapping` | `salp-short` | 80.0% | 5 | 4 | 1 |
-| `boundary` | `native` | 100.0% | 5 | 5 | 0 |
-| `boundary` | `wikilinks` | 100.0% | 5 | 5 | 0 |
-| `boundary` | `zettelkasten` | 100.0% | 5 | 5 | 0 |
-| `boundary` | `salp` | 100.0% | 5 | 5 | 0 |
-| `boundary` | `salp-short` | 80.0% | 5 | 4 | 1 |
-| `multi-hop` | `native` | 13.3% | 15 | 2 | 13 |
-| `multi-hop` | `wikilinks` | 13.3% | 15 | 2 | 13 |
-| `multi-hop` | `zettelkasten` | 13.3% | 15 | 2 | 13 |
-| `multi-hop` | `salp` | 40.0% | 15 | 6 | 9 |
-| `multi-hop` | `salp-short` | 26.7% | 15 | 4 | 11 |
-| `linting` | `native` | 20.0% | 5 | 1 | 4 |
-| `linting` | `wikilinks` | 80.0% | 5 | 4 | 1 |
-| `linting` | `zettelkasten` | 60.0% | 5 | 3 | 2 |
-| `linting` | `salp` | 100.0% | 5 | 5 | 0 |
-| `linting` | `salp-short` | 60.0% | 5 | 3 | 2 |
-| `rag-noise` | `native` | 100.0% | 15 | 15 | 0 |
-| `rag-noise` | `wikilinks` | 100.0% | 15 | 15 | 0 |
-| `rag-noise` | `zettelkasten` | 93.3% | 15 | 14 | 1 |
-| `rag-noise` | `salp` | 100.0% | 15 | 15 | 0 |
-| `rag-noise` | `salp-short` | 100.0% | 15 | 15 | 0 |
+Use this table to compare one anchor format across all task types. Values are adherence
+(`pass/trials`).
 
-### Multi-Hop by Target
+| Format | Mapping | Boundary | Multi-hop | Linting | RAG noise |
+|--------|--------:|---------:|----------:|--------:|----------:|
+| `native` | 0.0% (0/5) | 100.0% (5/5) | 13.3% (2/15) | 20.0% (1/5) | 100.0% (15/15) |
+| `wikilinks` | 60.0% (3/5) | 100.0% (5/5) | 13.3% (2/15) | 80.0% (4/5) | 100.0% (15/15) |
+| `zettelkasten` | 80.0% (4/5) | 100.0% (5/5) | 13.3% (2/15) | 60.0% (3/5) | 93.3% (14/15) |
+| `salp` | 80.0% (4/5) | 100.0% (5/5) | 40.0% (6/15) | 100.0% (5/5) | 100.0% (15/15) |
+| `salp-short` | 80.0% (4/5) | 80.0% (4/5) | 26.7% (4/15) | 60.0% (3/5) | 100.0% (15/15) |
 
-| System | Target | Adherence | Trials | Pass | Fail |
-|--------|--------|-----------|--------|------|------|
-| `native` | `shallow` | 0.0% | 5 | 0 | 5 |
-| `native` | `medium` | 0.0% | 5 | 0 | 5 |
-| `native` | `deep` | 40.0% | 5 | 2 | 3 |
-| `wikilinks` | `shallow` | 20.0% | 5 | 1 | 4 |
-| `wikilinks` | `medium` | 0.0% | 5 | 0 | 5 |
-| `wikilinks` | `deep` | 20.0% | 5 | 1 | 4 |
-| `zettelkasten` | `shallow` | 0.0% | 5 | 0 | 5 |
-| `zettelkasten` | `medium` | 0.0% | 5 | 0 | 5 |
-| `zettelkasten` | `deep` | 40.0% | 5 | 2 | 3 |
-| `salp` | `shallow` | 60.0% | 5 | 3 | 2 |
-| `salp` | `medium` | 0.0% | 5 | 0 | 5 |
-| `salp` | `deep` | 60.0% | 5 | 3 | 2 |
-| `salp-short` | `shallow` | 40.0% | 5 | 2 | 3 |
-| `salp-short` | `medium` | 0.0% | 5 | 0 | 5 |
-| `salp-short` | `deep` | 40.0% | 5 | 2 | 3 |
+### Format Details
 
-### RAG Noise by Noise Count
+#### `native`
 
-| System | Noise count | Adherence | Trials | Pass | Fail |
-|--------|-------------|-----------|--------|------|------|
-| `native` | 3 | 100.0% | 5 | 5 | 0 |
-| `native` | 6 | 100.0% | 5 | 5 | 0 |
-| `native` | 9 | 100.0% | 5 | 5 | 0 |
-| `wikilinks` | 3 | 100.0% | 5 | 5 | 0 |
-| `wikilinks` | 6 | 100.0% | 5 | 5 | 0 |
-| `wikilinks` | 9 | 100.0% | 5 | 5 | 0 |
-| `zettelkasten` | 3 | 100.0% | 5 | 5 | 0 |
-| `zettelkasten` | 6 | 80.0% | 5 | 4 | 1 |
-| `zettelkasten` | 9 | 100.0% | 5 | 5 | 0 |
-| `salp` | 3 | 100.0% | 5 | 5 | 0 |
-| `salp` | 6 | 100.0% | 5 | 5 | 0 |
-| `salp` | 9 | 100.0% | 5 | 5 | 0 |
-| `salp-short` | 3 | 100.0% | 5 | 5 | 0 |
-| `salp-short` | 6 | 100.0% | 5 | 5 | 0 |
-| `salp-short` | 9 | 100.0% | 5 | 5 | 0 |
+| Task | Overall | Detail |
+|------|--------:|--------|
+| `mapping` | 0.0% (0/5) | system axis only |
+| `boundary` | 100.0% (5/5) | system axis only |
+| `multi-hop` | 13.3% (2/15) | shallow 0/5; medium 0/5; deep 2/5 |
+| `linting` | 20.0% (1/5) | system axis only |
+| `rag-noise` | 100.0% (15/15) | noise 3: 5/5; noise 6: 5/5; noise 9: 5/5 |
+
+#### `wikilinks`
+
+| Task | Overall | Detail |
+|------|--------:|--------|
+| `mapping` | 60.0% (3/5) | system axis only |
+| `boundary` | 100.0% (5/5) | system axis only |
+| `multi-hop` | 13.3% (2/15) | shallow 1/5; medium 0/5; deep 1/5 |
+| `linting` | 80.0% (4/5) | system axis only |
+| `rag-noise` | 100.0% (15/15) | noise 3: 5/5; noise 6: 5/5; noise 9: 5/5 |
+
+#### `zettelkasten`
+
+| Task | Overall | Detail |
+|------|--------:|--------|
+| `mapping` | 80.0% (4/5) | system axis only |
+| `boundary` | 100.0% (5/5) | system axis only |
+| `multi-hop` | 13.3% (2/15) | shallow 0/5; medium 0/5; deep 2/5 |
+| `linting` | 60.0% (3/5) | system axis only |
+| `rag-noise` | 93.3% (14/15) | noise 3: 5/5; noise 6: 4/5; noise 9: 5/5 |
+
+#### `salp`
+
+| Task | Overall | Detail |
+|------|--------:|--------|
+| `mapping` | 80.0% (4/5) | system axis only |
+| `boundary` | 100.0% (5/5) | system axis only |
+| `multi-hop` | 40.0% (6/15) | shallow 3/5; medium 0/5; deep 3/5 |
+| `linting` | 100.0% (5/5) | system axis only |
+| `rag-noise` | 100.0% (15/15) | noise 3: 5/5; noise 6: 5/5; noise 9: 5/5 |
+
+#### `salp-short`
+
+| Task | Overall | Detail |
+|------|--------:|--------|
+| `mapping` | 80.0% (4/5) | system axis only |
+| `boundary` | 80.0% (4/5) | system axis only |
+| `multi-hop` | 26.7% (4/15) | shallow 2/5; medium 0/5; deep 2/5 |
+| `linting` | 60.0% (3/5) | system axis only |
+| `rag-noise` | 100.0% (15/15) | noise 3: 5/5; noise 6: 5/5; noise 9: 5/5 |
 
 ## Corrected Logic Checks
 
