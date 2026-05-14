@@ -241,50 +241,103 @@
   "native_headings": {
     "auth:session-timeout": {
       "file": "session.md",
-      "slug": "session-timeout-policy"
+      "slug": "session-timeout-policy",
+      "heading": "Session Timeout Policy"
     },
     "auth:lockout-rule": {
       "file": "lockout.md",
-      "slug": "account-lockout-rule"
+      "slug": "account-lockout-rule",
+      "heading": "Account Lockout Rule"
     },
-    "auth:mfa-required": { "file": "auth.md", "slug": "mfa-requirement" },
+    "auth:mfa-required": {
+      "file": "auth.md",
+      "slug": "mfa-requirement",
+      "heading": "MFA Requirement"
+    },
     "auth:password-policy": {
       "file": "password.md",
-      "slug": "password-policy"
+      "slug": "password-policy",
+      "heading": "Password Policy"
     },
-    "token:access-ttl": { "file": "token.md", "slug": "access-token-lifetime" },
+    "token:access-ttl": {
+      "file": "token.md",
+      "slug": "access-token-lifetime",
+      "heading": "Access Token Lifetime"
+    },
     "token:refresh-ttl": {
       "file": "refresh.md",
-      "slug": "refresh-token-lifetime"
+      "slug": "refresh-token-lifetime",
+      "heading": "Refresh Token Lifetime"
     },
-    "mfa:sms-otp": { "file": "mfa.md", "slug": "sms-otp-rules" },
-    "mfa:totp-window": { "file": "mfa.md", "slug": "totp-time-window" },
-    "rate:otp-window": { "file": "ratelimit.md", "slug": "otp-rate-window" },
-    "rate:login-limit": { "file": "ratelimit.md", "slug": "login-rate-limit" },
+    "mfa:sms-otp": {
+      "file": "mfa.md",
+      "slug": "sms-otp-rules",
+      "heading": "SMS OTP Rules"
+    },
+    "mfa:totp-window": {
+      "file": "mfa.md",
+      "slug": "totp-time-window",
+      "heading": "TOTP Time Window"
+    },
+    "rate:otp-window": {
+      "file": "ratelimit.md",
+      "slug": "otp-rate-window",
+      "heading": "OTP Rate Window"
+    },
+    "rate:login-limit": {
+      "file": "ratelimit.md",
+      "slug": "login-rate-limit",
+      "heading": "Login Rate Limit"
+    },
     "sec:password-strength": {
       "file": "password_utils.py",
-      "slug": "check_strength"
+      "slug": "check_strength",
+      "heading": "Password Strength Check"
     },
-    "rbac:admin-role": { "file": "rbac.md", "slug": "admin-role" },
-    "oauth:callback-ttl": { "file": "oauth.md", "slug": "oauth-callback-ttl" },
-    "audit:retention": { "file": "audit.md", "slug": "audit-log-retention" },
-    "recover:link-ttl": { "file": "recovery.md", "slug": "recovery-link-ttl" },
-    "session:otp-ttl": { "file": "session.md", "slug": "session-otp-ttl" },
+    "rbac:admin-role": {
+      "file": "rbac.md",
+      "slug": "admin-role",
+      "heading": "Admin Role"
+    },
+    "oauth:callback-ttl": {
+      "file": "oauth.md",
+      "slug": "oauth-callback-ttl",
+      "heading": "OAuth Callback TTL"
+    },
+    "audit:retention": {
+      "file": "audit.md",
+      "slug": "audit-log-retention",
+      "heading": "Audit Log Retention"
+    },
+    "recover:link-ttl": {
+      "file": "recovery.md",
+      "slug": "recovery-link-ttl",
+      "heading": "Recovery Link TTL"
+    },
+    "session:otp-ttl": {
+      "file": "session.md",
+      "slug": "session-otp-ttl",
+      "heading": "Session OTP TTL"
+    },
     "impl:token-generator-v1": {
       "file": "auth_service.py",
-      "slug": "generate_reset_token"
+      "slug": "generate_reset_token",
+      "heading": "generate_reset_token"
     },
     "impl:session-creator": {
       "file": "session_store.py",
-      "slug": "create_session"
+      "slug": "create_session",
+      "heading": "create_session"
     },
     "impl:auth-lockout-timer": {
       "file": "auth_service.py",
-      "slug": "lockout_duration"
+      "slug": "lockout_duration",
+      "heading": "LOCKOUT_DURATION"
     },
     "impl:test-token-expiry": {
       "file": "test_auth.py",
-      "slug": "test_token_expiration"
+      "slug": "test_token_expiration",
+      "heading": "test_token_expiration"
     }
   }
 }

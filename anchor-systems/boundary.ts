@@ -7,7 +7,7 @@
  * Ground truth: generate_reset_token() in auth_service.py spans lines 7–18
  * (anchor [ANC:impl:token-generator-v1] on line 8).
  *
- * Axis:   system (5 linking systems).
+ * Axis:   system (6 linking systems).
  * Reps:   5.
  * Metric: pass if reported (start_line, end_line) satisfy IoU ≥ 0.8 with
  *         ground truth (7, 18). With 12 lines, IoU=0.8 requires at least
@@ -15,7 +15,7 @@
  */
 
 import type { Cell, Experiment, ExperimentReport } from "../shared/types.ts";
-import { loadGroundTruth, writeFixtures } from "./shared.ts";
+import { ANCHOR_SYSTEMS, loadGroundTruth, writeFixtures } from "./shared.ts";
 
 const gt = loadGroundTruth();
 const BT = gt.boundary_targets[0]; // generate_reset_token
@@ -30,6 +30,8 @@ function anchorRef(system: string): string {
       return "^impl-token-generator-v1";
     case "zettelkasten":
       return "UID 202605121017";
+    case "heading-refs":
+      return "auth_service.py:generate_reset_token";
     case "native":
       return "# generate_reset_token (in auth_service.py)";
     default:
@@ -53,13 +55,7 @@ export const experiment: Experiment = {
     "(generate_reset_token, lines 7–18). Pass threshold: IoU ≥ 0.8 with ground truth.",
 
   axes: {
-    system: [
-      "native",
-      "wikilinks",
-      "zettelkasten",
-      "salp",
-      "salp-short",
-    ] as const,
+    system: ANCHOR_SYSTEMS,
   },
 
   defaults: { reps: 5, ide: "opencode" },

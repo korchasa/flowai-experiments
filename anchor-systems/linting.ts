@@ -15,13 +15,17 @@
  * Each system receives its own syntax-specific corrupted fixture set so the
  * axis measures graph diagnostics within that system, not SALP familiarity.
  *
- * Axis:   system (5 linking systems — same anomaly content, different familiarity).
+ * Axis:   system (6 linking systems — same anomaly content, different familiarity).
  * Reps:   5.
  * Metric: pass if agent reports all 3 anomaly types (F₁ ≥ 0.67, i.e. ≥ 2/3).
  */
 
 import type { Cell, Experiment, ExperimentReport } from "../shared/types.ts";
-import { loadGroundTruth, writeCorruptedFixtures } from "./shared.ts";
+import {
+  ANCHOR_SYSTEMS,
+  loadGroundTruth,
+  writeCorruptedFixtures,
+} from "./shared.ts";
 
 const gt = loadGroundTruth();
 
@@ -47,13 +51,7 @@ export const experiment: Experiment = {
     "Pass if the agent identifies at least 2 of 3 anomaly types.",
 
   axes: {
-    system: [
-      "native",
-      "wikilinks",
-      "zettelkasten",
-      "salp",
-      "salp-short",
-    ] as const,
+    system: ANCHOR_SYSTEMS,
   },
 
   defaults: { reps: 5, ide: "opencode" },

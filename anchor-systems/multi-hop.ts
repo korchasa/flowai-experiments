@@ -14,6 +14,7 @@
 import type { Cell, Experiment, ExperimentReport } from "../shared/types.ts";
 import {
   acceptedIds,
+  ANCHOR_SYSTEMS,
   loadGroundTruth,
   surfaceId,
   writeFixtures,
@@ -38,6 +39,8 @@ function buildQuery(system: string, target: string): string {
 
   const systemHints: Record<string, string> = {
     native: "Follow markdown links to navigate between documents.",
+    "heading-refs":
+      "Follow [file.md:Heading] references to navigate to ordinary Markdown headings.",
     wikilinks: "Follow [[wikilink]] references to navigate.",
     zettelkasten: "Follow UID references (e.g. [[202605121XXX]]) to navigate.",
     salp: "Follow [REF:ns:id] references to navigate.",
@@ -64,13 +67,7 @@ export const experiment: Experiment = {
     "Pass if the agent names all chain anchors and provides a correct answer.",
 
   axes: {
-    system: [
-      "native",
-      "wikilinks",
-      "zettelkasten",
-      "salp",
-      "salp-short",
-    ] as const,
+    system: ANCHOR_SYSTEMS,
     target: ["shallow", "medium", "deep"] as const,
   },
 
@@ -116,9 +113,8 @@ export const experiment: Experiment = {
 
   headline(report: ExperimentReport) {
     const rows: string[] = [];
-    for (
-      const sys of ["native", "wikilinks", "zettelkasten", "salp", "salp-short"]
-    ) {
+    const systems = report.axes.system?.map(String) ?? ANCHOR_SYSTEMS;
+    for (const sys of systems) {
       const rate = report.trials
         .filter((t) =>
           t.cell.axes.system === sys && t.cell.axes.target === "deep"

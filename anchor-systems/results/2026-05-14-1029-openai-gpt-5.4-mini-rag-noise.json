@@ -1,0 +1,1849 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "anchor-systems-rag-noise",
+  "experimentName": "Anchor Systems — RAG Noise Resistance (Bench 7)",
+  "modelProvider": "openai",
+  "model": "gpt-5.4-mini",
+  "ide": "opencode",
+  "judgeModelProvider": "openai",
+  "judgeModel": "gpt-5.4",
+  "judgeRuntime": "opencode",
+  "startedAt": "2026-05-14T10:29:24.450Z",
+  "finishedAt": "2026-05-14T11:36:59.463Z",
+  "seed": 1,
+  "reps": 5,
+  "axes": {
+    "system": [
+      "native",
+      "heading-refs",
+      "wikilinks",
+      "zettelkasten",
+      "salp",
+      "salp-short"
+    ],
+    "noise_count": [
+      3,
+      6,
+      9
+    ]
+  },
+  "trials": [
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 3
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "Although it correctly names `check_strength` and states the `>=12 chars, >=1 digit, >=1 upper, >=1 special` rule, the provided `path` is only `[\"password_utils.py\"]` and does not show the required documentation path starting at `password.md` to `password_utils.py#check_strength`.",
+      "agentOutput": "I’m tracing the documentation chain from `password.md` and checking the referenced Python code for the actual registration password-strength enforcement.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; the check is used at registration and password change, returning 422 on failure.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry, not the registration gate; `check_policy_format` only enforces printable ASCII transport safety; `check_complexity` is an internal scoring helper. The implementation reference in `password.md#password-strength-implementation` points to `password_utils.py#check_strength`, and that function matches the documented registration policy exactly.\"}",
+      "durationMs": 49608.244875,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 3
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "Although it correctly names `check_strength` and states the ≥12 chars, ≥1 digit, ≥1 upper, ≥1 special rule, its JSON path is only `[\"password_utils.py\"]` and does not show the required `password.md` -> target implementation anchor path.",
+      "agentOutput": "I’m starting from `password.md` and following its references to trace the registration password-strength policy to the actual Python enforcement function.\n`password.md` points to `password_utils.py`, but there are decoy anchors there. I’m checking the Python source and the other docs that point back to password policy so I can verify which function actually enforces registration-time strength checks.\n`password_utils.py` has three decoys: score, format, and the real strength check. I’m verifying where registration actually calls into it so the answer is anchored to the enforcement path, not just the helper name.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; failing passwords are rejected with 422 and a list of failing criteria.\",\"why_not_decoys\":\"`password.md` says the registration strength check is implemented in `password_utils.py#check_strength`, and `password_utils.py` itself documents `check_policy_score` as advisory telemetry, `check_policy_format` as a transport precheck, and `check_complexity` as internal telemetry. The other helpers (`check_format`, `check_entropy`, `check_leaked`, `check_sequential`) do not implement the policy from `password.md`.\"}",
+      "durationMs": 47586.861124999996,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 3
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength` and states the policy accurately, but it fails the rule because its `path` does not show a documentation chain starting at `password.md` and ending at the target anchor `password_utils.py#check_strength`.",
+      "agentOutput": "I’m tracing the documentation references from `password.md` and then verifying the implementation against the policy text, not the function name.\nI found the policy text. Next I’m checking the referenced Python implementation and the two decoy references to confirm which function actually enforces the registration rule.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` / `check_complexity` are advisory scoring helpers, not the registration gate; `check_policy_format` / `check_format` only enforce printable ASCII transport safety. The docs in `password.md` point to `check_strength` as the password-strength implementation, and its body matches the policy text exactly.\"}",
+      "durationMs": 40705.105958000015,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 3
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "Although it correctly names `check_strength` and states the rule accurately, it fails because the provided `path` is only an absolute file path and does not show a documentation reference chain starting at `password.md` and ending at `password_utils.py#check_strength`.",
+      "agentOutput": "I’m tracing the documentation references from `password.md` to the actual enforcement function, then I’ll disambiguate it from the password-check decoys.\nI found the likely source files. Next I’m reading the docs and the Python modules together to follow the reference chain instead of trusting names.\nThe doc already points to three implementation anchors. I’m checking whether registration actually calls one of them or whether the real enforcement is indirect through a different reference.\n{\"path\":[\"/private/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-exp-anchor-systems-rag-noise-23c2134357056ba9/password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry, not the registration gate; `check_policy_format`/`check_format` only enforce printable ASCII transport safety; `check_complexity` is internal scoring, not enforcement. `check_history` handles reuse limits separately, so it is not the strength policy.\"}",
+      "durationMs": 33301.80762499999,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 3
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The agent correctly names `check_strength` and states the strength rule accurately, but it fails the required documentation trace because its `path` does not start at `password.md` or end at the target code anchor `password_utils.py#check_strength`.",
+      "agentOutput": "I’m locating `password.md` and the linked references, then I’ll trace the registration password-strength policy to the exact Python function.\nI found the candidate docs and source files. Next I’m reading `password.md` and the nearby docs that it links to, then I’ll cross-check against the Python implementations and tests.\n`password.md` points to three password-check references, but only one matches the actual registration gate and policy text. I’m verifying that by tracing the surrounding docs and any registration-related implementation calls before I answer.\n{\"path\":[\"/private/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-exp-anchor-systems-rag-noise-e03b25b81a4aec0b/password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; reuse within the last 10 cycles is rejected separately.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry, not the registration gate. `check_policy_format` and `check_format` only enforce printable ASCII transport safety. `check_history` enforces password reuse history, not strength. `check_complexity`, `check_entropy`, `check_leaked`, and `check_sequential` are extra helper checks, but `password.md` explicitly links the strength implementation to `check_strength` and says that is the rule applied at registration and password change.\"}",
+      "durationMs": 27929.948416,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 6
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "Although it correctly identifies `check_strength` and states the policy accurately, it does not provide the required explicit reference path from `password.md` to `password_utils.py#check_strength` because its `path` is only `[\"password_utils.py\"]`.",
+      "agentOutput": "I’m tracing the documentation references from `password.md` and then following the linked Python sources to isolate the real registration password policy function.\n`password.md` points to `password_utils.py#check_strength` and names two decoys. I’m checking the Python file and the surrounding docs to confirm which function actually enforces registration-time validation.\nThe policy text and `check_strength` align exactly: 12+ chars, digit, uppercase, special character. I’m checking whether any other functions are called from registration code so I can rule out lookalikes with evidence.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be ≥12 characters and include at least one digit, one uppercase letter, and one special character; the check is applied at registration and at every password change, with failures rejected as 422 plus failing criteria.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry only, `check_policy_format`/`check_format` only enforce printable ASCII transport safety, and `check_complexity` returns a score dict rather than the registration gate. The documentation in `password.md` explicitly anchors the enforcement reference to `password_utils.py#check_strength`, and the function body matches the policy exactly.\"}",
+      "durationMs": 43892.911417000025,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 6
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "The agent correctly identified `check_strength` and stated the right rule, but it failed the required documentation trail because its `path` is only `[\"password_utils.py\"]` instead of a path starting at `password.md` and ending at the target anchor `password_utils.py#check_strength`.",
+      "agentOutput": "I’m tracing the documentation links from `password.md` and then matching them to the Python implementation, with attention to the decoy password-check functions.\nI found the policy text and the candidate functions. I’m checking the cross-references to separate the real registration gate from advisory and utility checks.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"A strong password has \\u226512 characters, at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"password.md explicitly links only to `password_utils.py#check_strength` for the strength implementation. `check_policy_score` is advisory telemetry, `check_policy_format`/`check_format` are ASCII transport prechecks, `check_history` enforces reuse history rather than strength, and the other helper functions (`check_complexity`, `check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_unicode_safety`) address different heuristics or safety checks and are not the documented registration gate.\"}",
+      "durationMs": 34410.10170900001,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 6
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The agent correctly names `check_strength` and states the strength rule accurately, but it fails the required reference chain because its `path` is only `[\"password_utils.py\"]` instead of a `password.md` -> `password_utils.py#check_strength` path.",
+      "agentOutput": "I’m tracing the documentation references from `password.md` to the actual enforcement code, then I’ll cross-check the nearby password-check functions against the documented registration policy.\nI found the policy text and the referenced implementation candidates. I’m now verifying which function is actually wired into registration so I can separate the real gate from the advisory and precheck helpers.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; reuse in the last 10 cycles is checked separately.\",\"why_not_decoys\":\"`password.md` explicitly links the registration gate to `password_utils.py#check_strength`. `check_policy_score` is advisory telemetry, `check_policy_format`/`check_format` only enforce printable ASCII, `check_complexity` is an internal score, and `check_history` covers reuse rather than strength; the other check functions are orthogonal heuristics not cited as the registration policy.\"}",
+      "durationMs": 37658.550791000016,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 6
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "Although it correctly names `check_strength` and states the password rule accurately, the response does not provide the required documentation path starting at `password.md` and ending at the target anchor `password_utils.py#check_strength`, since its JSON path is only `[\"password_utils.py\"]`.",
+      "agentOutput": "I’m tracing the docs references from `password.md` to the actual enforcement function, then I’ll disambiguate it from the decoys by reading the linked implementation paths.\n`password.md` points to three candidates in `password_utils.py`. I’m checking the surrounding docs and tests to confirm which one is the registration gate, not just the strongest-sounding name.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be ≥12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`password.md` links this as the password strength implementation, and `password_utils.py` documents `check_strength` as the full policy gate. The decoys are either advisory or partial checks: `check_policy_score` is telemetry only, `check_policy_format`/`check_format` are ASCII transport prechecks, `check_complexity` is internal scoring, and `check_history` only enforces reuse within the last 10 cycles.\"}",
+      "durationMs": 42236.16516700003,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 6
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The agent correctly named `check_strength` and stated the rule accurately, but it failed the required documentation path criterion because its `path` was only `[\"password_utils.py\"]` instead of a path starting at `password.md` and ending at `password_utils.py#check_strength`.",
+      "agentOutput": "I’m tracing `password.md` references first, then I’ll verify the implementation against the documented policy and decoys before answering.\nI found the doc and the Python surface area. Next I’m reading the linked docs plus the auth/password modules to match the policy to the actual enforcement point.\nThe policy text points to three candidate implementations, but only one matches the actual registration gate. I’m checking the surrounding references so I can exclude the telemetry and precheck decoys with evidence.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry, not the registration gate; `check_policy_format`/`check_format` only enforce printable ASCII transport safety; `check_history` is for password reuse across the last 10 cycles, not strength; the other helpers (`check_complexity`, `check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_unicode_safety`) are unrelated heuristics and are not the function linked by `password.md#check_strength`.\"}",
+      "durationMs": 36555.727167000005,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 9
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The response names `check_strength`, but it fails the rule because its `path` omits the required `password.md -> ... -> password_utils.py#check_strength` chain and its rule description adds an unsupported history-reuse requirement beyond the stated password-strength policy.",
+      "agentOutput": "I’m tracing the documentation chain from `password.md` to the implementation and checking candidates against the stated registration policy.\nI’ve confirmed `password.md` points to `password_utils.py` and lists three candidate anchors. Next I’m checking the implementation and tests to see which function actually gates registration, not just password formatting.\nThe docs already point to `check_strength`, but I’m verifying there isn’t another call path that enforces the same policy indirectly through a different helper.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be >=12 characters and include at least one digit, one uppercase letter, and one special character; they must also not have been reused within the last 10 cycles.\",\"why_not_decoys\":\"`password.md` explicitly links the password strength implementation to `password_utils.py#check_strength`, and line 7 says this strength check is what is applied at registration. The other helpers are decoys because they are labeled as advisory telemetry (`check_policy_score`), transport/precheck or ASCII-format checks (`check_policy_format`, `check_format`), internal scoring (`check_complexity`), or only cover one sub-rule such as history reuse (`check_history`) rather than the full registration gate.\"}",
+      "durationMs": 49503.01916700002,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 9
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength` and states the policy accurately, but it fails the required documentation chain because its `path` does not start at `password.md` or end at the target anchor `password_utils.py#check_strength`.",
+      "agentOutput": "I’m tracing the documentation chain from `password.md` to the implementation, then I’ll verify the decoys against the actual registration policy.\n`password.md` points to `password_utils.py`; I’m now checking the implementation file and the surrounding password-related functions so I can disambiguate the real registration gate from the decoys.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"A strong password has: ≥12 chars, ≥1 digit, ≥1 uppercase, ≥1 special char.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry, `check_policy_format`/`check_format` only enforce printable ASCII, `check_history` only checks 10-cycle reuse, and the other password-check helpers are extra heuristics not cited as the registration gate. `password.md` explicitly links the strength implementation to `password_utils.py#check_strength`, and that function matches the documented policy exactly.\"}",
+      "durationMs": 90194.82525000005,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 9
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The answer correctly names `check_strength` and states the rule accurately, but it fails the required documentation-to-code path because its `path` is only `[\"password_utils.py\"]` instead of a path starting at `password.md` and ending at the target anchor `password_utils.py#check_strength`.",
+      "agentOutput": "I’m locating `password.md` and tracing its references to the implementation, then I’ll verify the password-strength rule against nearby decoys.\nI found the policy doc and the candidate functions. Next I’m checking the tests and surrounding code to confirm which function is the registration gate, not just a similarly named helper.\nI’ve confirmed the docs point at `password_utils.py#check_strength`, and I’m checking whether any orchestrator function combines it with the reuse rule so I don’t overstate what this function enforces.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be ≥12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`password.md#password-policy` links directly to `password_utils.py#check_strength`. The other candidates are not the registration strength gate: `check_policy_score` and `check_complexity` are scoring/advisory helpers, `check_policy_format` and `check_format` are ASCII transport checks, and `check_history` only enforces reuse history.\"}",
+      "durationMs": 38162.97220800002,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 9
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength` and describes the core rule, but it fails the requirement to provide a reference path starting at `password.md` and ending at the target code anchor/function because its `path` is only `[\"password_utils.py\"]`.",
+      "agentOutput": "I’m tracing the documentation references from `password.md` to the actual enforcement code, then I’ll verify decoys against the policy details.\nI found the local doc set. Next I’m reading `password.md` and the referenced auth docs to isolate the exact validator and rule text.\n`password.md` points to `password_utils.py`, with three candidate anchors. I’m reading that module now and checking which function actually enforces the registration rule versus scoring or formatting helpers.\nI’ve confirmed the candidate functions. I’m now checking where the registration flow calls them so I can separate the real gate from the advisory and precheck decoys.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Password must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; reuse within the last 10 cycles is checked separately.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry only, `check_policy_format`/`check_format` only enforce printable ASCII transport safety, and `check_complexity` returns a score dict rather than enforcing the registration gate. The other helpers (`check_history`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_unicode_safety`, `check_max_length`, `check_whitespace`, `check_null_bytes`, `check_entropy`) are separate hygiene checks and do not implement the full registration strength policy referenced by `password.md`.\"}",
+      "durationMs": 48469.52687499998,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "noise_count": 9
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength` and states the rule accurately, but its `path` is only `[\"password_utils.py\"]` rather than a documentation trail starting at `password.md` and ending at the target anchor `password_utils.py#check_strength`.",
+      "agentOutput": "I’m tracing the documentation links from `password.md` to the actual policy implementation, then I’ll disambiguate against the decoy password checks.\n`password.md` points to `password_utils.py`, but it also lists two decoy references. I’m checking the Python implementation and the tests to see which function actually enforces the registration rule.\nI found the candidate policy function in `password_utils.py`. I’m verifying it is the one wired into registration, not one of the advisory or format-only helpers.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`password.md` explicitly links `password_utils.py#check_strength` as the password strength implementation, and the function matches the registration gate policy. The other nearby functions are decoys: `check_policy_score` is advisory telemetry, `check_policy_format`/`check_format` only enforce printable ASCII, `check_complexity` returns a score dict, and `check_history` handles reuse history rather than strength.\"}",
+      "durationMs": 38637.08604199998,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "noise_count": 3
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "Although the response correctly names `check_strength` and states the ≥12 chars, ≥1 digit, ≥1 upper, ≥1 special rule, its `path` is only `[\"password_utils.py\"]` and does not show the required documentation chain starting at `password.md` and ending at the target anchor/function.",
+      "agentOutput": "I’m tracing the documentation chain from `password.md` to the implementation, then I’ll verify the actual registration policy function against the decoys.\n`password.md` points to three candidate symbols in `password_utils.py`. I’m checking the implementation and nearby docs to determine which one actually enforces the registration rule, not just password quality in general.\nI have the candidate functions. Now I’m checking which one is wired to registration policy versus auxiliary checks, so the answer is anchored in usage, not naming.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character; the same policy is enforced at registration and on every password change, with failures returned as 422 plus failing criteria.\",\"why_not_decoys\":\"`check_policy_score` is only advisory telemetry, `check_policy_format` and `check_format` only verify printable ASCII transport safety, `check_complexity` returns an internal score rather than enforcing the gate, and `check_history` enforces reuse history, not strength. The docs in `password.md` point to `Password Strength Check`, which matches `check_strength` exactly.\"}",
+      "durationMs": 37247.89187499997,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "noise_count": 3
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength` and states the ≥12 chars, ≥1 digit, ≥1 upper, ≥1 special rule, but it fails the required documentation path because `path` is only `[\"password_utils.py\"]` instead of showing a `password.md` -> target implementation reference chain.",
+      "agentOutput": "I’m tracing the documentation references from `password.md` to the actual registration password policy implementation, then I’ll disambiguate the decoys by behavior.\nI found three password-check functions that match the doc’s “implementation references”; I’m now checking which one is actually wired to registration policy enforcement rather than telemetry or prechecks.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Registration/password-change passwords must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character; passwords reused within the last 10 cycles are rejected separately by history enforcement.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry only, `check_policy_format`/`check_format` are printable-ASCII prechecks rather than the strength gate, and `check_complexity` is an internal scoring helper. `check_history` enforces reuse history, but it does not implement the strength policy itself.\"}",
+      "durationMs": 42771.96291600005,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "noise_count": 3
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength` and describes the rule accurately, but it fails the required documentation path evidence because `\"path\":[\"password_utils.py\"]` does not start from `password.md` and does not show the full `password.md -> ... -> check_strength` reference chain.",
+      "agentOutput": "I’m tracing the docs from `password.md` first, then I’ll cross-check the referenced Python implementations against the policy text.\nI found the policy text and the candidate functions. I’m now checking which one is actually wired to the registration gate, because the other checks are advisory or format-only.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Password Strength Check\",\"why_not_decoys\":\"`check_strength` is the only referenced function whose logic matches the policy in `password.md`: length >= 12, at least one digit, one uppercase letter, and one special character. `check_policy_score` is advisory telemetry, `check_policy_format` is only an ASCII transport precheck, and `check_complexity` is internal scoring, not the registration gate.\"}",
+      "durationMs": 42032.94312499999,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "noise_count": 3
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "Although the agent correctly named `check_strength` and described the strength rule accurately, its `path` is only `[\"password_utils.py\"]` and does not show the required documentation chain starting from `password.md` to the target code anchor/function.",
+      "agentOutput": "I’m tracing the documentation chain from `password.md` first, then I’ll verify the implementation against the referenced code instead of trusting names.\n`password.md` points to three candidate functions in `password_utils.py`. I’m checking the surrounding references and usage to separate the real registration gate from advisory or transport-only checks.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; reused passwords are blocked separately by history checks.\",\"why_not_decoys\":\"`check_policy_score` is only advisory telemetry, `check_policy_format`/`check_format` only enforce printable ASCII transport safety, `check_complexity` returns an internal score dict rather than gating registration, and `check_history` handles reuse policy instead of strength.\"}",
+      "durationMs": 33989.04154200002,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "noise_count": 3
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "Although it correctly names `check_strength`, the response does not provide the required `password.md` -> target anchor/function path and its rule description is not exact because it adds an extra password-history requirement beyond `≥12 chars, ≥1 digit, ≥1 upper, ≥1 special`.",
+      "agentOutput": "I’m tracing the documentation chain from `password.md` to the implementation and checking the decoys against the referenced policy.\nI’ve located the doc set. Next I’m reading the password doc and the referenced auth docs to resolve the policy back to code, not just names.\nThe doc points directly into `password_utils.py`, and there are three nearby password-check functions. I’m reading those implementations plus the caller path to identify which one actually enforces the registration policy.\n{\"path\":[\"password.md\",\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"≥12 characters, at least one digit, one uppercase letter, and one special character; reused passwords from the last 10 cycles are rejected\",\"why_not_decoys\":\"`check_policy_score` is explicitly advisory telemetry, not the registration gate; `check_policy_format` only checks printable ASCII transport safety; `check_complexity` returns an internal score dict and is not the gate; `check_format` is a duplicate ASCII-printable helper and also does not enforce the strength policy.\"}",
+      "durationMs": 58333.43816700007,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "noise_count": 6
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The response correctly identifies `check_strength` and states the rule accurately, but it fails the rule because its `path` is only `[\"password_utils.py\"]` instead of a documentation-reference path starting at `password.md` and ending at the target implementation.",
+      "agentOutput": "I’m tracing the documentation references from `password.md` first, then I’ll verify the implementation against the policy text so I can exclude the decoys.\nI found the documentation set. Next I’m reading `password.md` and the referenced docs around it to extract the policy language and the implementation anchor.\n`password.md` gives the policy and three candidate implementation references. I’m locating `password_utils.py` now and then checking the surrounding functions to separate the real enforcement path from the decoys.\nI have the candidate file. I’m checking whether any other documentation binds the registration gate to a different helper, because the policy includes both strength and history and I want the exact enforcement function, not a nearby checker.\nI’ve confirmed the candidate set. I’m reading the auth service and tests to verify which helper is actually used at registration and whether history is enforced separately.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Password must be at least 12 characters and contain at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry, not a gate; `check_policy_format` and `check_format` only verify printable ASCII; `check_complexity` returns an internal score dict; `check_history` enforces the 10-cycle reuse rule, not strength; the other helpers (`check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_unicode_safety`) add unrelated heuristics that do not match the documented registration strength policy.\"}",
+      "durationMs": 42537.473541999934,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "noise_count": 6
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength` and states the ≥12 chars/≥1 digit/≥1 uppercase/≥1 special rule, but it fails the required documentation trace because its `path` is only `[\"password_utils.py\"]` instead of a `password.md -> ... -> password_utils.py:Password Strength Check/check_strength` reference path.",
+      "agentOutput": "I’m tracing the docs from `password.md` to the implementation and checking the surrounding references so I can separate the real policy check from the decoys.\nI found the likely source files and I’m now following the markdown links rather than the Python names, because the repo has multiple password-related helpers and decoys.\nI’ve got the policy text and the candidate helpers. Next I’m checking where registration actually calls into the utility module so I can rule out the advisory and precheck functions cleanly.\nI found the direct password-policy matcher, but I want one more pass over the service layer to make sure registration isn’t delegating to a different wrapper that combines the rule with history checks.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"A strong password has: ≥12 chars, ≥1 digit, ≥1 uppercase, ≥1 special char. Rule: [password.md:Password Policy].\",\"why_not_decoys\":\"`password.md` links to `password_utils.py:Password Strength Check`, and this function is the only one whose logic matches the documented gate. `check_policy_score` is advisory telemetry (returns a score), `check_policy_format`/`check_format` only enforce printable ASCII, `check_complexity` returns a diagnostic dict, `check_history` only handles reuse history, and the other helpers (`check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_unicode_safety`) are orthogonal checks not equal to the registration strength policy.\"}",
+      "durationMs": 70489.01287500001,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "noise_count": 6
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength` and states the strength rule, but it fails the required reference path evidence because its `path` is only `[\"password_utils.py\"]` and does not show a documentation trail starting at `password.md` and ending at the target implementation.",
+      "agentOutput": "I’m tracing the documentation path first, then I’ll verify the implementation against the referenced rule and exclude the decoys by evidence.\nThe policy doc points at `password_utils.py`, and I’m now checking the surrounding references so I can distinguish the real gate from the telemetry and precheck decoys.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Registration passwords must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character; reused passwords from the last 10 cycles are rejected separately.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry, `check_policy_format`/`check_format` only validate printable ASCII transport safety, and the other password-check functions cover unrelated concerns such as history, entropy, leaked passwords, sequential runs, repetition, keyboard walks, or Unicode normalization rather than the registration strength gate.\"}",
+      "durationMs": 24187.81045800005,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "noise_count": 6
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength` and states the policy accurately, but it fails the rule because its `path` is only `[\"password_utils.py\"]` instead of showing a reference chain starting at `password.md` and ending at the target implementation.",
+      "agentOutput": "I’m tracing the documentation references from `password.md` to the actual Python implementation and checking the decoy password-check functions against the policy text.\nI found the doc and the likely implementation files. Next I’m reading the reference chain and comparing the password checks against the documented registration policy.\nThe doc points to `password_utils.py`, but I’m checking for other references so the final answer is based on the actual registration gate, not the advisory helpers.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Password must be at least 12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry only, `check_policy_format`/`check_format` only enforce ASCII-printable transport safety, `check_complexity` returns an internal score dict, and `check_history` handles reuse across the last 10 cycles rather than strength. The doc anchor `Password Strength Check` points to `check_strength`, and its body matches the policy text exactly.\"}",
+      "durationMs": 31850.793292000075,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "noise_count": 6
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength` and states the 12+ chars/digit/uppercase/special rule, but its JSON `path` is only `[\"password_utils.py\"]` and does not show the required `password.md -> ... -> check_strength` documentation-to-implementation path.",
+      "agentOutput": "I’m tracing the documentation chain from `password.md` and cross-checking the referenced Python sources to isolate the actual registration policy function.\n`password.md` points to `password_utils.py` and gives the exact policy: 12+ chars, digit, uppercase, special, and no reuse from the last 10 cycles. I’m now checking the Python implementations to separate the real registration check from the decoys.\nThe decisive clue is that only one function matches the policy text exactly. I’m checking whether registration uses a broader validator that combines multiple checks, so I don’t mislabel a helper as the gatekeeper.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"At registration and password change, require passwords to be at least 12 characters and include at least one digit, one uppercase letter, and one special character; reuse is separately blocked for the last 10 cycles.\",\"why_not_decoys\":\"`check_policy_score` is only advisory telemetry, `check_policy_format`/`check_format` are ASCII transport prechecks, `check_complexity` is an internal score dict, and the other helpers (`check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_unicode_safety`) are orthogonal checks. `check_strength` is the only function whose docstring and logic exactly match `password.md`'s strength policy.\"}",
+      "durationMs": 60132.09812500002,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "noise_count": 9
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The response correctly identifies `check_strength` and states the rule as ≥12 chars with at least one digit, uppercase, and special character, but its `path` is only `[\"password_utils.py\"]` and does not show the required `password.md` -> target implementation reference chain.",
+      "agentOutput": "I’m tracing the documentation chain from `password.md` into the Python sources and checking the competing password functions against the actual registration policy.\nI found the likely code area. Next I’m reading the password doc plus the auth and password utility modules to separate the real policy from similarly named helpers.\nI have the policy text. I’m now checking whether the referenced anchors and call sites line up with the registration gate, so I can rule out the telemetry and precheck helpers.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be ≥12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"The docs point to [password_utils.py:Password Strength Check], and that anchor matches `check_strength` exactly. `check_policy_score` and `check_complexity` are advisory telemetry/internal scoring, `check_policy_format` and `check_format` are ASCII transport/precheck helpers, `check_history` only enforces reuse, and the remaining helpers cover unrelated constraints (entropy, leaks, sequences, repetition, keyboard walks, Unicode safety, max length, whitespace, null bytes) rather than the registration strength gate.\"}",
+      "durationMs": 36868.10641700006,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "noise_count": 9
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "The agent correctly identified `check_strength` and stated the policy accurately, but it failed the rule because its `path` does not start from `password.md` and therefore does not show the required `password.md -> ... -> password_utils.py:Password Strength Check` reference chain.",
+      "agentOutput": "I’m tracing the documentation references from `password.md` to the actual policy-enforcing Python function.\nI found the likely code area. Next I’m reading `password.md` and the referenced Python files to resolve the real enforcement path, not just the function names.\nI have the primary anchor. I’m checking the surrounding references so I can distinguish the enforcement function from the nearby telemetry and precheck decoys.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry, `check_policy_format`/`check_format` are ASCII transport prechecks, `check_complexity` is internal scoring, and the other helpers enforce unrelated constraints (entropy, leaks, sequences, repetition, keyboard walks, unicode, length, whitespace, null bytes). The docs anchor in `password.md` points specifically to `password_utils.py:Password Strength Check`.\"}",
+      "durationMs": 39750.916791999945,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "noise_count": 9
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "Although it correctly names `check_strength` and states the rule accurately, the provided `path` is only `[\"password_utils.py\"]` and does not show the required reference chain starting at `password.md` and ending at the target implementation anchor/function.",
+      "agentOutput": "I’ll trace the documentation references from `password.md` and verify the actual Python implementation against the decoys.\n`password.md` points to `password_utils.py`, but there are multiple implementation references. I’m checking the Python file and cross-referencing the policy text so I don’t pick a decoy by name.\nI found the candidate set in `password_utils.py`. Now I’m checking the surrounding docs and references to verify which function is actually wired to registration policy, not just the strongest name match.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Password must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` and `check_complexity` are advisory scoring helpers, not the registration gate; `check_policy_format`/`check_format` only enforce printable-ASCII transport safety; `check_history` handles the separate 10-cycle reuse rule; the other check_* functions cover unrelated constraints (entropy, leaks, sequences, repetition, keyboard walks, Unicode safety, max length, whitespace, null bytes) and do not match the policy text in `password.md`.\"}",
+      "durationMs": 44681.02600000007,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "noise_count": 9
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The agent correctly named `check_strength` and described the rule accurately, but it failed the requirement to provide a reference path starting at `password.md` and ending at the target implementation, since its `path` was only `[\"password_utils.py\"]`.",
+      "agentOutput": "I’m tracing the documentation links from `password.md` to the Python implementation, then I’ll verify the policy against nearby decoy password checks.\nI found the policy text and the candidate functions. Next I’m checking which function is actually wired to the registration gate, because several helpers look similar but are explicitly advisory or internal.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry, `check_policy_format`/`check_format` are ASCII transport prechecks, `check_complexity` is internal scoring, and `check_history` only covers reuse history. The documentation reference `password_utils.py:Password Strength Check` points to `check_strength`, which is the only function that directly enforces the registration strength criteria.\"}",
+      "durationMs": 39791.39383299998,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "noise_count": 9
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "Although it names `check_strength` and states the core rule correctly, the response fails because its `path` is only `[\"password_utils.py\"]` rather than a documentation-reference chain starting at `password.md` and ending at the target implementation anchor/function.",
+      "agentOutput": "I’m tracing the docs chain from `password.md` and cross-checking the referenced Python implementations before choosing the policy-enforcing function.\n`password.md` points to `password_utils.py` and names three candidate references. I’m checking the Python definitions and how registration uses them so I can disambiguate the real policy gate from the helpers.\nI found the policy candidates in `password_utils.py`; now I’m checking whether registration wiring or docs point to a different helper so I can rule out the decoys with evidence, not naming.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Password must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; reuse in the last 10 cycles is rejected separately by history checking.\",\"why_not_decoys\":\"`check_policy_score()` is only advisory telemetry, `check_policy_format()`/`check_format()` only enforce printable ASCII transport safety, and `check_history()` only blocks reuse of the last 10 passwords. The docs in `password.md` name `Password Strength Check` as the registration/password-change gate, and that matches `check_strength()`'s exact criteria.\"}",
+      "durationMs": 35304.87308299984,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 3
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The output correctly names `check_strength` and states the strength rule accurately, but it fails the required `password.md -> ... -> [[password_utils#^sec-password-strength]]` reference path because its `path` contains only `password_utils.py` and does not show the documentation trail from `password.md` to the target anchor.",
+      "agentOutput": "I’m tracing the documentation references from `password.md` and then I’ll verify the exact enforcement function against the surrounding implementation, not just names.\nI found the entry doc. Next I’m following its references into the code and comparing the candidate password checks against the registration path.\nI’ve got the implementation file. I’m reading the function bodies and the registration call sites to separate the actual policy gate from helper scoring or formatting checks.\nThe helper names are misleading on purpose. I’m verifying which one actually carries the documented policy anchor and which ones are explicitly described as auxiliary checks.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"≥12 characters, at least one digit, one uppercase letter, and one special character; tied to [[password#^auth-password-policy]].\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry only, `check_policy_format`/`check_format` only enforce printable ASCII, and `check_complexity` returns an internal score rather than gating registration. `check_strength` is the only function whose docstring anchors directly to the password policy and whose body matches the documented strength criteria.\"}",
+      "durationMs": 44721.28812499996,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 3
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "Although the agent correctly identified `check_strength` and stated the password rule accurately, its JSON `path` does not start from `password.md` or show the documentation-to-anchor-to-function trace required by the rule.",
+      "agentOutput": "I’m tracing the documentation references from `password.md` to the implementation, then I’ll verify the real policy function against the decoys.\n`password.md` points to three implementation anchors in `password_utils.py`. I’m checking those against the tests so I can separate the real registration policy from support helpers.\nI’ve narrowed it to the strength gate versus the auxiliary checks. I’m doing one last cross-reference pass to make sure no other file wires a different function into registration.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`password.md` points `^sec-password-strength` to this function, and its docstring/logic match the policy exactly. `check_policy_score` and `check_complexity` are advisory scoring helpers, `check_policy_format` and `check_format` only check printable ASCII, and `check_history` enforces the 10-cycle reuse rule rather than strength.\"}",
+      "durationMs": 42431.744791999925,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 3
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength` and states the rule accurately, but it does not provide the required reference path starting at `password.md` and tracing through the documentation to the `[[password_utils#^sec-password-strength]]` target.",
+      "agentOutput": "I’m tracing the documentation chain from `password.md` to the implementation and checking the decoys against the actual registration policy.\nI found the source set. Next I’m reading `password.md` and the linked docs to resolve which implementation actually matches the registration policy.\nI have the candidate validators. Now I’m checking where registration actually calls into them so I can exclude advisory or unrelated checks.\n{\"path\":[\"/private/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-exp-anchor-systems-rag-noise-c6c2e8f79e4f6aac/password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry, not the registration gate; `check_policy_format` only checks printable ASCII for transport safety; `check_complexity` is internal scoring, not enforcement; `check_history` handles reuse across the last 10 cycles, which is separate from the strength policy. The docs anchor `^sec-password-strength` points to `check_strength`, and its docstring matches the policy in `password.md`.\"}",
+      "durationMs": 39202.360459000105,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 3
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The output correctly names `check_strength` and states the password rule accurately, but it fails the rule because the `path` does not start at `password.md` or show the documentation-to-target reference chain ending at `[[password_utils#^sec-password-strength]]`/the anchored implementation.",
+      "agentOutput": "I’ll trace the documentation chain from `password.md`, then verify the implementation against the policy text and decoy functions.\nI found the policy and the doc explicitly points to `password_utils.py`; now I’m checking the referenced anchors and the nearby code to separate the real enforcement path from the three decoys.\nThe implementation file has three near-matches, but only one matches the policy text exactly; I’m checking for call sites so the final answer ties the policy to the registration path, not just the helper name.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and contain at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` is explicitly advisory telemetry, `check_policy_format` is only a printable-ASCII precheck, and `check_complexity` returns a score dict for internal analysis; none of those enforce the registration gate. `check_history` enforces reuse history, not strength.\"}",
+      "durationMs": 56954.75741599989,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 3
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The agent correctly named `check_strength` and stated the password rule accurately, but its `path` is only `[\"password_utils.py\"]` rather than a documentation-following path that starts at `password.md` and leads to the target reference/implementation.",
+      "agentOutput": "I’m tracing the documentation references from `password.md` to the implementation, then I’ll cross-check the decoy password functions before answering.\nI found the documentation entry point. Next I’m reading `password.md` and locating the referenced Python modules so I can distinguish the real policy check from the decoys.\nI’ve identified the candidate functions. Now I’m checking which one is actually wired into registration, because the other password helpers are intentionally plausible decoys.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` only returns advisory telemetry, `check_policy_format` is only an ASCII transport precheck, and `check_history` enforces password reuse history rather than strength. The other helpers (`check_complexity`, `check_format`, `check_entropy`, `check_leaked`, `check_sequential`) are either analysis-only or unrelated to the registration gate; the doc anchor `^sec-password-strength` points specifically to `check_strength`.\"}",
+      "durationMs": 42039.898874999955,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 6
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "Although the response correctly names `check_strength` and states the rule as at least 12 characters with at least one digit, uppercase, and special character, its `path` does not start from `password.md` or show the documented reference chain to `[[password_utils#^sec-password-strength]]`/the target anchor.",
+      "agentOutput": "I’ll trace the documentation references from `password.md` and verify the implementation against the policy text, not the function name.\nI found the candidate docs and Python files. Next I’m reading `password.md` and the implementation files it points to, then I’ll resolve the decoys by checking the actual strength rule in code.\n`password.md` points to three implementation anchors. I’m checking whether any other docs reuse those anchors or describe the registration gate differently, so the final pick is grounded in the policy text and not the helper names.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Password must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; this is the registration/password-change gate.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry, not an enforcement gate; `check_policy_format`/`check_format` only enforce printable ASCII; `check_complexity` is an internal scoring helper; `check_history` enforces reuse limits, which is a separate policy clause; the other helpers (`check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_unicode_safety`) do not match the documented registration strength rule.\"}",
+      "durationMs": 33801.33541699988,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 6
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "Although it correctly names `check_strength` and states the password rule accurately, the provided `path` is only `[\"password_utils.py\"]` and does not show the required `password.md -> [[password_utils#^sec-password-strength]] -> check_strength` reference chain.",
+      "agentOutput": "I’m tracing the documentation chain from `password.md` to the implementation, then I’ll verify the candidate against the surrounding references so I don’t pick a decoy by name.\nI found the doc set. Next I’m reading `password.md` and the referenced Python files to follow the actual policy path, then I’ll rule out the lookalike helpers.\n`password.md` names three implementation references. I’m now checking which one is actually wired to registration, because two of them are explicitly prechecks/telemetry and should be excluded even if their names look plausible.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Password must be at least 12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` is only advisory telemetry (score), `check_policy_format` and `check_format` only verify printable ASCII transport safety, and `check_complexity` is another advisory complexity report; only `check_strength` matches the registration-gating policy referenced by `password.md`.\"}",
+      "durationMs": 41893.06862499984,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 6
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The response correctly identifies `check_strength` and states the policy as at least 12 characters with a digit, uppercase letter, and special character, but it fails the rule because its `path` does not start from `password.md` and show the documentation-reference chain to the target anchor/function.",
+      "agentOutput": "I’m tracing the documentation links from `password.md` and then verifying the actual Python implementation, not just the function names.\n`password.md` points to three anchors in `password_utils.py`. I’m resolving those anchors against the Python source and checking the surrounding doc references to separate the real policy check from the decoys.\nI’ve confirmed the anchor `^sec-password-strength` maps to `check_strength()`. I’m checking whether any other files call or document it so the final answer can explain why the other password helpers are decoys.\n{\"path\":[\"/private/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-exp-anchor-systems-rag-noise-897e102cebd420f3/password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_strength` is the only function tagged by `^sec-password-strength` and it explicitly cites `[[password#^auth-password-policy]]`. The decoys are not the registration strength gate: `check_policy_score` is advisory telemetry, `check_policy_format` and `check_format` are printable-ASCII prechecks, `check_complexity` returns a score dict, and `check_history` enforces reuse history rather than strength.\"}",
+      "durationMs": 44226.462541999994,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 6
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "Although it names `check_strength` and states the policy correctly, the response does not provide a reference path starting at `password.md` and ending at the target anchor/function, since its JSON path is only `[\"password_utils.py\"]` and it also includes non-JSON text.",
+      "agentOutput": "I’m tracing the documentation links from `password.md` to the implementation, then I’ll verify the actual policy-enforcing function against the decoys.\nI found the doc set. Next I’m reading `password.md` and the referenced docs to resolve which implementation actually owns the strength policy.\n`password.md` points to `password_utils.py`; I’m reading that file and the surrounding call sites to separate the actual validator from the helper decoys.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_strength` is the only function linked by `password.md` to `^sec-password-strength` and it matches the registration gate criteria. `check_policy_score` is advisory telemetry, `check_policy_format`/`check_format` only enforce printable ASCII, `check_history` only blocks reuse, and the remaining helpers (`check_complexity`, `check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_unicode_safety`) are unrelated heuristics rather than the documented strength policy.\"}",
+      "durationMs": 45762.07616600022,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 6
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The response correctly identifies `check_strength` and states the strength rule accurately, but it fails the required reference path criterion because its `path` is only `[\"password_utils.py\"]` rather than a path starting at `password.md` and ending at the target anchor/function.",
+      "agentOutput": "I’m tracing the documentation links from `password.md` to the implementation, then I’ll disambiguate against the decoy password-check functions.\nI found the policy text and the three implementation references. Next I’m checking `password_utils.py` plus any linked docs to see which function actually enforces the registration rule, not just computes related checks.\nI’ve confirmed the three doc anchors map to `check_strength`, `check_policy_score`, and `check_policy_format`. I’m checking the auth flow now to make sure the registration gate uses the strength function, not one of the advisory helpers.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"≥12 characters, at least one digit, one uppercase letter, and one special character; used at registration and every password change; reject failures with 422 and failing criteria list.\",\"why_not_decoys\":\"The other password-check functions are decoys: `check_policy_score` is advisory telemetry only, `check_policy_format` and `check_format` only enforce printable ASCII transport safety, `check_complexity` returns an internal score dict instead of gating registration, and the remaining helpers (`check_history`, `check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_unicode_safety`) target different concerns not referenced by the registration policy. The docs explicitly anchor the policy to `password_utils#^sec-password-strength`, and `check_strength` carries that exact anchor and rule text.\"}",
+      "durationMs": 48379.47408399987,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 9
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The output names `check_strength`, but it fails the rule because the path does not start at `password.md` or show the `[[password_utils#^sec-password-strength]]` target chain, and the stated rule adds an unsupported 'last 10 cycles' reuse requirement instead of only the documented strength rule.",
+      "agentOutput": "I’m tracing the documentation chain from `password.md` to the implementation, then I’ll verify the candidate against the surrounding checks to exclude decoys.\n`password.md` points to three implementation anchors in `password_utils.py`. I’m now resolving those anchors and comparing them against the actual policy text so I can exclude similarly named but weaker checks.\nThe direct anchor matches `check_strength`, but I’m verifying registration usage and the other password checks so I can explain why the other anchors are decoys rather than alternate implementations.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; passwords reused from the last 10 cycles are rejected.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry, not the registration gate; `check_policy_format` is only an ASCII transport precheck; `check_complexity` returns a score dict and is internal analysis, not enforcement. The doc anchor `^sec-password-strength` explicitly maps to `check_strength`, and that function matches the policy text exactly.\"}",
+      "durationMs": 42891.45066699991,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 9
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "Although it correctly names `check_strength` and states the ≥12 chars, ≥1 digit, ≥1 upper, ≥1 special rule, it does not provide the required reference path starting at `password.md` and ending at the target anchor/function, instead giving only a direct filesystem path to `password_utils.py`.",
+      "agentOutput": "I’ll trace the documentation references from `password.md` and then verify the implementation against the policy text, not the function name.\nI found the policy text and its three implementation anchors. Next I’m checking the Python source to see which function actually enforces all listed constraints and which ones are partial prechecks.\nThe source has one function that matches the policy exactly, plus several decoys that are either advisory or narrower prechecks. I’m confirming the call path and references so the answer is evidence-based.\n{\"path\":[\"/private/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-exp-anchor-systems-rag-noise-80090dabec45d6e/password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character; registration and password changes reject noncompliant passwords with 422 and list failing criteria.\",\"why_not_decoys\":\"`check_policy_score` and `check_complexity` are advisory scoring helpers, not gates; `check_policy_format` and `check_format` only enforce printable ASCII transport safety; the other password-check functions cover different constraints (history, entropy, leaked-password detection, sequential characters, repetition, keyboard walks, Unicode normalization, max length, whitespace, null bytes) and do not implement the documented registration strength rule.\"}",
+      "durationMs": 35997.7754579999,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 9
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "Although the agent correctly names `check_strength` and states the `>=12 chars, >=1 digit, >=1 upper, >=1 special` rule, its `path` does not start at `password.md` or show the required documentation-to-anchor chain ending at `password_utils#^sec-password-strength`.",
+      "agentOutput": "I’m tracing the documentation chain from `password.md` to the Python implementation, then I’ll verify the policy against the surrounding references.\nI found the documented policy and the implementation anchor points. Next I’m checking the Python file to separate the real registration policy gate from nearby password-related helpers.\nThe doc points to three candidate anchors, but only one is the actual gate: the function that matches the 12-char/digit/uppercase/special rule and is referenced by the policy anchor. I’m checking for any wrapper that could look plausible but only delegates or scores.\n{\"path\":[\"/private/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-exp-anchor-systems-rag-noise-f9f08339e23b3f66/password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; reuse within the last 10 cycles is blocked separately by history checks.\",\"why_not_decoys\":\"`password.md` links the policy anchor to `password_utils#^sec-password-strength`, and in `password_utils.py` that anchor is on `check_strength`, which matches the exact registration rule. `check_policy_score` is explicitly advisory telemetry, `check_policy_format`/`check_format` only enforce printable ASCII, `check_complexity` returns a score dict rather than gating, and `check_history` only covers the 10-cycle reuse rule. The remaining password helpers are unrelated hardening checks, not the documented registration strength gate.\"}",
+      "durationMs": 43411.01191599993,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 9
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength` and states the 12+ chars/digit/uppercase/special rule, but it fails the rule because its `path` is only `[\"password_utils.py\"]` and does not show a documentation path starting at `password.md` and ending at `[[password_utils#^sec-password-strength]]`/the target function.",
+      "agentOutput": "I’m tracing the documentation links from `password.md` to the actual enforcement code, then I’ll verify the referenced implementation against the nearby decoys.\nI found the docs set. Next I’m following the cross-links from `password.md` and checking the Python modules those links point at, not just the symbol names.\nI’ve located the implementation file. I’m reading the exported password helpers and the registration path together so I can separate the actual policy gate from helper checks and scoring decoys.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` and `check_complexity` are scoring/telemetry helpers, not enforcement; `check_policy_format` and `check_format` only verify printable/ASCII format; `check_history` covers reuse within the last 10 cycles, which is a separate rule; the remaining helpers (`check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_unicode_safety`, `check_max_length`, `check_whitespace`, `check_null_bytes`) are unrelated side checks and are not the registration strength gate.\"}",
+      "durationMs": 40413.117417,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "noise_count": 9
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "Although the response correctly identifies `check_strength` and states the rule as 'at least 12 characters, one digit, one uppercase, and one special character,' its `path` does not start at `password.md` or show the full reference chain ending at the target anchor/function, which the rule explicitly requires.",
+      "agentOutput": "I’m starting from `password.md` and tracing its references to the actual password policy implementation, then I’ll separate the real enforcement function from the decoys.\n`password.md` points to `password_utils.py` and gives three candidate anchors. I’m tracing those anchors next so I can confirm which function actually enforces the registration rule, not just a nearby helper.\nI’ve got the core implementation candidates. I’m checking the surrounding references to rule out helpers that look similar but only cover telemetry or prechecks.\n{\"path\":[\"/private/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-exp-anchor-systems-rag-noise-b44708919511b615/password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`password.md` points to `password_utils.py` via `^sec-password-strength`, and that anchor is attached to `check_strength`, which explicitly cites `[[password#^auth-password-policy]]`. The other candidates are decoys: `check_policy_score` is advisory telemetry, `check_policy_format`/`check_format` are ASCII printable prechecks, `check_complexity` returns an internal score dict, and `check_history` enforces reuse history rather than the registration strength rule.\"}",
+      "durationMs": 71495.82891699998,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 3
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The response names `check_strength` and states the strength rule correctly, but it fails the requirement to provide a documentation-reference path starting at `password.md` and ending at the target implementation, since its `path` is only `[\"password_utils.py\"]` and it cites the wrong target ID (`202605121004` instead of `202605121011`).",
+      "agentOutput": "I’m tracing the documentation references from `password.md` to the implementation, then I’ll verify the candidate against the stated registration policy and rule out the decoys.\nI found the candidate Python files and the doc set. Next I’m reading `password.md` plus the surrounding auth docs to follow the reference chain instead of guessing from symbol names.\n`password.md` points to one likely enforcement function and two decoys inside `password_utils.py`. I’m checking the linked IDs and any registration path that consumes them so I can prove which function actually gates registration.\nI have the likely gate: `check_strength`. I’m doing one more pass for any registration flow that might call a different helper, because the decoy functions also look policy-adjacent.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"≥12 characters, at least one digit, one uppercase letter, and one special character; this is the registration/password-change strength gate for UID 202605121004.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry only, `check_policy_format`/`check_format` only enforce printable ASCII transport safety, and `check_history` enforces the 10-cycle reuse rule rather than strength.\"}",
+      "durationMs": 67262.54975,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 3
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength`, but it fails the rule because the `path` does not start at `password.md` or show the documentation-to-implementation chain, and the `rule` adds an extra history-reuse requirement instead of only `>=12 chars, >=1 digit, >=1 upper, >=1 special`.",
+      "agentOutput": "I’m tracing the docs graph from `password.md` and then I’ll verify the implementation path in Python before answering.\nI found the doc set and the Python files. Next I’m following the markdown references from `password.md` into the implementation docs, then I’ll cross-check the candidate functions against the tests.\nI’ve got the policy doc and the candidate utilities. Now I’m checking which function is actually wired into registration, because several nearby functions are decoys or non-gating helpers.\nI’ve narrowed it to the strength gate reference `202605121011`. I’m doing one last pass for any markdown that distinguishes strength from history, so I can separate the real gate from adjacent password helpers.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; the policy also rejects reuse within the last 10 cycles.\",\"why_not_decoys\":\"`check_policy_score` (202605129101) is only advisory telemetry, `check_policy_format` (202605129102) is only a printable-ASCII precheck, and `check_history` handles reuse history rather than the strength gate. `password.md` points to 202605121011 as the implementation reference for the registration strength check, which matches `check_strength`.\"}",
+      "durationMs": 45731.71095900005,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 3
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "Although it names `check_strength` and states the rule accurately, the final response does not provide the required documentation reference path starting at `password.md` and ending at the target implementation anchor/function, since its `path` is only `[\"password_utils.py\"]`.",
+      "agentOutput": "I’m tracing the documentation chain from `password.md` and then checking the referenced Python implementations to separate the real registration policy from the decoys.\n`password.md` points to three implementation reference docs. I’m opening those references and then mapping them to the Python call sites so I can identify the actual registration policy, not just the shared validator surface.\nI’ve found the strongest candidate in `password_utils.py`. I’m doing one last cross-check on the linked IDs so the answer points to the enforcement function, while excluding the telemetry and transport precheck lookalikes.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry, not the registration gate; `check_policy_format` and `check_format` are ASCII transport prechecks; `check_history` enforces reuse limits separately; the other helpers (`check_complexity`, `check_entropy`, `check_leaked`, `check_sequential`) are analysis or auxiliary checks, not the documented registration strength policy.\"}",
+      "durationMs": 51751.09529100009,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 3
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "Although it correctly names `check_strength` and states the rule accurately, the provided `path` is only `[\"password_utils.py\"]` and does not show the required reference chain starting at `password.md` and ending at the target implementation anchor/function.",
+      "agentOutput": "I’m tracing the documentation references from `password.md` and then verifying the implementation in Python, not just the symbol name.\nI found the policy doc and the three implementation references. Next I’m resolving the cross-links to see which Python function actually enforces the registration rule and which nearby password-check helpers are decoys.\nI have the likely target in `password_utils.py`. I’m checking the UID references across the docs so the final answer can justify why the other password functions are decoys rather than just alternative names.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"password.md links UID 202605121011, and that function is the only one whose docstring maps to [[202605121004]] and whose body enforces all four strength checks. `check_policy_score` (202605129101) is advisory telemetry, `check_policy_format` (202605129102) is an ASCII precheck, and `check_history` enforces reuse history rather than strength.\"}",
+      "durationMs": 41503.993917000014,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 3
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The output correctly identifies `check_strength` and states the rule accurately, but it fails the requirement to provide a reference path that starts at `password.md` and traces to the target implementation, since the `path` is only `[\"password_utils.py\"]`.",
+      "agentOutput": "I’m tracing the doc references from `password.md` to the actual policy function, then I’ll disambiguate it from the decoys by the documented rule, not the name.\nI’ve found the candidate in `password_utils.py`; now I’m checking the reference chain so I can rule out the advisory and transport-precheck decoys explicitly.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry, not the registration gate; `check_policy_format` and `check_format` only enforce printable ASCII transport safety; `check_complexity` returns a score dict for internal analysis. Only `check_strength` is the implementation reference linked from `password.md` (UID 202605121011) and matches the documented enforcement rule in `password.md` and `recovery.md`.\"}",
+      "durationMs": 30610.882332999725,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 6
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "Although it names `check_strength` and states the strength rule accurately, the response fails the required documentation path because `path` only contains `password_utils.py` instead of a `password.md -> [[202605121011]] -> check_strength` trace, and it cites the wrong target UID (`202605121004`).",
+      "agentOutput": "I’ll trace the docs from `password.md` and verify the implementation against the referenced Python sources before answering.\nI’ve found the candidate functions in `password_utils.py`. I’m checking the surrounding references so the final choice is based on the documented rule, not the name.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; the policy is enforced at registration and password change, with reuse blocked separately by password history.\",\"why_not_decoys\":\"`check_policy_score` is explicitly advisory telemetry, not the registration gate, and `check_policy_format` is only an ASCII transport precheck. The other password helpers cover different concerns (history, entropy, leakage, sequences, repetition, keyboard patterns, Unicode safety) and do not implement the documented strength rule tied to UID 202605121004.\"}",
+      "durationMs": 35620.05162500031,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 6
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "The agent correctly names `check_strength` and states the rule accurately, but it does not provide the required reference path starting at `password.md` and ending at the target implementation, instead giving only a direct filesystem path to `password_utils.py`.",
+      "agentOutput": "I’m tracing the docs chain from `password.md` to the implementation, then I’ll cross-check the decoy password helpers before answering.\n`password.md` points at three implementation refs. I’m opening those and then checking the Python source they name to separate the real policy enforcer from helper decoys.\nI’ve narrowed it to one implemented policy function in `password_utils.py`; I’m checking the surrounding docs for any alternate registration path so the decoys don’t fool the final answer.\n{\"path\":[\"/private/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-exp-anchor-systems-rag-noise-322a8f455a712ec2/password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Password must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; this is the registration/password-change strength gate, separate from the 10-cycle reuse check.\",\"why_not_decoys\":\"The docs chain from `password.md` points to UID `202605121011`, whose implementation docstring matches the registration strength policy exactly. The other functions are decoys: `check_policy_score` is advisory telemetry, `check_policy_format`/`check_format` only enforce printable ASCII, `check_history` handles reuse only, and the remaining helpers (`check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_unicode_safety`, `check_complexity`) are ancillary analyses or internal checks, not the registration gate.\"}",
+      "durationMs": 37715.22041699989,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 6
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "Although the agent correctly names `check_strength` and states the 12+ chars/digit/uppercase/special rule, its `path` is only `[\"password_utils.py\"]` and does not show the required reference path starting from `password.md` to the target implementation.",
+      "agentOutput": "I’m tracing the documentation links from `password.md` to the implementation and checking the decoy password validators before choosing the registration policy function.\nI found the likely implementation files. Next I’m reading the password doc and the Python source together to separate the real registration validator from the six decoys.\nThe first pass already shows one function matching the policy text exactly, but I’m checking the linked docs so the answer is evidence-based and I don’t confuse it with the telemetry/precheck decoys.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Password must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; reuse is blocked separately by history checks.\",\"why_not_decoys\":\"`check_policy_score` is only advisory telemetry, `check_policy_format` is only an ASCII transport precheck, and the other helpers (`check_complexity`, `check_format`, `check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_unicode_safety`, `check_history`) do not enforce the exact registration policy stated in `password.md`. The doc reference [[202605121011]] matches `check_strength` exactly, including the policy wording and the registration gate described in `password.md`.\"}",
+      "durationMs": 36435.56845899997,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 6
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength` and states the rule accurately, but it fails the required evidence path because its JSON path is only `[\"password_utils.py\"]` instead of a `password.md -> ... -> check_strength` reference chain, and it cites the wrong linked rule (`202605121004` rather than the target `[[202605121011]]`).",
+      "agentOutput": "I’m tracing the documentation references from `password.md` first, then I’ll follow the linked implementation paths and compare the candidate password checks against the registration policy.\n`password.md` points to three implementation refs. I’m reading those next and checking whether each one is actually the registration-strength enforcement path or just a nearby password helper.\nI found the implementation file and the surrounding auth docs. Next I’m reading the password utilities plus the registration flow to identify which check is actually wired into registration versus the extra helpers.\nI’ve narrowed it to the utility module. To avoid a name-only guess, I’m checking whether the registration contract and the 422/failing-criteria behavior line up with the strength predicate rather than the score/format/history helpers.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_strength` is the only function whose docstring and logic match the policy in `password.md` and the linked rule `202605121004`; it is also the only candidate that enforces the registration gate. The decoys are either explicitly non-gating (`check_policy_score`, `check_policy_format`), history-only (`check_history`), or unrelated helpers (`check_complexity`, `check_format`, `check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_unicode_safety`).\"}",
+      "durationMs": 64561.110875000246,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 6
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength` and states the rule accurately, but it fails the required reference path because `path` is only `[\"password_utils.py\"]` instead of a path starting at `password.md` and ending at the target implementation reference `[[202605121011]]`/code anchor.",
+      "agentOutput": "I’m tracing the documentation links from `password.md` and then verifying the implementation against the referenced policy, not the function names.\nI found the doc entry point. Next I’m following its references into the implementation docs and source, then I’ll eliminate the decoys by behavior.\nI’ve narrowed it to `password_utils.py`. I’m now checking which function actually matches the policy text and which nearby functions are deliberate distractors.\nThe policy text and the source both point to a specific checker. I’m cross-checking the surrounding functions so I can explain why the other six checks are not the one enforced at registration.\nI found the broader doc reference that ties the policy to registration completion. That confirms the checker must be the strength gate, not the score or ASCII precheck.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be ≥12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`password.md` says registration/password-change enforcement uses rule UID 202605121004, and `overview.md`/`recovery.md` tie that same rule to registration completion and recovery. In `password_utils.py`, `check_strength` is the only function whose docstring and logic exactly match that policy. The others are decoys: `check_policy_score` and `check_complexity` are advisory scoring, `check_policy_format` and `check_format` only enforce printable ASCII, `check_history` only checks 10-cycle reuse, and the rest (`check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_unicode_safety`) enforce unrelated heuristics.\"}",
+      "durationMs": 55257.38304199977,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 9
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength` and states the rule accurately, but it fails the required `password.md -> ... -> implementation` reference path and instead gives only `[\"password_utils.py\"]` while also citing the wrong target reference `[[202605121004]]` instead of `[[202605121011]]`.",
+      "agentOutput": "I’m tracing the documentation references from `password.md` and then I’ll verify the actual Python implementation against the policy text.\nI found the policy text. Next I’m resolving the linked implementation references and then checking the Python source they point to against the exact policy constraints.\nThe policy text points to `password_utils.py`, but I’m still validating the implementation references so I don’t confuse the real registration gate with the advisory helpers.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"≥12 characters, at least one digit, one uppercase letter, and one special character\",\"why_not_decoys\":\"`check_strength` is the only function whose docstring explicitly cites [[202605121004]] and matches the registration gate rule. `check_policy_score` and `check_policy_format` are marked as advisory/transport prechecks, `check_history` covers reuse history rather than strength, and the remaining helpers check unrelated properties like entropy, leaks, keyboard patterns, Unicode safety, length, whitespace, or null bytes.\"}",
+      "durationMs": 35496.192416999955,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 9
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "Although the agent identified `check_strength` and described the policy correctly, it failed the rule because its reported `path` is only `[\"password_utils.py\"]` rather than a documentation-following path starting at `password.md` and ending at the target implementation.",
+      "agentOutput": "I’m tracing the documentation chain from `password.md` to the actual enforcement code, then I’ll exclude decoys by comparing the referenced implementation paths and checks.\n`password.md` points to three implementation references plus a lockout cross-reference. I’m resolving those links and then matching them against the Python sources to find the one that actually enforces the registration password policy.\nI’ve found one exact policy match in `password_utils.py`, but I’m verifying where registration calls it so the result is grounded in the enforcement path, not just the name.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Password must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; this is the registration/password-change gate and failing inputs are rejected with 422 plus criteria details.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry, not the gate; `check_policy_format` and `check_format` only enforce printable ASCII transport safety; `check_history` covers reuse across the last 10 cycles, not strength; the other check functions are unrelated heuristics and are not the function linked by the password policy documentation.\"}",
+      "durationMs": 44326.45712500019,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 9
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength` and states the strength rule accurately, but it fails the required documentation path because `path` does not start at `password.md` and it cites the wrong reference (`[[202605121004]]` instead of `[[202605121011]]`).",
+      "agentOutput": "I’m tracing the documentation from `password.md` and checking the referenced Python source before identifying the policy function.\nI found the likely source files. Next I’m reading the documentation and the auth modules to resolve the exact registration-strength check and rule text.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be ≥12 characters and include at least one digit, one uppercase letter, and one special character; this is the registration gate for [[202605121004]].\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry, not the gate; `check_policy_format` and `check_format` only validate ASCII transport safety; `check_history` enforces reuse history after acceptance; the remaining checks (`check_complexity`, `check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_unicode_safety`, `check_max_length`, `check_whitespace`, `check_null_bytes`) are ancillary validators or heuristics and do not implement the documented registration strength policy.\"}",
+      "durationMs": 20553.700832999777,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 9
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength` and states the rule as '≥12 chars, ≥1 digit, ≥1 upper, ≥1 special', but it fails the required documentation trace because the `path` is only `[\"password_utils.py\"]` instead of a path starting at `password.md` and leading through the reference to the target implementation.",
+      "agentOutput": "I’m tracing the documentation links from `password.md` to the enforcing function, then I’ll disambiguate it against the decoy password-check helpers.\n`password.md` points to one direct implementation ID and two decoys. I’m following the linked IDs and then checking the surrounding helpers so I can rule out lookalikes by behavior, not just name.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be ≥12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`password.md` links the enforcement implementation to UID `202605121011`, and that maps to `check_strength`, which returns the exact strength gate used for registration. `check_policy_score` and `check_complexity` are advisory/scoring helpers, `check_policy_format` and `check_format` only enforce printable ASCII transport safety, and the other helpers cover unrelated checks such as history, entropy, leak detection, sequence avoidance, repetition, keyboard patterns, Unicode safety, max length, whitespace, and null bytes.\"}",
+      "durationMs": 35278.989333000034,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "noise_count": 9
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "Although it correctly names `check_strength` and states the rule as ≥12 chars with at least one digit, one uppercase, and one special character, its JSON `path` is only `[\"password_utils.py\"]` and does not provide the required reference chain starting at `password.md` and ending at the target implementation.",
+      "agentOutput": "I’ll trace the doc references from `password.md` into the Python sources and verify the actual policy-enforcing function against the decoys.\nI found the doc set and the Python modules. Next I’m following the markdown links and checking the tests to separate the real policy gate from the password-related helpers.\n`password.md` points to one strong-policy implementation and two nearby decoys. I’m checking the linked UIDs in the rest of the docs so I can justify the choice from the reference chain, not just the function name.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` (UID 202605129101) is explicitly advisory telemetry, not the registration gate; `check_policy_format` (UID 202605129102) is only an ASCII-printable transport precheck. The doc reference in `password.md` points to UID 202605121011, which is the `check_strength` function that matches the stated strength criteria.\"}",
+      "durationMs": 62398.75779200019,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 3
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "Although the agent correctly identified `check_strength` and described the rule accurately, its `path` does not start at `password.md` or show the documented reference chain to the target implementation, so it does not satisfy the required `password.md -> implementation` path evidence.",
+      "agentOutput": "I’m tracing the documentation references from `password.md` to the actual registration policy implementation, then I’ll filter out the decoy password checks by the documented behavior rather than names.\n`password.md` points to three implementation references and says enforcement lives in `password_utils.py`. I’m now matching the documented policy against the actual call sites and the extra password-check helpers so I can exclude the decoys by behavior.\n{\"path\":[\"/private/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-exp-anchor-systems-rag-noise-ec402ec0c60f8da7/password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character; this strength check is applied at registration and on every password change, with noncompliant passwords rejected using 422 and failing criteria.\",\"why_not_decoys\":\"`check_policy_score` and `check_complexity` only compute advisory scores, not the registration gate. `check_policy_format` and `check_format` only enforce printable ASCII transport safety. `check_history` handles reuse prevention, which is a separate policy. The other helpers (`check_entropy`, `check_leaked`, `check_sequential`) are additional checks but do not match the documented password-strength rule or its anchor [ANC:sec:password-strength].\"}",
+      "durationMs": 32840.84516600007,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 3
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "Although it correctly identifies `check_strength` and states the ≥12 chars, ≥1 digit, ≥1 upper, ≥1 special rule, its JSON path is only `[\"password_utils.py\"]` and does not show a reference chain starting at `password.md` and ending at the target implementation.",
+      "agentOutput": "I’m tracing the documentation chain from `password.md` to the actual Python policy implementation, then I’ll disambiguate the extra password-check helpers by reading the referenced files.\n`password.md` points to three implementation refs and says the enforcement lives in `password_utils.py`. I’m following those anchors and comparing them against the extra password helpers so I can identify the real registration policy check.\nI’ve narrowed it to `password_utils.py`, but I’m checking every cross-reference to make sure the chosen function is the gate, not one of the advisory or precheck helpers.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Registration/password-change gate: password must be at least 12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` is only advisory telemetry (0-100 score), not the gate; `check_policy_format` is a printable-ASCII transport precheck, not strength enforcement; `check_complexity` returns an internal score dict and does not enforce the policy. The password-history reuse rule is separate in `check_history`.\"}",
+      "durationMs": 85798.73891700013,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 3
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength` and states the rule accurately, but it fails the required documentation path criterion because its `path` starts at `password_utils.py` instead of showing a reference chain beginning at `password.md` and ending at the target implementation.",
+      "agentOutput": "I’m tracing the documentation references from `password.md` to the actual policy implementation, then I’ll verify the decoys against the referenced behavior.\n`password.md` points to `password_utils.py`, but it also lists three candidate implementation refs. I’m now resolving those refs against the Python source so I can exclude the decoys by behavior, not by name.\nI found the three decoy functions in `password_utils.py`. Next I’m checking which function is actually wired into registration, because the policy docs distinguish gatekeeping from telemetry and prechecks.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; this is the registration gate and password-change gate.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry only, `check_policy_format` is a transport-safety ASCII precheck, and `check_complexity`/`check_format`/`check_entropy`/`check_leaked`/`check_sequential` are alternate checks that do not match the documented registration-strength rule. `check_history` enforces reuse history, which is a separate policy from strength.\"}",
+      "durationMs": 37956.344625000376,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 3
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "Although it correctly names `check_strength` and states the right rule, the JSON `path` does not show a documentation chain starting at `password.md` to the target implementation and the explanation cites `[REF:auth:password-policy]` instead of the required `password.md -> [REF:sec:password-strength] -> check_strength` path.",
+      "agentOutput": "I’m tracing the documentation links from `password.md` and then checking the referenced Python code paths to isolate the real registration strength check, not the decoys.\nI found the entry doc. Next I’m reading its outbound references and matching them against the Python source so the answer is anchored in the documented path, not a name guess.\nThe policy doc already points to `password_utils.py`, but I’m verifying which function is wired into registration so I can exclude the advisory and transport-only checks.\n{\"path\":[\"/private/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-exp-anchor-systems-rag-noise-10bfe20cf1cd161c/password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; this is the registration/password-change gate.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry only, `check_policy_format`/`check_format` are printable-ASCII prechecks, and `check_complexity` returns a score dict for internal analysis. `check_history` only enforces reuse limits, not strength. `check_strength` is the only function explicitly tied to `[REF:auth:password-policy]` and matches the policy text in `password.md`.\"}",
+      "durationMs": 42484.98983399989,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 3
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The agent correctly named `check_strength` and described the rule accurately, but it failed the required documentation trace because its `path` is only `[\"password_utils.py\"]` instead of a path starting at `password.md` and ending at the target implementation reference/function.",
+      "agentOutput": "I’m tracing the doc references from `password.md` to the implementation, then I’ll verify the policy against decoys before answering.\nI found the starting doc and the surrounding reference set. Next I’m reading the registration-related docs together so I can cross-check the implementation references instead of relying on names.\n`password.md` points to `password_utils.py` plus three implementation refs. I’m locating those ref targets and the Python functions they map to, then I’ll exclude the decoys by matching the actual policy text.\nI have the candidate function from `password_utils.py`, but I’m verifying it is the one wired into registration, not just the one with the right docstring. I’m checking the registration flow and the three decoy helpers now.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; the registration gate rejects failures with 422 and failing criteria.\",\"why_not_decoys\":\"`check_policy_score` and `check_complexity` are advisory scoring helpers, not the registration gate. `check_policy_format` and `check_format` only enforce printable ASCII transport safety, not strength. `check_history` enforces reuse limits, which is a separate rule from strength. `check_strength` is the only function whose logic exactly matches the policy text in `password.md` and its `[REF:sec:password-strength]` reference.\"}",
+      "durationMs": 41198.909250000026,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 6
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The response correctly identifies `check_strength` and states the policy accurately, but it fails the rule because its JSON `path` is only `[\"password_utils.py\"]` instead of a documentation-reference path that starts at `password.md` and leads to the target implementation anchor/function.",
+      "agentOutput": "I’m tracing `password.md` through the referenced docs and source to isolate the registration password-strength check, then I’ll return the exact function in JSON.\n`password.md` is the entry point. I’m reading its references and the candidate Python modules to separate the real policy gate from the decoys.\nI have the policy text. Next I’m locating the concrete implementation anchors for the three references listed in `password.md` and checking which one actually matches the registration gate.\nThe policy text points to `password_utils.py`, but I still need to prove which function is the registration gate versus advisory helpers. I’m checking how the utilities are used and whether any other function can satisfy the exact rule set.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be \\u226512 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry, not the registration gate; `check_policy_format` and `check_format` only enforce printable ASCII transport safety; `check_complexity` returns an internal score dict; `check_history` handles the separate 10-cycle reuse rule; the remaining helpers (`check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_unicode_safety`) are extra checks that do not implement the policy named by `[REF:sec:password-strength]`.\"}",
+      "durationMs": 44766.75562500022,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 6
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength` and states the >=12 chars, >=1 digit, >=1 upper, >=1 special rule, but it fails the rule because its `path` is only `[\"password_utils.py\"]` and does not show a documentation-reference path starting at `password.md` and ending at the target implementation.",
+      "agentOutput": "I’m tracing the documentation chain from `password.md` to the actual Python enforcement point, then I’ll separate the real function from the decoys.\n`password.md` exists alongside `password_utils.py`, so I’m checking the doc links before looking at the Python implementation.\nThe utility file has six extra password checks, so I’m checking which function is actually tied to the registration rule and which ones are just supporting or decoy helpers.\nThe docs only name three implementation references from `password.md`, so I’m verifying whether any other file defines a competing registration check.\nI found one call site only after searching Python, so I’m checking whether the registration flow actually wires this function into validation.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; this is the registration/password-change gate and rejects noncompliant passwords with 422 plus failing criteria.\",\"why_not_decoys\":\"`check_policy_score` is explicitly advisory telemetry, not the gate; `check_policy_format`/`check_format` only enforce printable ASCII transport safety; `check_complexity` returns a score dict; `check_history` enforces reuse history, which is separate from strength; the remaining helpers are unrelated auxiliary checks.\"}",
+      "durationMs": 62437.25354099972,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 6
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "Although it names `check_strength`, the response fails because the `path` does not start at `password.md` and it states an inaccurate rule by adding a reuse-history requirement beyond the documented strength rule (`>=12 chars, >=1 digit, >=1 upper, >=1 special`).",
+      "agentOutput": "I’m tracing `password.md` references first, then I’ll verify the implementation against the policy text before selecting the function.\nI found the documentation set and the candidate Python files. Next I’m reading the password doc plus the auth implementation to match the documented rule to the actual code path.\nThe policy text points to `password_utils.py`, but I’m checking the linked references and any registration flow to make sure the chosen function is the gate, not just a similarly named helper.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; reuse within the last 10 cycles is also disallowed.\",\"why_not_decoys\":\"`check_policy_score` and `check_complexity` only score complexity, not enforce the registration gate; `check_policy_format` and `check_format` only enforce printable-ASCII transport safety; `check_history` covers reuse only, not strength; `check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, and `check_unicode_safety` are extra heuristics unrelated to the documented password-policy anchor. The doc reference `REF:sec:password-strength` matches the exact strength gate implemented by `check_strength`.\"}",
+      "durationMs": 61212.295583999716,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 6
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "Although it identifies `check_strength` and states the strength rule correctly, its JSON `path` is only `[\"password_utils.py\"]` rather than a documentation trail starting at `password.md` and ending at the target implementation.",
+      "agentOutput": "I’m tracing the documentation chain from `password.md` and checking the referenced implementation files before selecting the enforcement function.\nI found the entry document. Next I’m reading it and the referenced docs to resolve the exact implementation path and rule.\nThe first doc points to `password_utils.py`, but there are multiple candidate functions there. I’m reading the implementation and the registration flow together so I can map the policy to the actual enforcement site, not just a helper name.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"password.md points to [REF:sec:password-strength], and the matching anchored implementation is the only function tagged [ANC:sec:password-strength]. The other helpers are decoys: `check_policy_score` and `check_complexity` are advisory scoring, `check_policy_format` and `check_format` only enforce printable ASCII, `check_history` covers reuse within the last 10 cycles, and the remaining helpers check unrelated conditions such as entropy, leaked passwords, sequential runs, repetition, keyboard patterns, or Unicode normalization.\"}",
+      "durationMs": 44549.5517500001,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 6
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength` and states the 12+ chars/digit/uppercase/special rule, but it fails the required documented reference path because its `path` does not start at `password.md` and end at the target implementation anchor/function.",
+      "agentOutput": "I’m tracing the documentation path from `password.md` and then checking the referenced Python implementations before choosing the policy-enforcing function.\n`password.md` points to `password_utils.py` and three implementation refs. I’m resolving those refs next so the answer is grounded in the documented path, not the function name.\nI found the documented anchors in `password_utils.py`. Now I’m reading that module plus the registration flow to separate the real policy gate from helper checks and decoys.\n{\"path\":[\"/private/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-exp-anchor-systems-rag-noise-1958f4de6694271a/password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Password must be at least 12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry, `check_policy_format`/`check_format` only enforce printable ASCII transport safety, `check_complexity` returns a score dict instead of gating registration, `check_history` only handles reuse within the last 10 cycles, and the other helpers (`check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_unicode_safety`) are partial heuristics that do not implement the documented registration strength policy.\"}",
+      "durationMs": 47718.63270900026,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 9
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "Although it names `check_strength` and states the correct rule, the provided `path` is only `[\"password_utils.py\"]` and does not show the required documentation trail starting at `password.md` and ending at the target implementation reference/anchor.",
+      "agentOutput": "I’m tracing the docs from `password.md` first, then I’ll follow the referenced files to pin down the actual registration-strength check and exclude the decoys by behavior, not name.\n`password.md` points to `password_utils.py` and three implementation refs. I’m locating those refs and then comparing the actual checks in code so I can separate the registration rule from the extra validators.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry, not the registration gate; `check_policy_format` and `check_format` only enforce printable ASCII transport safety; `check_complexity` returns an internal score dict; the remaining helpers (`check_history`, `check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_unicode_safety`, `check_max_length`, `check_whitespace`, `check_null_bytes`) address different constraints and do not implement the explicit registration strength rule from `password.md`.\"}",
+      "durationMs": 55924.803000000305,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 9
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "The response correctly identifies `check_strength` and states the rule accurately, but it fails the required documentation-reference path criterion because its `path` is only `[\"password_utils.py\"]` instead of showing a path that starts at `password.md` and leads to the target implementation anchor/function.",
+      "agentOutput": "I’m tracing the docs graph from `password.md` to the implementation, and I’ll verify the result against the decoy password-check functions before answering.\nI found the three implementation anchors in `password_utils.py`. Next I’m checking the surrounding code and the other password-check functions so I can separate the real enforcement function from the decoys.\nThe policy anchor points to `password_utils.py`, and the code already distinguishes the actual gate from telemetry/prechecks. I’m checking for any additional cross-references that could make a different function look plausible before I finalize.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry, `check_policy_format`/`check_format` only enforce printable ASCII, `check_complexity` returns a score dict instead of gating registration, and the other helpers cover reuse/history or unrelated heuristics (entropy, leaks, sequences, repetition, keyboard walks, Unicode, length, whitespace, null bytes).\"}",
+      "durationMs": 52197.88716700021,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 9
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The response correctly identifies `check_strength` and states the rule accurately, but it fails the required `password.md` -> implementation path because its `path` is only `[\"password_utils.py\"]` instead of starting at `password.md` and tracing the reference chain to the target.",
+      "agentOutput": "I’m tracing the documentation links from `password.md` and then verifying the referenced Python implementation against decoy password checks.\nI found the primary policy in `password.md`. Next I’m resolving the implementation refs to the actual Python symbol and checking the nearby decoy validators for mismatches in scope.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` is only advisory telemetry, `check_policy_format`/`check_format` only enforce printable-ASCII transport safety, and `check_complexity` is internal scoring. `check_history` handles reuse history, not the registration strength gate. The `sec:password-strength` anchor in `password.md` points to `check_strength`.\"}",
+      "durationMs": 37430.215416000225,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 9
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The response correctly identifies `check_strength` and states the right rule, but it fails the requirement to provide a reference path starting at `password.md` and ending at the target implementation, since its `path` contains only `password_utils.py`.",
+      "agentOutput": "I’m tracing the documentation references from `password.md` to the implementation, then I’ll verify the policy against decoy password-check functions before answering.\nI found the doc set. Next I’m reading `password.md` and the nearby auth docs to follow the explicit references instead of guessing from names.\nThe policy doc points to three implementation refs and explicitly says enforcement lives in `password_utils.py`. I’m locating the code references for those anchors so I can isolate the exact registration check, not just a similarly named helper.\nI have the policy implementation file. I’m now checking where registration actually calls into it so I can distinguish the gatekeeper function from the advisory and precheck helpers.\n{\"path\":[\"/private/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-exp-anchor-systems-rag-noise-37aebbe0cead4d77/password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; passwords are rejected if they do not satisfy the policy.\",\"why_not_decoys\":\"`check_policy_score` is explicitly advisory telemetry, `check_policy_format` and `check_format` are ASCII-only transport/precheck helpers, and the other extra checks (`check_complexity`, `check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_unicode_safety`, `check_max_length`, `check_whitespace`, `check_null_bytes`) are not the registration gate. `password.md` points to `password_utils.py`, and `check_strength` is the only function annotated as `[ANC:sec:password-strength]` and described as the rule-backed strength check.\"}",
+      "durationMs": 56483.10412500007,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "noise_count": 9
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The response correctly identifies `check_strength` and states the rule accurately, but it fails the required documentation trace because its `path` is only `[\"password_utils.py\"]` instead of a path starting at `password.md` and leading through the referenced target implementation.",
+      "agentOutput": "I’m tracing the documentation chain from `password.md` to the actual policy check, then I’ll verify decoys against the implementation.\nThe root doc points to three implementation refs; I’m checking which one maps to the registration-time policy and which ones are decoys.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`password.md` links `sec:password-strength` as the strength enforcement implementation; in `password_utils.py`, `check_strength()` is the only function whose docstring matches that rule and the registration gate. `check_policy_score()` is advisory telemetry, `check_policy_format()` is only a printable-ASCII precheck, `check_complexity()` is internal scoring, and `check_format()` duplicates the ASCII-only check. The other password helpers handle unrelated concerns such as history, entropy, leakage, sequencing, repetition, keyboard patterns, Unicode safety, length, whitespace, and null bytes.\"}",
+      "durationMs": 34116.96320799971,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 3
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "Although it correctly names `check_strength` and states the strength rule accurately, the provided `path` is only `[\"password_utils.py\"]` and does not show the required documentation trace starting at `password.md` and ending at the target implementation.",
+      "agentOutput": "I’ll trace the documentation links from `password.md` and then inspect the referenced Python sources to isolate the real registration password-strength policy.\nI found the likely source files. Next I’m reading the password docs and the linked sections to trace the policy reference chain before touching code.\nThe policy function is likely in `password_utils.py`, but I need the registration call site to verify which checker is actually enforced and which helpers are only advisory or unrelated.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; reuse is separately limited to the last 10 cycles.\",\"why_not_decoys\":\"`check_policy_score()` is only advisory telemetry, `check_policy_format()` is only a printable-ASCII transport precheck, and `check_complexity()` returns an internal score rather than enforcing registration rules. The other helpers (`check_format`, `check_entropy`, `check_leaked`, `check_sequential`) are unrelated checks. `check_strength()` is the only function annotated `[ANC:password-strength]`, matches the policy text in `password.md`, and is the exact implementation referenced by `[REF:password-strength]`.\"}",
+      "durationMs": 41340.429459000006,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 3
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "Although it correctly names `check_strength` and states the rule as at least 12 characters with a digit, uppercase, and special character, its provided `path` is only `[\"password_utils.py\"]` and does not show the required `password.md` -> implementation path.",
+      "agentOutput": "I’m tracing the docs from `password.md` through the referenced Python code, then I’ll verify the real policy function against the decoys.\nI found the target doc and the Python files. Next I’m following the links out of `password.md` and checking the implementation against the surrounding auth flow, not just the symbol names.\nThe docs point to `password_utils.py`, and the code already contains several lookalikes. I’m checking where the referenced rule is actually anchored and whether any other function feeds registration.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include a digit, an uppercase letter, and a special character.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry only; `check_policy_format`/`check_format` only verify printable ASCII; `check_complexity` returns a score dict and is not the registration gate; `check_entropy`, `check_leaked`, and `check_sequential` check unrelated heuristics; `check_history` only enforces 10-cycle reuse, which is separate from the strength check referenced by `password.md`.\"}",
+      "durationMs": 41365.74887500005,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 3
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The agent correctly identified `check_strength` and stated the rule accurately, but it failed the required documentation trace because its `path` does not start from `password.md` or show the reference chain to the implementation.",
+      "agentOutput": "I’m tracing the documentation links from `password.md` to the implementation, then I’ll verify the candidate against the policy text and the decoy functions.\nI found the likely implementation files. Next I’m reading the password documentation and the password-related Python modules together so I can map references instead of guessing by names.\nI have the policy text and the candidate functions. I’m now checking cross-references in the docs so I can rule out the telemetry and precheck functions, and confirm which reference the registration gate actually points to.\nI’ve narrowed it to the strength rule reference. I’m doing one last pass for the history/reuse policy so the JSON rule text matches the actual enforcement split and doesn’t conflate separate checks.\n{\"path\":[\"/private/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-exp-anchor-systems-rag-noise-65774bdbc897777f/password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry, not the registration gate; `check_policy_format` and `check_format` are ASCII transport prechecks; `check_complexity` returns an internal score dict; `check_history` enforces reuse history separately, not the strength rule.\"}",
+      "durationMs": 39222.65091700014,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 3
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "Although the agent correctly identifies `check_strength` and states the strength rule accurately, its `path` is only `[\"password_utils.py\"]` and therefore does not show the required documentation-following path starting at `password.md` and ending at the target implementation.",
+      "agentOutput": "I’m tracing the documentation from `password.md` and following the references to the actual registration password policy implementation.\nI found one docs entry and four Python files. Next I’m reading the doc anchors and the candidate implementation files together so I can separate the real policy from the decoys.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character; this is the registration and password-change gate.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry only, `check_policy_format`/`check_format` are printable-ASCII transport prechecks, `check_complexity` is internal scoring, and `check_history` enforces the separate 10-cycle reuse rule rather than strength. The doc in `password.md` points to `password_utils.py`, and the only function that matches the full registration-strength criteria is `check_strength`.\"}",
+      "durationMs": 24557.22145800013,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 3
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The response correctly identifies `check_strength` and states the rule accurately, but it fails the rule because its `path` is only `[\"password_utils.py\"]` instead of showing a documentation chain that starts at `password.md` and leads to the target implementation.",
+      "agentOutput": "I’m tracing the docs chain from `password.md` and then verifying the implementation against the registration policy, not the decoy helpers.\nI found the doc hub. Next I’m following the linked references from `password.md` and checking the implementation references they point to.\nThe docs point to `password_utils.py`, but there are multiple helpers there. I’m reading the actual module and the registration path to separate the real gate from the scoring and precheck decoys.\nI’ve confirmed the module contains three decoys. I’m now tracing which function is actually called by the registration flow, so the answer is anchored in usage, not naming.\nI’ve confirmed the policy text includes both composition and reuse, but the implementation file splits those concerns. I’m checking whether the registration gate also calls the history check or whether that is handled separately.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"A strong password has at least 12 characters, at least one digit, at least one uppercase letter, and at least one special character.\",\"why_not_decoys\":\"`check_policy_score` is only advisory telemetry, `check_policy_format` and `check_format` only verify printable ASCII transport safety, and `check_complexity`, `check_entropy`, `check_leaked`, and `check_sequential` are unrelated helpers or internal scoring. The reuse rule is handled separately by `check_history`, not by the registration strength gate.\"}",
+      "durationMs": 56859.01070799958,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 6
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength` and states the strength rule accurately, but it fails the rule because its `path` is only `[\"password_utils.py\"]` and does not show a documentation-reference chain starting at `password.md` and ending at the target implementation.",
+      "agentOutput": "I’m tracing the documentation chain from `password.md` to the implementation, then I’ll disambiguate it against the decoy password checks.\n`password.md` points to three implementation refs. I’m now resolving those refs against the Python source and checking which checks are real policy gates versus decoys.\nThe docs confirm the policy applies both at registration and password change. I’m checking whether tests or other docs identify which helper is the actual gate, because several helpers look policy-adjacent but are not enforcement.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be ≥12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` and `check_complexity` are scoring/telemetry helpers, not registration gates; `check_policy_format` and `check_format` only enforce printable ASCII transport safety; `check_history` enforces reuse limits, not strength; the remaining helpers (`check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_unicode_safety`) are separate heuristics and are not the documented strength-enforcement implementation.\"}",
+      "durationMs": 45313.35912499996,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 6
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "Although it correctly names `check_strength` and accurately states the 12+ chars/digit/uppercase/special rule, the provided `path` is only `[\"password_utils.py\"]` and does not show a documentation reference path starting at `password.md` and ending at the target implementation.",
+      "agentOutput": "I’ll trace the documentation references from `password.md` and verify the implementation against the policy text before naming the function.\nI’ve found the policy text and the main validation module. Next I’m cross-checking all documentation anchors and references so the choice is grounded in the docs, not the function name.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and contain at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`password.md` links the strength implementation via `[REF:password-strength]`, which matches `check_strength`'s `[ANC:password-strength]` anchor and exact gate logic. The other password helpers are either advisory (`check_policy_score`, `check_complexity`), format/precheck helpers (`check_policy_format`, `check_format`, `check_unicode_safety`), or unrelated supplemental checks (`check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_history`).\"}",
+      "durationMs": 86546.8655419997,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 6
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "Although the response correctly names `check_strength` and states the rule accurately, it fails the rule because its `path` is only `[\"password_utils.py\"]` instead of showing a documentation-reference chain that starts at `password.md` and ends at the target implementation.",
+      "agentOutput": "I’m tracing the documentation chain from `password.md` and then checking the Python implementation references to separate the real registration policy from decoy password checks.\nI found the policy entry and the candidate implementation file. Now I’m checking the surrounding references to rule out the other password-check functions and confirm which one is actually used as the registration gate.\nThe only function referenced as the registration gate is `check_strength`; the other password functions are explicitly described as advisory, precheck, or ancillary. I’m doing one last pass for any code path that would supersede that conclusion.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Registration strength requires at least 12 characters, one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`password.md` points to `[REF:password-strength]`, and `password_utils.py` labels `check_strength` as `[ANC:password-strength]` with the exact strength rule. The other candidates are decoys: `check_policy_score` is advisory telemetry, `check_policy_format`/`check_format` only enforce printable ASCII, `check_history` only blocks reuse in the last 10 cycles, and the remaining checks (`check_complexity`, `check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_unicode_safety`) are internal/ancillary validations, not the registration strength gate.\"}",
+      "durationMs": 45803.0737089999,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 6
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "Although it correctly names `check_strength` and states the ≥12 chars, ≥1 digit, ≥1 upper, ≥1 special rule, it fails because the final response does not provide a documentation-reference path starting at `password.md` to the target implementation and includes extra non-JSON text.",
+      "agentOutput": "I’m tracing the docs references from `password.md` and then matching them against the Python implementation, with an eye on the decoy password-check functions.\nI found the likely code surface. Next I’m reading the docs and implementation together so I can disambiguate the real policy from the decoys.\nI have the candidate. I’m checking the surrounding references so the final answer can explain why the other password helpers are decoys, not just why the name looks right.\n{\"path\":[\"/private/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-exp-anchor-systems-rag-noise-df0bb8361111eba2/password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character; reuse is blocked separately by the 10-cycle history rule.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry only, not the registration gate; `check_policy_format`/`check_format` are ASCII transport prechecks; `check_complexity` is internal scoring; `check_history` enforces reuse, not strength; the remaining helpers (`check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_unicode_safety`) address orthogonal heuristics and do not implement the documented password-policy rule.\"}",
+      "durationMs": 28936.975333000068,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 6
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "Although it correctly identifies `check_strength` and states the rule as at least 12 characters with one digit, one uppercase, and one special character, its `path` stops at `password_utils.py` instead of showing a documentation-to-implementation path that ends at the target code anchor/function from `password.md`.",
+      "agentOutput": "I’m tracing the docs references from `password.md` to the actual enforcement function, then I’ll separate it from the decoys by rule semantics rather than name.\n`password.md` points to `password_utils.py`; I’m now checking the cross-references and adjacent checks so I can exclude the advisory helpers and the non-registration gates.\nI found one direct implementation anchor and one policy anchor. I’m checking the nearby docs that reuse the same policy reference so I can tell whether the gate is strength-only or strength-plus-history.\n{\"path\":[\"password.md\",\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` and `check_complexity` are scoring/telemetry helpers, not the registration gate; `check_policy_format` and `check_format` only enforce printable ASCII; `check_history` handles reuse within the last 10 cycles; the remaining check_* functions are unrelated heuristics (entropy, leaked-password, sequential, repetition, keyboard-pattern, unicode-safety) and do not match the documented strength criteria.\"}",
+      "durationMs": 47549.092749999836,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 9
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength` and states the strength rule accurately, but it fails the rule because its `path` does not start at `password.md` or show a documentation-reference chain to the target implementation.",
+      "agentOutput": "I’m tracing the documentation references from `password.md` and then matching them against the Python sources.\nI found the likely source files. Next I’m reading the password docs and the password-related Python code together to resolve the real implementation versus the decoys.\nThe policy text points to `password_utils.py`, but I still need to verify which function is actually wired to registration and which nearby checks are decoys. I’m tracing the references through the auth docs and the service code now.\nThe docs confirm the policy anchor, but not the call site. I’m checking the registration flow and the test file to see which validation is used for sign-up versus telemetry-only helpers.\n{\"path\":[\"/private/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-exp-anchor-systems-rag-noise-3feedb3f53ba0f1f/password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"At registration/password change, require password length >= 12, at least one digit, one uppercase letter, and one special character.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry (0-100 score) and `check_policy_format` is only an ASCII transport precheck; both are explicitly labeled not the registration gate. `check_history` enforces the separate 10-cycle reuse rule, not the strength criteria referenced by `[REF:password-strength]`.\"}",
+      "durationMs": 46610.729832999874,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 9
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "Although it names `check_strength`, it fails the rule because the reported path does not start at `password.md` and trace to the target implementation, and the rule text adds an unrelated password-history requirement instead of stating only the documented strength rule (>=12 chars, >=1 digit, >=1 upper, >=1 special).",
+      "agentOutput": "I’m tracing the documentation references from `password.md` to the concrete Python implementation, then I’ll disambiguate the decoys by checking the actual policy logic.\n`password.md` points to three implementation references and explicitly says enforcement lives in `password_utils.py`. I’m now resolving those references against the Python sources and checking the neighboring password-check helpers to avoid the decoys.\nI’ve narrowed it to the single gatekeeper in `password_utils.py`. I’m checking the remaining password helpers to make the exclusion rationale precise, especially the docs-vs-implementation decoys.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters long and include at least one digit, one uppercase letter, and one special character; reused passwords from the last 10 cycles are rejected.\",\"why_not_decoys\":\"`check_policy_score` is only advisory telemetry, `check_policy_format`/`check_format` are printable-ASCII prechecks, and the other helpers (`check_complexity`, `check_history`, `check_entropy`, `check_leaked`, `check_sequential`, `check_repetition`, `check_keyboard_patterns`, `check_unicode_safety`, `check_max_length`, `check_whitespace`, `check_null_bytes`) are secondary heuristics or safety checks. Only `check_strength` matches the documented `password-policy` anchor and implements the four required strength criteria used at registration and password change.\"}",
+      "durationMs": 45211.46604199987,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 9
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "Although it correctly identifies `check_strength` and states the ≥12 chars, ≥1 digit, ≥1 upper, ≥1 special rule, its `path` is only `[\"password_utils.py\"]` and does not show the required documentation path starting at `password.md` and ending at the target implementation.",
+      "agentOutput": "I’m tracing the documentation links from `password.md` and then verifying the Python implementation against the referenced policy, not just the function name.\nI found the policy anchor and the implementation reference in `password_utils.py`. I’m checking whether any other password-check function is actually wired into registration so the answer is evidence-based, not name-based.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; no reuse within the last 10 cycles is handled separately.\",\"why_not_decoys\":\"`check_strength` is the only function whose docstring is anchored to `[ANC:password-strength]` and explicitly cites `[REF:password-policy]`, matching the registration strength rule from `password.md`. The other password-check functions are decoys: `check_policy_score` and `check_complexity` are advisory scoring/telemetry, `check_policy_format`/`check_format`/`check_unicode_safety`/`check_max_length`/`check_whitespace`/`check_null_bytes` are transport or safety prechecks, `check_history` only enforces reuse history, and `check_entropy`/`check_leaked`/`check_sequential`/`check_repetition`/`check_keyboard_patterns` are supplementary heuristics rather than the documented policy gate.\"}",
+      "durationMs": 32921.94037499977,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 9
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "Although the agent correctly identified `check_strength` and described the rule accurately, its JSON path is only `[\"password_utils.py\"]` and does not show a reference path starting at `password.md` and ending at the target implementation.",
+      "agentOutput": "I’m tracing the documentation references from `password.md` and then checking the Python implementation paths it points to.\nI found the policy anchor. Next I’m following the implementation references and checking which Python function actually enforces the registration rule, not just scoring or prechecks.\nI’ve narrowed it to the only function whose docstring and implementation match the policy. I’m checking the remaining documentation refs to make sure the answer is anchored to the registration rule, not the scoring or format helpers.\n{\"path\":[\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be at least 12 characters and include at least one digit, one uppercase letter, and one special character; failures are rejected at registration and password change.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry, `check_policy_format`/`check_format` only validate printable ASCII transport safety, and the other helpers cover unrelated concerns like entropy, leaked/common passwords, sequences, repetition, keyboard walks, Unicode normalization, length cap, whitespace, or null bytes. `check_history` enforces reuse history separately, but the `ANC:password-strength` anchor and the implementation details in `password.md` point to `check_strength` as the registration strength gate.\"}",
+      "durationMs": 57924.744167000055,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "noise_count": 9
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The response correctly names `check_strength`, but it fails because the `rule` adds an extra reuse-history requirement not in the target strength rule and the `path` stops at `password_utils.py` instead of showing a full `password.md` -> target implementation anchor/function path.",
+      "agentOutput": "I’m tracing the documentation references from `password.md` to the actual Python enforcement point, then I’ll disambiguate it against the decoy password-check helpers.\nThe policy doc points to `password_utils.py`; I’m now checking the referenced anchors to separate the real registration gate from the other password helpers.\nI have the candidate function; I’m checking the surrounding docs once more so the final JSON can distinguish the real enforcement path from the score/format/history helpers.\n{\"path\":[\"password.md\",\"password_utils.py\"],\"function_name\":\"check_strength\",\"rule\":\"Passwords must be ≥12 characters and include at least one digit, one uppercase letter, and one special character; no password may be reused within the last 10 cycles.\",\"why_not_decoys\":\"`check_policy_score` is advisory telemetry only, `check_policy_format`/`check_format` are ASCII transport prechecks, and `check_history` only enforces reuse history. The remaining helpers cover unrelated constraints (entropy, leaked/common passwords, sequential runs, repetition, keyboard walks, Unicode safety, max length, whitespace, null bytes) and do not implement the registration strength gate.\"}",
+      "durationMs": 40623.57937499974,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    }
+  ],
+  "adherenceByAxis": {
+    "system": {
+      "native": 0,
+      "heading-refs": 0,
+      "wikilinks": 0,
+      "zettelkasten": 0,
+      "salp": 0,
+      "salp-short": 0
+    },
+    "noise_count": {
+      "3": 0,
+      "6": 0,
+      "9": 0
+    }
+  },
+  "durationMs": 4055034.777625,
+  "headline": "RAG noise (count=9) adherence — native=0% / heading-refs=0% / wikilinks=0% / zettelkasten=0% / salp=0% / salp-short=0% (n=5/cell)"
+}

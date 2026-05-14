@@ -3,6 +3,7 @@ import { dirname, fromFileUrl, join } from "@std/path";
 import { experiment as boundaryExperiment } from "./boundary.ts";
 import { experiment as mappingExperiment } from "./mapping.ts";
 import { experiment as multiHopExperiment } from "./multi-hop.ts";
+import { experiment as ragNoiseExperiment } from "./rag-noise.ts";
 import {
   loadGroundTruth,
   surfaceId,
@@ -37,10 +38,15 @@ Deno.test("anchor-systems: mapping judge uses system surface identifiers", () =>
     axes: { system: "zettelkasten" },
     trial: 0,
   }).rule;
+  const headingRefsRule = mappingExperiment.judgePrompt({
+    axes: { system: "heading-refs" },
+    trial: 0,
+  }).rule;
 
   assert(nativeRule.includes("20 anchors, 31 references"));
   assert(nativeRule.includes("session.md#session-timeout-policy"));
   assert(zettelRule.includes("202605121001"));
+  assert(headingRefsRule.includes("session.md:Session Timeout Policy"));
 });
 
 Deno.test("anchor-systems: boundary judge requires inclusive IoU", () => {
@@ -66,16 +72,45 @@ Deno.test("anchor-systems: multi-hop judge lists expected anchor chain", () => {
   assert(rule.includes("correct file traversal"));
 });
 
+Deno.test("anchor-systems: rag-noise starts from docs, not target file", () => {
+  const cell = {
+    axes: { system: "heading-refs", noise_count: 9 },
+    trial: 0,
+  };
+  const query = ragNoiseExperiment.query(cell);
+  const judgeRule = ragNoiseExperiment.judgePrompt(cell).rule;
+
+  assert(query.includes("Start from password.md"));
+  assert(!query.includes("Read password_utils.py"));
+  assert(!query.includes("Password Strength Check"));
+  assert(
+    judgeRule.includes(
+      "password.md contains multiple implementation references",
+    ),
+  );
+  assert(judgeRule.includes("password_utils.py:Password Strength Check"));
+});
+
 Deno.test("anchor-systems: corrupted fixtures are system-specific", async () => {
   const nativeDir = await Deno.makeTempDir({ prefix: "anchor-native-" });
+  const headingRefsDir = await Deno.makeTempDir({
+    prefix: "anchor-heading-refs-",
+  });
   const salpDir = await Deno.makeTempDir({ prefix: "anchor-salp-" });
   try {
     await writeCorruptedFixtures(nativeDir, "native");
+    await writeCorruptedFixtures(headingRefsDir, "heading-refs");
     await writeCorruptedFixtures(salpDir, "salp");
 
     const nativeOauth = await Deno.readTextFile(join(nativeDir, "oauth.md"));
     const nativePassword = await Deno.readTextFile(
       join(nativeDir, "password.md"),
+    );
+    const headingRefsOauth = await Deno.readTextFile(
+      join(headingRefsDir, "oauth.md"),
+    );
+    const headingRefsPassword = await Deno.readTextFile(
+      join(headingRefsDir, "password.md"),
     );
     const salpOauth = await Deno.readTextFile(join(salpDir, "oauth.md"));
     const salpPassword = await Deno.readTextFile(join(salpDir, "password.md"));
@@ -85,10 +120,16 @@ Deno.test("anchor-systems: corrupted fixtures are system-specific", async () => 
     assert(!nativeOauth.includes("[REF:"));
     assert(!nativePassword.includes("[ANC:"));
 
+    assert(headingRefsOauth.includes("[api.md:OAuth Callback]"));
+    assert(headingRefsPassword.includes("## Legacy MD5 Hash"));
+    assert(!headingRefsOauth.includes("[REF:"));
+    assert(!headingRefsPassword.includes("[ANC:"));
+
     assert(salpOauth.includes("[REF:api:oauth-callback"));
     assert(salpPassword.includes("[ANC:legacy:md5-hash]"));
   } finally {
     await Deno.remove(nativeDir, { recursive: true });
+    await Deno.remove(headingRefsDir, { recursive: true });
     await Deno.remove(salpDir, { recursive: true });
   }
 });

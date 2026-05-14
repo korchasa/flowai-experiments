@@ -4,14 +4,19 @@
  * Extraction Precision: given all 19 project files, can the agent produce
  * the complete anchor→reference JSON graph?
  *
- * Axis:   system (5 linking systems).
+ * Axis:   system (6 linking systems).
  * Reps:   5.
  * Metric: adherence = fraction of trials where JSON contains all 20 anchors
  *         and 31 references (judge uses ≤3 missing entries → pass/fail).
  */
 
 import type { Cell, Experiment, ExperimentReport } from "../shared/types.ts";
-import { loadGroundTruth, surfaceId, writeFixtures } from "./shared.ts";
+import {
+  ANCHOR_SYSTEMS,
+  loadGroundTruth,
+  surfaceId,
+  writeFixtures,
+} from "./shared.ts";
 
 const gt = loadGroundTruth();
 
@@ -39,18 +44,12 @@ export const experiment: Experiment = {
   name: "Anchor Systems — Extraction & Mapping (Bench 1)",
   description:
     "Measures how precisely an AI agent extracts all anchor definitions and " +
-    "cross-references from 19 project files expressed in five linking systems " +
-    "(Native Markdown, Wikilinks, Zettelkasten UID, SALP, SALP-short). " +
+    "cross-references from 19 project files expressed in six linking systems " +
+    "(Native Markdown, Heading refs, Wikilinks, Zettelkasten UID, SALP, SALP-short). " +
     "Pass if extracted JSON contains nearly all ground-truth anchors and references.",
 
   axes: {
-    system: [
-      "native",
-      "wikilinks",
-      "zettelkasten",
-      "salp",
-      "salp-short",
-    ] as const,
+    system: ANCHOR_SYSTEMS,
   },
 
   defaults: { reps: 5, ide: "opencode" },

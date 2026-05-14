@@ -125,18 +125,18 @@
 
 ### 3.12 FR-EXP.ANCHOR-SYSTEMS
 
-- **Desc:** Measure how reliably AI agents navigate five documentation-linking systems (Native Markdown, Wikilinks, Zettelkasten UID, SALP, SALP-short) across five task types: anchor-reference mapping, context boundary detection, multi-hop chain traversal, graph linting, and RAG noise resistance. Produces adherence curves per system × task-type.
+- **Desc:** Measure how reliably AI agents navigate six documentation-linking systems (Native Markdown, Heading refs, Wikilinks, Zettelkasten UID, SALP, SALP-short) across five task types: anchor-reference mapping, context boundary detection, multi-hop chain traversal, graph linting, and RAG noise resistance. Produces adherence curves per system × task-type.
 - **Tasks:** [anchor-systems-experiment](tasks/2026/05/anchor-systems-experiment.md)
-- **Scenario:** Five variants under `anchor-systems/`: `mapping`, `boundary`, `multi-hop`, `linting`, `rag-noise`. All tasks are answer-only (read files, respond with text or JSON — no file edits). Static fixture sets (15 Markdown + 4 code files per system, 5 systems + 1 `corrupted/` set) committed under `fixtures/` with `ground-truth.json`. Invoked as `deno task experiment anchor-systems --variant <v>`.
+- **Scenario:** Five variants under `anchor-systems/`: `mapping`, `boundary`, `multi-hop`, `linting`, `rag-noise`. All tasks are answer-only (read files, respond with text or JSON — no file edits). Static fixture sets (15 Markdown + 4 code files per system, 6 systems + system-specific corrupted fixtures) committed under `fixtures/` with `ground-truth.json`. Invoked as `deno task experiment anchor-systems --variant <v>`.
 - **Acceptance:**
-  - [x] Fixture sets for all 5 systems (native, wikilinks, zettelkasten, salp, salp-short): 19 files each + `corrupted/` (19 files, salp+anomalies) + `ground-truth.json`. Evidence: `anchor-systems/fixtures/`.
+  - [x] Fixture sets for all 6 systems (native, heading-refs, wikilinks, zettelkasten, salp, salp-short): 19 files each + system-specific corrupted fixture generation + `ground-truth.json`. Evidence: `anchor-systems/fixtures/`, `anchor-systems/shared.ts`.
   - [x] `mapping` variant: system axis, F₁ of extracted JSON graph. Evidence: `anchor-systems/mapping.ts`.
   - [x] `boundary` variant: system axis, IoU ≥ 0.8 on code block line-ranges. Evidence: `anchor-systems/boundary.ts`.
   - [x] `multi-hop` variant: system × target (shallow/medium/deep), hop-accuracy across reference chains. Evidence: `anchor-systems/multi-hop.ts`.
   - [x] `linting` variant: system axis, F₁ ≥ 0.7 detection of 3 planted anomalies. Evidence: `anchor-systems/linting.ts`.
-  - [x] `rag-noise` variant: system × noise_count [3, 6, 9], focus on anchor-bearing function vs noise neighbours. Evidence: `anchor-systems/rag-noise.ts`.
+  - [x] `rag-noise` variant: system × noise_count [3, 6, 9], starts from `password.md` and requires a doc→code path to the anchor-bearing function amid decoys/noise. Evidence: `anchor-systems/rag-noise.ts`.
   - [x] `deno task check` green. Evidence: `deno task check 2>&1 | tail -5`.
-  - [x] Corrected OpenCode live run results committed for all 5 variants. Evidence: `anchor-systems/results/2026-05-13-2101-openai-gpt-5.4-mini-mapping.md`, `anchor-systems/results/2026-05-13-2134-openai-gpt-5.4-mini-boundary.md`, `anchor-systems/results/2026-05-13-2148-openai-gpt-5.4-mini-multi-hop.md`, `anchor-systems/results/2026-05-13-2258-openai-gpt-5.4-mini-linting.md`, `anchor-systems/results/2026-05-13-2329-openai-gpt-5.4-mini-rag-noise.md`.
+  - [x] Corrected OpenCode live run results committed for all 5 variants plus `heading-refs` incremental sweep and `rag-noise` v2 all-format sweep. Evidence: `anchor-systems/results/2026-05-13-2101-openai-gpt-5.4-mini-mapping.md`, `anchor-systems/results/2026-05-13-2134-openai-gpt-5.4-mini-boundary.md`, `anchor-systems/results/2026-05-13-2148-openai-gpt-5.4-mini-multi-hop.md`, `anchor-systems/results/2026-05-13-2258-openai-gpt-5.4-mini-linting.md`, `anchor-systems/results/2026-05-13-2329-openai-gpt-5.4-mini-rag-noise.md`, `anchor-systems/results/2026-05-14-0821-openai-gpt-5.4-mini-mapping.md`, `anchor-systems/results/2026-05-14-0828-openai-gpt-5.4-mini-boundary.md`, `anchor-systems/results/2026-05-14-0829-openai-gpt-5.4-mini-multi-hop.md`, `anchor-systems/results/2026-05-14-0843-openai-gpt-5.4-mini-linting.md`, `anchor-systems/results/2026-05-14-1029-openai-gpt-5.4-mini-rag-noise.md`.
 
 ### 3.13 FR-REPO.LAYOUT
 

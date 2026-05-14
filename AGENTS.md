@@ -41,6 +41,7 @@ Sister repository: [`flow`](https://github.com/korchasa/flow) holds the AssistFl
 
 - **Deno + TypeScript**: primary runtime (see `deno.json`).
 - **Evidence-first**: experiment results committed as `<name>/results/<DATE>-<model-slug>-<variant>.{json,md}`. Code changes without committed evidence are incomplete.
+- **Streaming evidence**: long-running benchmarks must persist trial data to result files as each trial completes and print the same incremental data to stdout. Never keep the only copy of in-progress evidence in process memory until the final report write.
 - **Clean-slate copy from flow**: history not preserved. Blame traversal across the split requires checking out `flow@f311142`.
 - **CI scope**: CI runs `deno task check` only. Experiments need live `claude` CLI + macOS keychain auth (not runnable in CI).
 

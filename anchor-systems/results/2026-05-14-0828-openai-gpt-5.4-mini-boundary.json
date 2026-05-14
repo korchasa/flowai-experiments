@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "anchor-systems-boundary",
+  "experimentName": "Anchor Systems — Context Boundary Detection (Bench 2)",
+  "modelProvider": "openai",
+  "model": "gpt-5.4-mini",
+  "ide": "opencode",
+  "judgeModelProvider": "openai",
+  "judgeModel": "gpt-5.4",
+  "judgeRuntime": "opencode",
+  "startedAt": "2026-05-14T08:28:00.482Z",
+  "finishedAt": "2026-05-14T08:29:45.389Z",
+  "seed": 1,
+  "reps": 5,
+  "axes": {
+    "system": [
+      "heading-refs"
+    ]
+  },
+  "trials": [
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent reported start_line 7 and end_line 18, which exactly matches the ground-truth function range in the rule, giving an IoU of 1.0.",
+      "agentOutput": "I'll inspect the Python file and extract the anchored block range.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 25067.874583,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent reported {\"start_line\":7,\"end_line\":18}, which exactly matches the ground-truth range for generate_reset_token, giving an inclusive IoU of 1.0.",
+      "agentOutput": "I’ll inspect `auth_service.py` and pinpoint the `generate_reset_token` block boundaries.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 18428.645833000002,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent reported {\"start_line\":7,\"end_line\":18}, which exactly matches the anchored function's ground-truth range, yielding an inclusive IoU of 1.0.",
+      "agentOutput": "I’m locating the function and its exact line span, then I’ll return only the JSON object.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 23615.395041000003,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The agent output includes a parseable JSON object with \"start_line\":7 and \"end_line\":18, which exactly matches the ground-truth function range and yields an inclusive IoU of 1.0.",
+      "agentOutput": "I’m locating `auth_service.py` and the `generate_reset_token` anchor, then I’ll return the exact line range as raw JSON.\nI found the file. Next I’m reading `auth_service.py` to pinpoint the `generate_reset_token` block.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 19880.401500000007,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The agent output contains a parseable JSON object with \"start_line\":7 and \"end_line\":18, which exactly matches the anchored function's ground-truth range and yields IoU = 1.0.",
+      "agentOutput": "I’m locating `auth_service.py` and the `generate_reset_token` anchor, then I’ll return the exact line range as JSON.\nI found the anchor. I’m reading the file with line numbers to determine the block’s exact end line.\n{\"start_line\":7,\"end_line\":18}",
+      "durationMs": 17906.341291000004,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    }
+  ],
+  "adherenceByAxis": {
+    "system": {
+      "heading-refs": 1
+    }
+  },
+  "durationMs": 104906.659834,
+  "headline": "Boundary detection adherence (IoU≥0.8) — heading-refs=100% (n=5/cell)"
+}

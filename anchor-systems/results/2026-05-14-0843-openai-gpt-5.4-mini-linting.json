@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "anchor-systems-linting",
+  "experimentName": "Anchor Systems — Graph Diagnostics & Linting (Bench 6)",
+  "modelProvider": "openai",
+  "model": "gpt-5.4-mini",
+  "ide": "opencode",
+  "judgeModelProvider": "openai",
+  "judgeModel": "gpt-5.4",
+  "judgeRuntime": "opencode",
+  "startedAt": "2026-05-14T08:43:45.635Z",
+  "finishedAt": "2026-05-14T08:53:02.755Z",
+  "seed": 1,
+  "reps": 5,
+  "axes": {
+    "system": [
+      "heading-refs"
+    ]
+  },
+  "trials": [
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The response names at least two target anomaly semantics, but it reports six findings in a project stated to contain three planted anomalies, so it fabricates additional anomalies beyond the known set.",
+      "agentOutput": "I’m scanning the Markdown and Python files first, then I’ll cross-check anchors and references.\nI’ve got the file list. Next I’m reading the contents to extract declared anchors, links, and any anchors hidden in comments.\n[{\"type\":\"duplicate-anchor\",\"id\":\"Password Policy\",\"details\":\"Declared as both the H1 and H2 in password.md:3 and password.md:5.\"},{\"type\":\"duplicate-anchor\",\"id\":\"User Schema\",\"details\":\"Declared in auth.md:5 and again in session_store.py:4; the latter is commented out.\"},{\"type\":\"missing-anchor\",\"id\":\"api.md:OAuth Callback\",\"details\":\"Referenced from oauth.md:11, but api.md does not exist and no matching anchor is defined.\"},{\"type\":\"commented-out-anchor\",\"id\":\"Legacy MD5 Hash\",\"details\":\"Declared inside the HTML comment block in password.md:11-14.\"},{\"type\":\"commented-out-anchor\",\"id\":\"LOCKOUT_DURATION\",\"details\":\"Declared in a commented-out block at auth_service.py:2-3.\"},{\"type\":\"commented-out-anchor\",\"id\":\"User Schema\",\"details\":\"Declared in a commented-out line at session_store.py:4.\"}]",
+      "durationMs": 145807.905,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs"
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "Although the response semantically identifies all three target anomaly categories (duplicate anchor, orphaned/missing reference, and commented-out/shadowed anchor), it also reports extra anomalies beyond the three planted ones, so it fabricates findings that do not exist under the stated setup.",
+      "agentOutput": "I’m scanning the Markdown and Python files first, then I’ll check anchors, references, and commented-out declarations against the actual graph.\nI found the full file set. Next I’m reading the content and extracting declared anchors plus cross-file references, including anything hidden in comments.\nI have the documentation graph. Now I’m checking the Python files for any anchors or cross-references that participate in the same graph, plus commented-out anchor declarations.\nI’ve got the candidate duplicates and one obvious missing target. I’m doing a final pass over explicit anchor syntax in comments and references so I don’t miss anything subtle.\n[{\"type\":\"duplicate-anchor\",\"id\":\"Password Policy\",\"details\":\"Declared twice in password.md as both `# Password Policy` (line 1) and `## Password Policy` (line 3).\"},{\"type\":\"duplicate-anchor\",\"id\":\"User Schema\",\"details\":\"Declared in auth.md line 5 and again in the commented-out line `# # User Schema` in session_store.py line 4.\"},{\"type\":\"missing-reference\",\"id\":\"api.md:OAuth Callback\",\"details\":\"Referenced from oauth.md line 11, but api.md does not exist in this directory and no matching `OAuth Callback` anchor is declared.\"},{\"type\":\"commented-out-anchor\",\"id\":\"LOCKOUT_DURATION\",\"details\":\"Declared in the commented-out line `# # LOCKOUT_DURATION` in auth_service.py line 2.\"},{\"type\":\"commented-out-anchor\",\"id\":\"Legacy MD5 Hash\",\"details\":\"Declared inside the HTML comment block in password.md lines 11-14.\"}]",
+      "durationMs": 88918.879167,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs"
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The response names the required anomaly categories semantically (`duplicate_anchor`, missing-anchor references, and commented-out anchors) but it also reports extra anomalies beyond the three planted ones, so it fabricates findings that the rule says should cause failure.",
+      "agentOutput": "I’m enumerating the Markdown and Python files, then I’ll inspect anchor declarations and references against that set.\nI’ve got the file set. Next I’m reading the docs and Python files to extract declared anchors and `#...` references, then I’ll cross-check for duplicates and misses.\nI’ve manually inspected the files; now I’m doing a pattern pass to verify I didn’t miss any reference syntax or hidden duplicate headings.\nTwo docs were still unread: `oauth.md` and `revocation.md`. I’m reading them now before I finalize the anchor check.\n[\n  {\n    \"type\": \"duplicate_anchor\",\n    \"id\": \"Password Policy\",\n    \"details\": \"Declared as `# Password Policy` and `## Password Policy` in `password.md`.\"\n  },\n  {\n    \"type\": \"duplicate_anchor\",\n    \"id\": \"User Schema\",\n    \"details\": \"Declared in `auth.md` and again as a commented-out anchor in `session_store.py`.\"\n  },\n  {\n    \"type\": \"missing_anchor_reference\",\n    \"id\": \"api.md:OAuth Callback\",\n    \"details\": \"Referenced from `oauth.md:11`, but `api.md` does not exist in this directory.\"\n  },\n  {\n    \"type\": \"missing_anchor_reference\",\n    \"id\": \"session:otp-ttl\",\n    \"details\": \"Referenced from `ratelimit.md:5`; no matching declared anchor/file pair exists. The intended target appears to be `session.md:Session OTP TTL`.\"\n  },\n  {\n    \"type\": \"commented_out_anchor\",\n    \"id\": \"Legacy MD5 Hash\",\n    \"details\": \"Declared inside the HTML comment block in `password.md:11-14`.\"\n  },\n  {\n    \"type\": \"commented_out_anchor\",\n    \"id\": \"LOCKOUT_DURATION\",\n    \"details\": \"Declared in commented-out lines at the top of `auth_service.py`.\"\n  },\n  {\n    \"type\": \"commented_out_anchor\",\n    \"id\": \"User Schema\",\n    \"details\": \"Declared as `# # User Schema` in a commented-out line in `session_store.py:4`.\"\n  }\n]",
+      "durationMs": 118007.03220800002,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The response semantically identifies all three target categories via \"duplicate-anchor\", \"broken-reference\", and \"commented-out-anchor\", but it also reports extra anomalies beyond the three planted ones, so it fabricates findings that do not exist.",
+      "agentOutput": "I’m enumerating the Markdown and Python files first, then I’ll extract anchors and references and check them against each other.\nI’ve got the file set. Next I’m reading the Markdown and Python sources to extract declared anchors, link targets, and anything hidden inside comment blocks.\nI’ve identified the candidate anchor declarations and references. I’m doing one pass to confirm the reference targets and to separate real anchors from items inside comments or docstrings.\nI found one clearly broken reference already, and I still need the rate-limit document because several references point there. I’m reading it now to close the graph and avoid false positives.\n[{\"type\":\"broken-reference\",\"id\":\"api.md:OAuth Callback\",\"details\":\"Reference in oauth.md:11 points to a non-existent file/anchor; api.md is not present and no OAuth Callback anchor is declared elsewhere.\"},{\"type\":\"duplicate-anchor\",\"id\":\"password-policy\",\"details\":\"Declared twice in password.md at lines 1 and 3; both headings normalize to the same anchor id.\"},{\"type\":\"duplicate-anchor\",\"id\":\"user-schema\",\"details\":\"Declared in auth.md:5 and again in session_store.py:4; the Python occurrence is also commented out.\"},{\"type\":\"commented-out-anchor\",\"id\":\"user-schema\",\"details\":\"Declared inside a commented-out Python line in session_store.py:4.\"},{\"type\":\"commented-out-anchor\",\"id\":\"legacy-md5-hash\",\"details\":\"Declared inside an HTML comment block in password.md:11-14.\"},{\"type\":\"commented-out-anchor\",\"id\":\"lockout-duration\",\"details\":\"Declared inside a commented-out Python line in auth_service.py:2.\"}]",
+      "durationMs": 100138.09525000001,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs"
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The response includes the required semantic types (`duplicate_anchor`, a missing/non-existent reference, and commented-out anchors), but it reports six anomalies in a project described as having only three planted anomalies, so it fabricates additional findings that do not exist.",
+      "agentOutput": "I’m scanning the Markdown and Python files first, then I’ll compute the anchor/reference issues from the actual declarations and links.\nI have the file set. Next I’m extracting the declared anchors and the in-file references so I can compare the graph against the actual files.\nI’ve identified the candidate anchors and references. I’m doing one pass for comment-embedded headings to make sure I don’t miss a hidden or duplicated ID.\nI found one missing target already: `oauth.md` points at `api.md:OAuth Callback`, but there is no `api.md` in the set. I’m checking for any additional hidden comment-only anchors before I finalize.\n[{\"type\":\"duplicate_anchor\",\"id\":\"Password Policy\",\"details\":\"Declared in `password.md:1` and `password.md:3`; both headings generate the same anchor id.\"},{\"type\":\"duplicate_anchor\",\"id\":\"User Schema\",\"details\":\"Declared in `auth.md:5` and again inside a commented-out block in `session_store.py:4`.\"},{\"type\":\"missing_reference\",\"id\":\"OAuth Callback\",\"details\":\"Referenced from `oauth.md:11` as `api.md:OAuth Callback`, but no `api.md` file or anchor exists in this directory.\"},{\"type\":\"commented_out_anchor\",\"id\":\"LOCKOUT_DURATION\",\"details\":\"Declared as a commented heading in `auth_service.py:2`.\"},{\"type\":\"commented_out_anchor\",\"id\":\"User Schema\",\"details\":\"Declared as a commented heading in `session_store.py:4`.\"},{\"type\":\"commented_out_anchor\",\"id\":\"Legacy MD5 Hash\",\"details\":\"Declared inside the HTML comment block in `password.md:11-14`.\"}]",
+      "durationMs": 104215.69649999996,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0
+      }
+    }
+  ],
+  "adherenceByAxis": {
+    "system": {
+      "heading-refs": 0
+    }
+  },
+  "durationMs": 557120.455083,
+  "headline": "Linting adherence (≥2/3 anomalies found) — heading-refs=0% (n=5/cell)"
+}

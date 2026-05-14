@@ -1,9 +1,8 @@
 /**
  * Shared utilities for the anchor-systems experiment family.
  *
- * Loads the committed fixture sets (salp / native / wikilinks / zettelkasten /
- * corrupted) and writes them into the experiment sandbox so the spawned claude
- * agent can explore them with its built-in file-reading tools.
+ * Loads the committed fixture sets and writes them into the experiment sandbox
+ * so the spawned agent can explore them with its built-in file-reading tools.
  *
  * Fixture files live at:
  *   anchor-systems/fixtures/<system>/<file>
@@ -73,8 +72,20 @@ export interface GroundTruth {
   anomalies: GtAnomaly[];
   zettelkasten_uids: Record<string, string>;
   salp_short_ids: Record<string, string>;
-  native_headings: Record<string, { file: string; slug: string }>;
+  native_headings: Record<
+    string,
+    { file: string; slug: string; heading: string }
+  >;
 }
+
+export const ANCHOR_SYSTEMS = [
+  "native",
+  "heading-refs",
+  "wikilinks",
+  "zettelkasten",
+  "salp",
+  "salp-short",
+] as const;
 
 /** Return the short SALP id (no namespace) for a canonical anchor id. */
 export function shortId(gt: GroundTruth, canonicalId: string): string {
@@ -92,6 +103,11 @@ export function surfaceId(
       const heading = gt.native_headings[canonicalId];
       if (!heading) return canonicalId;
       return `${heading.file}#${heading.slug}`;
+    }
+    case "heading-refs": {
+      const heading = gt.native_headings[canonicalId];
+      if (!heading) return canonicalId;
+      return `${heading.file}:${heading.heading}`;
     }
     case "wikilinks":
       return `^${canonicalId.replaceAll(":", "-")}`;
@@ -254,6 +270,8 @@ function injectDuplicateAnchor(
     switch (system) {
       case "native":
         return isCode ? "# # User Schema" : "## User Schema";
+      case "heading-refs":
+        return isCode ? "# # User Schema" : "## User Schema";
       case "wikilinks":
         return isCode ? "# User schema ^db-user-schema" : "^db-user-schema";
       case "zettelkasten":
@@ -286,6 +304,8 @@ function injectOrphanReference(system: string, content: string): string {
     switch (system) {
       case "native":
         return "[callback handling](api.md#oauth-callback)";
+      case "heading-refs":
+        return "[api.md:OAuth Callback]";
       case "wikilinks":
         return "[[api#^api-oauth-callback]]";
       case "zettelkasten":
@@ -304,6 +324,8 @@ function injectShadowedAnchor(system: string, content: string): string {
   const marker = (() => {
     switch (system) {
       case "native":
+        return "## Legacy MD5 Hash";
+      case "heading-refs":
         return "## Legacy MD5 Hash";
       case "wikilinks":
         return "^legacy-md5-hash";

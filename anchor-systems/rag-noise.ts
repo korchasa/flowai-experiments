@@ -1,24 +1,29 @@
 /**
  * Experiment: anchor-systems — rag-noise variant (Bench 7).
  *
- * RAG Noise Resistance: password_utils.py contains one anchored function
- * (check_strength, anchor sec:password-strength) and N "noise" functions
- * that are semantically similar but carry no anchor.
+ * RAG Noise Resistance: password.md links to several plausible Python
+ * implementation anchors. password_utils.py contains one target implementation
+ * plus marker-bearing decoys and semantically similar unanchored noise.
  *
- * The agent must identify the ANCHORED function by its marker — not by
- * guessing from function names alone. Tests whether explicit anchor tokens
- * help the agent focus amid distractor context.
+ * The agent must start from documentation, follow the implementation reference,
+ * and identify the target function. This tests graph navigation through noisy
+ * retrieval context, not local lookup inside a known file.
  *
  * Axes:  system × noise_count (3 / 6 / 9 extra noise functions).
  * Reps:  5.
- * Metric: pass if the agent correctly identifies check_strength (and only
- *         check_strength) as the implementation of the anchored rule,
- *         without naming any of the noise functions as the answer.
+ * Metric: pass if the agent names check_strength, explains the password policy,
+ *         and gives a reference path from password.md to the target code anchor.
  */
 
 import type { Cell, Experiment, ExperimentReport } from "../shared/types.ts";
 import { join } from "@std/path";
-import { loadGroundTruth, writeFixtures } from "./shared.ts";
+import {
+  ANCHOR_SYSTEMS,
+  loadGroundTruth,
+  shortId,
+  surfaceId,
+  writeFixtures,
+} from "./shared.ts";
 
 const gt = loadGroundTruth();
 const NT = gt.noise_target;
@@ -37,42 +42,112 @@ const NOISE_FUNCTIONS = [
   `\ndef check_null_bytes(password: str) -> bool:\n    """Return True if password contains no null bytes."""\n    return "\\x00" not in password\n`,
 ];
 
-function anchorRef(system: string): string {
+const DECOY_FUNCTIONS = [
+  {
+    id: "sec:password-complexity-score",
+    heading: "Password Complexity Score",
+    slug: "password-complexity-score",
+    uid: "202605129101",
+    label: "complexity scoring implementation",
+    code:
+      `\ndef check_policy_score(password: str) -> int:\n    """ANCHOR_MARKER\n\n    Return a 0-100 score for password complexity. This is advisory telemetry,\n    not the registration gate.\n    """\n    return min(100, len(password) * 4)\n`,
+  },
+  {
+    id: "sec:password-format-precheck",
+    heading: "Password Format Precheck",
+    slug: "password-format-precheck",
+    uid: "202605129102",
+    label: "format precheck implementation",
+    code:
+      `\ndef check_policy_format(password: str) -> bool:\n    """ANCHOR_MARKER\n\n    Return True when a password uses printable ASCII only. This is a transport\n    safety precheck, not the full strength policy.\n    """\n    return all(32 <= ord(c) <= 126 for c in password)\n`,
+  },
+] as const;
+
+function targetRef(system: string): string {
   switch (system) {
     case "salp":
-      return "[ANC:sec:password-strength]";
+      return "[REF:sec:password-strength | strength enforcement implementation]";
     case "salp-short":
-      return "[ANC:password-strength]";
+      return "[REF:password-strength | strength enforcement implementation]";
     case "wikilinks":
-      return "^sec-password-strength";
+      return "[[password_utils#^sec-password-strength]]";
     case "zettelkasten":
-      return "UID 202605121011";
+      return "[[202605121011]]";
+    case "heading-refs":
+      return "[password_utils.py:Password Strength Check]";
     case "native":
-      return "## Password Strength Check (in password_utils.py)";
+      return "[password strength implementation](password_utils.py#check_strength)";
     default:
       return NT.anchor_id;
   }
+}
+
+function decoyRef(
+  system: string,
+  decoy: typeof DECOY_FUNCTIONS[number],
+): string {
+  switch (system) {
+    case "salp":
+      return `[REF:${decoy.id} | ${decoy.label}]`;
+    case "salp-short":
+      return `[REF:${shortId(gt, decoy.id)} | ${decoy.label}]`;
+    case "wikilinks":
+      return `[[password_utils#^${decoy.id.replaceAll(":", "-")}]]`;
+    case "zettelkasten":
+      return `[[${decoy.uid}]]`;
+    case "heading-refs":
+      return `[password_utils.py:${decoy.heading}]`;
+    case "native":
+      return `[${decoy.label}](password_utils.py#${decoy.slug})`;
+    default:
+      return decoy.id;
+  }
+}
+
+function anchorMarker(
+  system: string,
+  decoy: typeof DECOY_FUNCTIONS[number],
+): string {
+  switch (system) {
+    case "salp":
+      return `[ANC:${decoy.id}]`;
+    case "salp-short":
+      return `[ANC:${shortId(gt, decoy.id)}]`;
+    case "wikilinks":
+      return `^${decoy.id.replaceAll(":", "-")}`;
+    case "zettelkasten":
+      return `**UID: ${decoy.uid}** ${decoy.id}`;
+    case "heading-refs":
+    case "native":
+      return `## ${decoy.heading}`;
+    default:
+      return decoy.id;
+  }
+}
+
+function implementationRefsBlock(system: string): string {
+  const decoys = DECOY_FUNCTIONS.map((decoy) => `- ${decoyRef(system, decoy)}`)
+    .join("\n");
+  return `\n\nImplementation references:\n- ${targetRef(system)}\n${decoys}\n`;
+}
+
+function decoyCodeBlock(system: string): string {
+  return DECOY_FUNCTIONS.map((decoy) =>
+    decoy.code.replace("ANCHOR_MARKER", anchorMarker(system, decoy))
+  ).join("");
 }
 
 export const experiment: Experiment = {
   id: "anchor-systems-rag-noise",
   name: "Anchor Systems — RAG Noise Resistance (Bench 7)",
   description:
-    "Measures whether anchor tokens help an agent focus on the correct " +
-    "function amid semantically similar noise. password_utils.py contains " +
-    "one anchored function (check_strength) and N noise functions with no " +
-    "anchor. Agent must identify check_strength by its anchor marker, " +
-    "not by semantic similarity alone. Pass if the agent names check_strength " +
-    "and does not name any noise function as the primary implementation.",
+    "Measures whether anchor formats help an agent follow documentation references " +
+    "to the correct implementation amid marker-bearing decoys and semantically " +
+    "similar noise. Agent starts from password.md, not the code file. Pass if the " +
+    "agent names check_strength, explains the policy, and shows the reference path.",
 
   axes: {
-    system: [
-      "native",
-      "wikilinks",
-      "zettelkasten",
-      "salp",
-      "salp-short",
-    ] as const,
+    system: ANCHOR_SYSTEMS,
     noise_count: [3, 6, 9] as const,
   },
 
@@ -84,22 +159,32 @@ export const experiment: Experiment = {
 
     await writeFixtures(ctx.sandboxPath, system);
 
-    // Append extra noise functions to password_utils.py.
+    const passwordPath = join(ctx.sandboxPath, "password.md");
+    const passwordDoc = await Deno.readTextFile(passwordPath);
+    await Deno.writeTextFile(
+      passwordPath,
+      passwordDoc + implementationRefsBlock(system),
+    );
+
+    // Insert marker-bearing decoys before the target, then append unanchored noise.
     const utilsPath = join(ctx.sandboxPath, "password_utils.py");
-    const extra = NOISE_FUNCTIONS.slice(0, noiseCount).join("");
     const current = await Deno.readTextFile(utilsPath);
-    await Deno.writeTextFile(utilsPath, current + extra);
+    const withDecoys = current.replace(
+      "\n\ndef check_strength",
+      `${decoyCodeBlock(system)}\n\ndef check_strength`,
+    );
+    const extra = NOISE_FUNCTIONS.slice(0, noiseCount).join("");
+    await Deno.writeTextFile(utilsPath, withDecoys + extra);
   },
 
   query(cell: Cell) {
-    const system = String(cell.axes.system);
-    const anchor = anchorRef(system);
+    const noiseCount = Number(cell.axes.noise_count);
     return (
-      `Read password_utils.py. ` +
-      `Identify which function implements the rule marked by ${anchor}. ` +
-      `Explain in 2–3 sentences: (1) the name of that function, ` +
-      `(2) what specific rule it enforces, ` +
-      `(3) how it differs from the other password-check functions in the file.`
+      `Start from password.md. Follow the documentation references to identify ` +
+      `the Python function that enforces the registration password strength policy. ` +
+      `There are ${noiseCount} extra password-check functions and multiple plausible ` +
+      `implementation references; do not choose by function name alone. ` +
+      `Respond with ONLY JSON: {"path": ["..."], "function_name": "...", "rule": "...", "why_not_decoys": "..."}.`
     );
   },
 
@@ -124,30 +209,34 @@ export const experiment: Experiment = {
         ),
       )
       .join(", ");
+    const targetSurface = surfaceId(gt, system, NT.anchor_id);
+    const decoyNames = DECOY_FUNCTIONS.map((d) => d.id).join(", ");
 
     return {
       rule:
-        `The agent read password_utils.py (${system} system) with ${noiseCount} noise functions added. ` +
-        `The ONLY anchored function is "${NT.target_function}" (anchor: ${
-          anchorRef(system)
-        }). ` +
+        `The agent started from password.md in a "${system}" project with ${noiseCount} noise functions added. ` +
+        `password.md contains multiple implementation references. The correct target reference is ${
+          targetRef(system)
+        }, ` +
+        `which resolves to "${NT.target_function}" with target surface ID "${targetSurface}". ` +
+        `Marker-bearing decoy anchors are: ${decoyNames}. ` +
         `Its rule: "${
           gt.anchors.find((a) => a.id === NT.anchor_id)?.description ?? ""
         }". ` +
         `The noise functions are: ${noiseNames}. ` +
-        `Pass if: (a) the agent names "${NT.target_function}" as the anchored implementation, ` +
+        `Pass if: (a) the agent names "${NT.target_function}" as the implementation, ` +
         `(b) the agent's description of the rule is accurate (≥12 chars, ≥1 digit, ≥1 upper, ≥1 special). ` +
-        `Fail if the agent names any noise function as the primary answer, ` +
-        `or confuses the anchored function with a neighbour.`,
+        `(c) the agent gives a reference path starting at password.md and ending at the target code anchor/function. ` +
+        `Fail if the agent names any decoy/noise function as the primary answer, ` +
+        `does not show a password.md -> implementation path, or chooses by local function-name matching only.`,
       userQuery: q,
     };
   },
 
   headline(report: ExperimentReport) {
     const rows: string[] = [];
-    for (
-      const sys of ["native", "wikilinks", "zettelkasten", "salp", "salp-short"]
-    ) {
+    const systems = report.axes.system?.map(String) ?? ANCHOR_SYSTEMS;
+    for (const sys of systems) {
       const trials = report.trials.filter(
         (t) =>
           t.cell.axes.system === sys && Number(t.cell.axes.noise_count) === 9,
