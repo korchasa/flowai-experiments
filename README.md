@@ -87,13 +87,13 @@ The root README only tracks retained evidence coverage.
 
 | Experiment family | README | Retained result pairs |
 | --- | --- | ---: |
-| anchor-systems | [anchor-systems/README.md](anchor-systems/README.md) | 10 |
+| anchor-systems | [anchor-systems/README.md](anchor-systems/README.md) | 9 |
 | context-anatomy | [context-anatomy/README.md](context-anatomy/README.md) | 3 |
 | claude-md-length | [claude-md-length/README.md](claude-md-length/README.md) | 2 |
 | tokenizers | [tokenizers/README.md](tokenizers/README.md) | 2 |
 | images-hard | [images-hard/README.md](images-hard/README.md) | 2 |
 | compression-decompression | [compression-decompression/README.md](compression-decompression/README.md) | 2 |
-| **Total** |  | **21** |
+| **Total** |  | **20** |
 
 ## License
 

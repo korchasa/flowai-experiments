@@ -10,7 +10,7 @@
 
 import { parse } from "@std/flags";
 
-const VARIANTS = ["mapping", "boundary", "multi-hop", "linting", "rag-noise"];
+const VARIANTS = ["mapping", "boundary", "multi-hop", "linting", "link-cost"];
 
 const flags = parse(Deno.args, {
   string: ["ide", "model-provider", "model"],

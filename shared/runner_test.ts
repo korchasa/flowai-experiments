@@ -3,6 +3,7 @@ import {
   cellSeed,
   expandCells,
   type JudgeFn,
+  normalizeCliTokenUsage,
   runExperiment,
   type SpawnAgentFn,
 } from "./runner.ts";
@@ -76,6 +77,36 @@ Deno.test("expandCells: empty axes produces reps cells", () => {
   const cells = expandCells({}, 3);
   assertEquals(cells.length, 3);
   assertEquals(cells[0].trial, 0);
+});
+
+Deno.test("normalizeCliTokenUsage: supports Claude and Vercel AI shapes", () => {
+  assertEquals(
+    normalizeCliTokenUsage({
+      input_tokens: 10,
+      output_tokens: 20,
+      cache_read_input_tokens: 30,
+      cache_creation_input_tokens: 40,
+    }),
+    { input: 10, output: 20, cacheRead: 30, cacheWrite: 40 },
+  );
+
+  assertEquals(
+    normalizeCliTokenUsage({
+      usage: {
+        inputTokens: 11,
+        outputTokens: 22,
+        inputTokenDetails: {
+          cacheReadTokens: 33,
+          cacheWriteTokens: 44,
+        },
+      },
+    }),
+    { input: 11, output: 22, cacheRead: 33, cacheWrite: 44 },
+  );
+});
+
+Deno.test("normalizeCliTokenUsage: ignores cost-only OpenCode telemetry", () => {
+  assertEquals(normalizeCliTokenUsage({ cost_usd: 0.001 }), undefined);
 });
 
 Deno.test("cellSeed: deterministic — same inputs yield same seed", () => {

@@ -168,12 +168,6 @@
       "end_line": 18
     }
   ],
-  "noise_target": {
-    "anchor_id": "sec:password-strength",
-    "file": "password_utils.py",
-    "target_function": "check_strength",
-    "similar_functions": ["check_history", "check_complexity", "check_format"]
-  },
   "anomalies": [
     {
       "type": "duplicate_anchor",

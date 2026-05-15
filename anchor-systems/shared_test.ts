@@ -1,9 +1,9 @@
 import { assert, assertEquals } from "@std/assert";
 import { dirname, fromFileUrl, join } from "@std/path";
 import { experiment as boundaryExperiment } from "./boundary.ts";
+import { experiment as linkCostExperiment } from "./link-cost.ts";
 import { experiment as mappingExperiment } from "./mapping.ts";
 import { experiment as multiHopExperiment } from "./multi-hop.ts";
-import { experiment as ragNoiseExperiment } from "./rag-noise.ts";
 import {
   loadGroundTruth,
   surfaceId,
@@ -72,23 +72,40 @@ Deno.test("anchor-systems: multi-hop judge lists expected anchor chain", () => {
   assert(rule.includes("correct file traversal"));
 });
 
-Deno.test("anchor-systems: rag-noise starts from docs, not target file", () => {
-  const cell = {
-    axes: { system: "heading-refs", noise_count: 9 },
+Deno.test("anchor-systems: link-cost uses each system's natural reference syntax", () => {
+  const nativeQuery = linkCostExperiment.query({
+    axes: { system: "native", operation: "lookup" },
     trial: 0,
-  };
-  const query = ragNoiseExperiment.query(cell);
-  const judgeRule = ragNoiseExperiment.judgePrompt(cell).rule;
+  });
+  const wikilinksQuery = linkCostExperiment.query({
+    axes: { system: "wikilinks", operation: "boundary" },
+    trial: 0,
+  });
+  const salpQuery = linkCostExperiment.query({
+    axes: { system: "salp", operation: "boundary" },
+    trial: 0,
+  });
+  const zettelQuery = linkCostExperiment.query({
+    axes: { system: "zettelkasten", operation: "boundary" },
+    trial: 0,
+  });
+  const salpRule = linkCostExperiment.judgePrompt({
+    axes: { system: "salp", operation: "boundary" },
+    trial: 0,
+  }).rule;
 
-  assert(query.includes("Start from password.md"));
-  assert(!query.includes("Read password_utils.py"));
-  assert(!query.includes("Password Strength Check"));
   assert(
-    judgeRule.includes(
-      "password.md contains multiple implementation references",
+    nativeQuery.includes(
+      "[session timeout policy](session.md#session-timeout-policy)",
     ),
   );
-  assert(judgeRule.includes("password_utils.py:Password Strength Check"));
+  assert(wikilinksQuery.includes("[[auth_service#^impl-token-generator-v1]]"));
+  assert(salpQuery.includes("[REF:impl:token-generator-v1 | token generator]"));
+  assert(!salpQuery.includes("auth_service.py:"));
+  assert(zettelQuery.includes("[[202605121017]]"));
+  assert(!zettelQuery.includes("auth_service.py"));
+  assert(salpRule.includes("auth_service.py"));
+  assert(salpRule.includes("start_line=7, end_line=18"));
 });
 
 Deno.test("anchor-systems: corrupted fixtures are system-specific", async () => {

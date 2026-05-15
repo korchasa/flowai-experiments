@@ -1,0 +1,1311 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "anchor-systems-link-cost",
+  "experimentName": "Anchor Systems — Link Resolution Token Cost (Bench 7)",
+  "modelProvider": "openai",
+  "model": "gpt-5.4-mini",
+  "ide": "opencode",
+  "judgeModelProvider": "openai",
+  "judgeModel": "gpt-5.4",
+  "judgeRuntime": "opencode",
+  "startedAt": "2026-05-15T00:26:55.465Z",
+  "finishedAt": "2026-05-15T00:58:17.049Z",
+  "seed": 1,
+  "reps": 5,
+  "axes": {
+    "system": [
+      "native",
+      "heading-refs",
+      "wikilinks",
+      "zettelkasten",
+      "salp",
+      "salp-short"
+    ],
+    "operation": [
+      "lookup",
+      "boundary",
+      "reference-hop"
+    ]
+  },
+  "trials": [
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "operation": "lookup"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The response resolves the reference to `session.md`, uses the accepted anchor `session-timeout-policy`, and gives the correct maximum idle session timeout value `30 minutes`.",
+      "agentOutput": "I’m locating the target file and anchor, then I’ll extract the referenced value directly.\nI found the file. Now I’m reading the session policy section to extract the maximum idle timeout.\n{\"file\":\"session.md\",\"anchor\":\"session-timeout-policy\",\"value\":\"30 minutes\"}",
+      "durationMs": 22418.589125,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "operation": "lookup"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response resolves the reference to `session.md` and provides the correct maximum idle session timeout value of `30 minutes`, with an accepted anchor form `session-timeout-policy`.",
+      "agentOutput": "Searching the referenced markdown and the timeout policy section now.\n{\"file\":\"session.md\",\"anchor\":\"session-timeout-policy\",\"value\":\"30 minutes\"}",
+      "durationMs": 16248.244083000001,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "operation": "lookup"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent output identifies the correct file `session.md` and gives the correct timeout value `30 minutes`, and the anchor `session-timeout-policy` is explicitly accepted by the rule.",
+      "agentOutput": "I’m locating the referenced section in `session.md` and extracting the maximum idle timeout value.\nI found the target file. Next I’m reading the policy section to extract the maximum idle timeout value.\n{\"file\":\"session.md\",\"anchor\":\"session-timeout-policy\",\"value\":\"30 minutes\"}",
+      "durationMs": 16191.254625000001,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "operation": "lookup"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The response gives the correct file and value, but it names the anchor as \"session-timeout-policy\" instead of an accepted resolved anchor like \"auth:session-timeout\" or \"session.md#session-timeout-policy\", so it does not fully satisfy the rule.",
+      "agentOutput": "I’m locating the referenced file and anchor, then I’ll extract the timeout value directly.\nI found the target file. Now I’m reading the section around the anchor to extract the value exactly.\n{\"file\":\"session.md\",\"anchor\":\"session-timeout-policy\",\"value\":\"30 minutes\"}",
+      "durationMs": 17596.004249999998,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "operation": "lookup"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response resolves the reference to `session.md` and gives the correct timeout value `30 minutes`, and its `session-timeout-policy` anchor matches the accepted system-surface target when paired with the same file.",
+      "agentOutput": "I’m locating the target file and anchor, then I’ll extract the timeout value.\nI found the file and the anchor mention. Now I’m reading the session policy section to extract the maximum idle timeout.\n{\"file\":\"session.md\",\"anchor\":\"session-timeout-policy\",\"value\":\"30 minutes\"}",
+      "durationMs": 21218.090834000002,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "operation": "boundary"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The final response includes JSON that identifies the correct file `auth_service.py` and the correct inclusive line range `7` to `18`, which matches the required target for the native reference.",
+      "agentOutput": "Locating the target file and anchor, then I’ll return the exact function line range.\nI found the anchor in `auth_service.py`; now I’m checking the full function boundaries so the line range is exact.\n{\"file\":\"auth_service.py\",\"anchor\":\"generate_reset_token\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 24507.301290999996,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "operation": "boundary"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response identifies the correct file `auth_service.py` and provides the inclusive line range `7` to `18`, which exactly matches the accepted target range, and it does not name a conflicting file or line span.",
+      "agentOutput": "I’m locating the file and function definition, then I’ll return the exact line range.\nI found the target file. Next I’m reading around `generate_reset_token` to extract the inclusive line span.\n{\"file\":\"auth_service.py\",\"anchor\":\"generate_reset_token\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 20065.164999999994,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "operation": "boundary"
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The response gives the correct file path and line range 7..18, but its JSON names the anchor as \"generate_reset_token\" instead of an accepted anchor value such as \"impl:token-generator-v1\" or \"auth_service.py#generate_reset_token\".",
+      "agentOutput": "I’m locating `auth_service.py` and the `generate_reset_token` definition, then I’ll return the exact file and inclusive line range as JSON.\nI found the file. Next I’m reading the function body to extract the exact line range for the anchor.\n{\"file\":\"/private/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-exp-anchor-systems-link-cost-ba828aa6621b2169/auth_service.py\",\"anchor\":\"generate_reset_token\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 21695.252917000005,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "operation": "boundary"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The JSON gives the correct file and line range 7..18, but its anchor is \"generate_reset_token\" instead of an accepted anchor value like \"impl:token-generator-v1\" or \"auth_service.py#generate_reset_token\".",
+      "agentOutput": "I’m locating the file and the exact function range now.\nI found the target file; next I’m extracting the function boundaries.\n{\"file\":\"auth_service.py\",\"anchor\":\"generate_reset_token\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 19792.29545799998,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "operation": "boundary"
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The response does identify the correct file and line range (auth_service.py lines 7-18), but it fails the rule because it names the anchor as \"generate_reset_token\" instead of an accepted anchor value like \"auth_service.py#generate_reset_token\" or \"impl:token-generator-v1\" and includes extra prose rather than only the required JSON.",
+      "agentOutput": "I’m locating the file and the function definition so I can return the exact line range.\nI found the function declaration; now I’m reading the surrounding block to get the full inclusive range.\n{\"file\":\"auth_service.py\",\"anchor\":\"generate_reset_token\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 17962.18862500001,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "operation": "reference-hop"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The response resolves the correct file and value, but it names the anchor as \"otp-rate-window\" instead of the accepted \"rate:otp-window\" or full surface form \"ratelimit.md#otp-rate-window\", so it does not satisfy the rule.",
+      "agentOutput": "I’m locating the referenced policy and the anchor target.\nI found the policy file; now I’m reading the anchor section to extract the value.\n{\"file\":\"ratelimit.md\",\"anchor\":\"otp-rate-window\",\"value\":\"90-second window\"}",
+      "durationMs": 21181.384208000003,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "operation": "reference-hop"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response resolves the reference to `ratelimit.md`, uses the accepted surface anchor `otp-rate-window`, and gives the correct value as a 90-second window.",
+      "agentOutput": "I’m locating the policy doc and the anchor target, then I’ll extract the exact OTP validity window value.\n{\"file\":\"ratelimit.md\",\"anchor\":\"otp-rate-window\",\"value\":\"90-second window\"}",
+      "durationMs": 16232.342917000002,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "operation": "reference-hop"
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The output resolves the file as `ratelimit.md` and gives a 90-second value, but it names the anchor as `otp-rate-window` instead of the accepted `rate:otp-window` or `ratelimit.md#otp-rate-window`, so it does not fully satisfy the rule.",
+      "agentOutput": "Searching the documentation for `ratelimit.md` and the `otp-rate-window` anchor.\nReading the rate-limit policy section that defines the OTP window.\n{\"file\":\"ratelimit.md\",\"anchor\":\"otp-rate-window\",\"value\":\"90-second window\"}",
+      "durationMs": 17684.39970899999,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "operation": "reference-hop"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The response resolves the correct file and value, but it names the anchor as \"otp-rate-window\" instead of an accepted anchor such as \"rate:otp-window\" or the system surface form \"ratelimit.md#otp-rate-window\".",
+      "agentOutput": "Finding the referenced section in `ratelimit.md` and extracting the OTP validity window.\n{\"file\":\"ratelimit.md\",\"anchor\":\"otp-rate-window\",\"value\":\"90-second window\"}",
+      "durationMs": 22077.124290999986,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "native",
+          "operation": "reference-hop"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response resolves the reference to `ratelimit.md`, uses the accepted surface anchor `otp-rate-window`, and gives the correct OTP window value as 90 seconds (`\"90-second window\"`).",
+      "agentOutput": "I’m locating the policy file and the anchor, then I’ll extract the exact window value.\n{\"file\":\"ratelimit.md\",\"anchor\":\"otp-rate-window\",\"value\":\"90-second window\"}",
+      "durationMs": 16810.366791000008,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "operation": "lookup"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The response resolves the reference to `session.md` and gives the correct value `30 minutes`, and the anchor `Session Timeout Policy` is explicitly accepted by the rule as a valid system surface anchor.",
+      "agentOutput": "I’m locating the referenced file and heading, then I’ll extract the timeout value exactly.\nI found the target file. Next I’m reading the relevant section around the heading.\n{\"file\":\"session.md\",\"anchor\":\"Session Timeout Policy\",\"value\":\"30 minutes\"}",
+      "durationMs": 15472.866084000038,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "operation": "lookup"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response includes JSON identifying `session.md` with the heading surface anchor `Session Timeout Policy` and the correct maximum idle session timeout value `30 minutes`.",
+      "agentOutput": "I’m locating `session.md` and the referenced heading, then I’ll extract the maximum idle timeout value.\nI found the target file and heading. Next I’m reading that section to extract the maximum idle timeout value.\n{\"file\":\"session.md\",\"anchor\":\"Session Timeout Policy\",\"value\":\"30 minutes\"}",
+      "durationMs": 20587.87141600001,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "operation": "lookup"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response resolves the reference to `session.md` and gives the correct maximum idle session timeout value `30 minutes`, using the accepted heading text `Session Timeout Policy` as the anchor.",
+      "agentOutput": "I’m locating the referenced Markdown file and its heading, then I’ll extract the timeout value directly from the document.\nI found the file and heading. Now I’m reading the section that defines the session timeout limit.\n{\"file\":\"session.md\",\"anchor\":\"Session Timeout Policy\",\"value\":\"30 minutes\"}",
+      "durationMs": 20806.47233399999,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "operation": "lookup"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The response includes extra prose and the JSON uses \"anchor\":\"Session Timeout Policy\" instead of the accepted resolved anchor `auth:session-timeout` or `session.md:Session Timeout Policy`, even though the file and value are correct.",
+      "agentOutput": "I’m locating the referenced file and heading, then I’ll extract the value directly from the documented policy.\n{\"file\":\"session.md\",\"anchor\":\"Session Timeout Policy\",\"value\":\"30 minutes\"}",
+      "durationMs": 21230.27350000001,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "operation": "lookup"
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The output includes extra prose instead of only JSON and the JSON uses the plain heading text as the anchor rather than the accepted resolved anchor `auth:session-timeout` or system surface anchor `session.md:Session Timeout Policy`, even though the file and value are correct.",
+      "agentOutput": "I’m locating `session.md` and the referenced heading, then I’ll extract the maximum idle timeout value.\nI found the target file. Next I’m reading the `Session Timeout Policy` section to get the exact maximum idle value.\n{\"file\":\"session.md\",\"anchor\":\"Session Timeout Policy\",\"value\":\"30 minutes\"}",
+      "durationMs": 16340.404917000036,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "operation": "boundary"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The JSON gives the correct file and line range (auth_service.py, 7-18) but names the anchor as \"generate_reset_token\" instead of the accepted anchor values \"impl:token-generator-v1\" or \"auth_service.py:generate_reset_token\".",
+      "agentOutput": "I’m locating the target function and its enclosing line range.\nI found the function; now I’m reading the file to determine its inclusive span.\n{\"file\":\"auth_service.py\",\"anchor\":\"generate_reset_token\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 17729.41858300002,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "operation": "boundary"
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "The response gives the correct file and line range (auth_service.py, 7-18) but the anchor is `generate_reset_token`, which is neither the accepted canonical anchor `impl:token-generator-v1` nor the accepted system surface anchor `auth_service.py:generate_reset_token`.",
+      "agentOutput": "I’m locating the function and its line range in `auth_service.py`.\nI found the target file. Next I’m reading the relevant section to capture the exact function bounds.\n{\"file\":\"auth_service.py\",\"anchor\":\"generate_reset_token\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 15020.90175000002,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "operation": "boundary"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response resolves the reference to file `auth_service.py` and gives the accepted system surface anchor `auth_service.py:generate_reset_token` with the exact inclusive line range 7-18.",
+      "agentOutput": "I’m locating the referenced function and its enclosing definition now.\nI found the function definition; I’m reading the file to capture the exact inclusive range.\n{\"file\":\"auth_service.py\",\"anchor\":\"auth_service.py:generate_reset_token\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 18432.710541000008,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "operation": "boundary"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "agent exited with code 1",
+      "agentOutput": "OpenCode aborted on stream stall: no events for 120s",
+      "durationMs": 124624.32825000002,
+      "exitCode": 1,
+      "error": "agent exited with code 1"
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "operation": "boundary"
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The response names the correct file and line range (7..18) but gives the anchor as \"generate_reset_token\" instead of an accepted anchor (\"impl:token-generator-v1\" or \"auth_service.py:generate_reset_token\"), so it does not fully resolve the reference as required.",
+      "agentOutput": "Searching for the referenced function and its file location.\n{\"file\":\"auth_service.py\",\"anchor\":\"generate_reset_token\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 18940.606625000015,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "operation": "reference-hop"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The response identifies the correct file `ratelimit.md`, uses the accepted surface anchor `OTP Rate Window`, and gives the correct OTP window value as 90 seconds (`90-second window`).",
+      "agentOutput": "I’m locating the referenced Markdown heading and extracting the policy value.\nI found the heading in `ratelimit.md`; now I’m reading the surrounding policy text to extract the window value.\n{\"file\":\"ratelimit.md\",\"anchor\":\"OTP Rate Window\",\"value\":\"90-second window\"}",
+      "durationMs": 20654.934709000052,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "operation": "reference-hop"
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "The output names the file correctly and gives an equivalent value, but it does not identify an accepted anchor (`rate:otp-window` or `ratelimit.md:OTP Rate Window`), instead using only `OTP Rate Window`.",
+      "agentOutput": "I’m locating the referenced heading and extracting the policy value from the file-qualified target.\nI found the heading in `ratelimit.md`; now I’m reading the surrounding policy text to get the OTP validity window.\n{\"file\":\"ratelimit.md\",\"anchor\":\"OTP Rate Window\",\"value\":\"90-second window\"}",
+      "durationMs": 22348.31816699996,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "operation": "reference-hop"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response resolves the reference to `ratelimit.md` and gives the correct OTP window value `90 seconds`, and the anchor `OTP Rate Window` is explicitly allowed as the system surface anchor.",
+      "agentOutput": "I’m locating the referenced policy and the exact heading in the docs, then I’ll extract the validity window value.\nI found the heading in `ratelimit.md`; now I’m reading that section to extract the window value.\n{\"file\":\"ratelimit.md\",\"anchor\":\"OTP Rate Window\",\"value\":\"90 seconds\"}",
+      "durationMs": 18088.57250000001,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "operation": "reference-hop"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it includes extra prose instead of only raw JSON, and its `anchor` is `OTP Rate Window` rather than an accepted resolved anchor such as `rate:otp-window` or `ratelimit.md:OTP Rate Window`, even though the value implies 90 seconds.",
+      "agentOutput": "I’m locating the referenced heading in `ratelimit.md` and extracting the OTP validity window value.\n{\"file\":\"ratelimit.md\",\"anchor\":\"OTP Rate Window\",\"value\":\"90-second window\"}",
+      "durationMs": 21475.855667000054,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "heading-refs",
+          "operation": "reference-hop"
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The output does identify `ratelimit.md` and a 90-second window, but it fails the rule because it includes extra prose and the JSON anchor is `OTP Rate Window` instead of the accepted resolved anchor `rate:otp-window` or file-qualified `ratelimit.md:OTP Rate Window`.",
+      "agentOutput": "I’m locating the referenced Markdown heading and extracting its policy value.\nI found the heading in `ratelimit.md`; now I’m reading the surrounding policy text to get the exact window value.\n{\"file\":\"ratelimit.md\",\"anchor\":\"OTP Rate Window\",\"value\":\"90-second window\"}",
+      "durationMs": 19404.820958000026,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "operation": "lookup"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The agent's output explicitly resolves the reference to file `session.md` with anchor `auth-session-timeout` and value `30 minutes`, which matches the accepted target and required value.",
+      "agentOutput": "I’m locating the block anchor and the file that defines it, then I’ll extract the timeout value.\nI found the anchor in `session.md`; I’m verifying the exact wording and value now.\n{\"file\":\"session.md\",\"anchor\":\"auth-session-timeout\",\"value\":\"30 minutes\"}",
+      "durationMs": 15188.335667000036,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "operation": "lookup"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent output explicitly names `session.md`, uses the accepted anchor form `auth-session-timeout`, and gives the correct timeout value as `30 minutes of inactivity`, which matches the required 30-minute idle timeout.",
+      "agentOutput": "I’m locating the block anchor and extracting the timeout value from the source file.\nI found the anchor in `session.md`; now I’m verifying the exact wording so the value is extracted cleanly.\n{\"file\":\"session.md\",\"anchor\":\"auth-session-timeout\",\"value\":\"30 minutes of inactivity\"}",
+      "durationMs": 22048.028208000003,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "operation": "lookup"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response resolves the reference to `session.md` and gives the correct maximum idle session timeout value `30 minutes`, using an accepted anchor form (`auth-session-timeout`).",
+      "agentOutput": "I’m locating the file-qualified block for `auth-session-timeout` and then I’ll extract the maximum idle timeout value.\n{\"file\":\"session.md\",\"anchor\":\"auth-session-timeout\",\"value\":\"30 minutes\"}",
+      "durationMs": 16081.905291999923,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "operation": "lookup"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The response resolves the wikilink to `session.md`, uses the accepted anchor `^auth-session-timeout`, and gives the correct idle timeout value as 30 minutes (`30 minutes of inactivity`).",
+      "agentOutput": "I’m locating the referenced block ID and reading the source file for the exact timeout value.\n{\"file\":\"session.md\",\"anchor\":\"^auth-session-timeout\",\"value\":\"30 minutes of inactivity\"}",
+      "durationMs": 21245.47566700005,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "operation": "lookup"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The final response includes JSON identifying `session.md` with anchor `^auth-session-timeout` and value `30 minutes`, which matches the accepted resolved wikilink target and value.",
+      "agentOutput": "Searching the docs for the block anchor `auth-session-timeout` and the session file that owns it.\nReading the session definition to extract the timeout value tied to the anchor.\n{\"file\":\"session.md\",\"anchor\":\"^auth-session-timeout\",\"value\":\"30 minutes\"}",
+      "durationMs": 16460.363375000074,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "operation": "boundary"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The response resolves [[auth_service#^impl-token-generator-v1]] to the correct file `auth_service.py` and provides the accepted anchor `impl-token-generator-v1` with the correct inclusive line range `7` to `18`.",
+      "agentOutput": "Searching for the block id and the file that defines it.\nFound the anchor in `auth_service.py`; checking the containing function boundaries now.\n{\"file\":\"auth_service.py\",\"anchor\":\"impl-token-generator-v1\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 16192.24237500003,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "operation": "boundary"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly resolves the wikilink to `auth_service.py` with anchor `^impl-token-generator-v1` and gives the inclusive function line range `7..18`, which exactly matches the required target.",
+      "agentOutput": "Searching for the block anchor in the documentation and source.\nI found the target file; now I’m reading the surrounding function to get exact bounds.\n{\"file\":\"auth_service.py\",\"anchor\":\"^impl-token-generator-v1\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 20403.808375000022,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "operation": "boundary"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent output explicitly names the correct file `auth_service.py`, uses the accepted anchor `impl-token-generator-v1`, and provides the exact inclusive line range `7..18` required by the rule.",
+      "agentOutput": "I’m locating the file-qualified anchor and the containing function, then I’ll return the exact line range as JSON.\nI found the source file. Now I’m locating the exact block anchor and the function boundaries around it.\n{\"file\":\"auth_service.py\",\"anchor\":\"impl-token-generator-v1\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 19974.38616600004,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "operation": "boundary"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The final response explicitly resolves the reference to `auth_service.py` with accepted anchor `^impl-token-generator-v1` and exact inclusive line range `7` to `18`, which matches the rule.",
+      "agentOutput": "I’m locating the block anchor in the Markdown docs, then I’ll return the containing function’s file and line range as JSON.\nThe anchor text was not present in the Markdown files, so I’m checking the Python sources to map `auth_service` to the actual function definition.\n{\"file\":\"auth_service.py\",\"anchor\":\"^impl-token-generator-v1\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 19728.117708000005,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "operation": "boundary"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response resolves the reference to `auth_service.py` and gives the inclusive line range `7`-`18`, which exactly matches the required containing function range, while using the same anchor identifier without changing it to a different anchor.",
+      "agentOutput": "Searching the repository for the anchor and matching function.\nFound the anchor in `auth_service.py`; now reading the surrounding function to get exact line range.\n{\"file\":\"auth_service.py\",\"anchor\":\"impl-token-generator-v1\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 21310.33841700002,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "operation": "reference-hop"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The JSON names the anchor as \"rate-otp-window\", but the rule only accepts the resolved anchor as \"rate:otp-window\" or the system surface anchor \"^rate-otp-window\", so it does not identify the correct anchor.",
+      "agentOutput": "I’m locating the referenced policy block and extracting the OTP validity window value.\nI found the anchor; I’m checking the source line to preserve the exact value wording.\n{\"file\":\"ratelimit.md\",\"anchor\":\"rate-otp-window\",\"value\":\"90-second window\"}",
+      "durationMs": 24760.9077920001,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "operation": "reference-hop"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response resolves the wikilink to `ratelimit.md`, uses the accepted anchor `^rate-otp-window`, and gives the correct OTP validity value as a 90-second window.",
+      "agentOutput": "Searching the documentation for the referenced block and policy value.\nOpening the policy source to extract the exact value.\n{\"file\":\"ratelimit.md\",\"anchor\":\"^rate-otp-window\",\"value\":\"90-second window\"}",
+      "durationMs": 35513.15758300002,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "operation": "reference-hop"
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The response names the file correctly and gives a 90-second value, but it resolves the anchor as \"rate-otp-window\" instead of the accepted \"rate:otp-window\" or \"^rate-otp-window\", so it does not correctly resolve the reference.",
+      "agentOutput": "Searching the documentation for the referenced block id and the OTP window value.\nFound the anchor in `ratelimit.md`; reading the surrounding policy text to extract the value exactly.\n{\"file\":\"ratelimit.md\",\"anchor\":\"rate-otp-window\",\"value\":\"90-second window\"}",
+      "durationMs": 20436.661208999925,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "operation": "reference-hop"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The response resolves the reference to `ratelimit.md`, uses the accepted anchor `^rate-otp-window`, and gives the correct OTP validity value as 90 seconds (`\"90-second window\"`).",
+      "agentOutput": "Searching the documentation for the `ratelimit` policy and the `^rate-otp-window` anchor.\n{\"file\":\"ratelimit.md\",\"anchor\":\"^rate-otp-window\",\"value\":\"90-second window\"}",
+      "durationMs": 15645.713290999993,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "wikilinks",
+          "operation": "reference-hop"
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The output names the correct file and anchor, but it does not follow the required raw-JSON-only format and gives the value as \"90-second window\" instead of the required \"90 seconds\" or a line range.",
+      "agentOutput": "I’m locating the referenced policy file and block id, then I’ll extract the OTP validity window value.\nI found the anchor. I’m checking the surrounding line to capture the value exactly as written.\n{\"file\":\"ratelimit.md\",\"anchor\":\"rate-otp-window\",\"value\":\"90-second window\"}",
+      "durationMs": 20871.779457999975,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "operation": "lookup"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The response resolves the path-free reference to `session.md`, uses the accepted anchor `202605121001`, and gives the correct timeout value `30 minutes`.",
+      "agentOutput": "Searching the Markdown notes for UID `202605121001` and the timeout value.\nFound the anchor file; checking its session timeout definition.\n{\"file\":\"session.md\",\"anchor\":\"202605121001\",\"value\":\"30 minutes\"}",
+      "durationMs": 16677.71104199998,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "operation": "lookup"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response identifies the correct file `session.md` and gives the correct value `30 minutes`, and the anchor `202605121001` is explicitly acceptable under the rule.",
+      "agentOutput": "Searching the docs for the UID and matching anchor now.\nThe UID resolves to the session documentation; I’m reading that file and its nearby references to extract the exact value.\n{\"file\":\"session.md\",\"anchor\":\"202605121001\",\"value\":\"30 minutes\"}",
+      "durationMs": 15297.85933300003,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "operation": "lookup"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The output resolves the path-free reference to `session.md`, uses the accepted system-surface anchor `202605121001`, and gives the correct timeout value as 30 minutes (`\"30 minutes of inactivity\"`).",
+      "agentOutput": "Searching the project for the referenced UID and nearby anchors.\nOpening the target note to extract the exact anchor and value.\n{\"file\":\"session.md\",\"anchor\":\"202605121001\",\"value\":\"30 minutes of inactivity\"}",
+      "durationMs": 17334.77370800008,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "operation": "lookup"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The final response identifies the correct file `session.md` and gives the correct value `30 minutes`, and it uses the explicitly accepted system surface anchor `202605121001`.",
+      "agentOutput": "Searching the project for the UID and related anchor text, then I’ll extract the timeout value.\nFound the UID in `session.md`; now I’m reading that note to extract the exact anchor and value.\nThe target note is the session management entry with the timeout sentence; I’m checking whether the project treats the UID itself as the anchor label.\n{\"file\":\"session.md\",\"anchor\":\"202605121001\",\"value\":\"30 minutes\"}",
+      "durationMs": 20090.229915999924,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "operation": "lookup"
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The response gives the correct file and value, but it names the anchor as \"UID: 202605121001\" instead of the accepted `auth:session-timeout` or `202605121001`, so it does not satisfy the anchor requirement.",
+      "agentOutput": "Searching the project for the UID anchor and the timeout value.\nFound the source note; reading it to extract the maximum idle session timeout.\n{\"file\":\"session.md\",\"anchor\":\"UID: 202605121001\",\"value\":\"30 minutes\"}",
+      "durationMs": 30790.466540999943,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "operation": "boundary"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The final response resolves [[202605121017]] to `auth_service.py` with anchor `202605121017` and inclusive line range 7..18, which exactly matches the accepted file and range in the rule.",
+      "agentOutput": "I’m locating the anchor across the repository and will return the containing function’s file and line range.\nI found the UID in `auth_service.py`; I’m reading the surrounding function to extract the exact inclusive line range.\n{\"file\":\"auth_service.py\",\"anchor\":\"202605121017\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 17030.36179200001,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "operation": "boundary"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response includes a JSON object naming the correct file `auth_service.py`, an accepted anchor `202605121017`, and the exact inclusive line range `7` to `18`, which matches the required resolution.",
+      "agentOutput": "Searching the workspace for the UID and its defining function.\nFound the UID in `auth_service.py`; now extracting the enclosing function boundaries.\n{\"file\":\"auth_service.py\",\"anchor\":\"202605121017\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 48505.08658299991,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "operation": "boundary"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response resolves [[202605121017]] to `auth_service.py` and provides the accepted anchor `202605121017` with the correct inclusive line range `7` to `18`.",
+      "agentOutput": "Searching the workspace for the UID and the surrounding function definition.\nI found the UID in `auth_service.py`; now I’m reading the function boundaries to extract the exact inclusive line range.\n{\"file\":\"auth_service.py\",\"anchor\":\"202605121017\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 20719.661291999975,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "operation": "boundary"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The response resolves [[202605121017]] to `auth_service.py` with accepted anchor `202605121017` and exact inclusive line range `7..18`, which matches the required function location.",
+      "agentOutput": "Searching the project for the `[[202605121017]]` anchor and the function that contains it.\nFound the UID in `auth_service.py`; checking the enclosing function boundaries now.\n{\"file\":\"auth_service.py\",\"anchor\":\"202605121017\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 21978.6957080001,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "operation": "boundary"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response identifies the correct file `auth_service.py`, uses an accepted anchor value `202605121017`, and gives the exact inclusive line range `7` to `18` for the containing function.",
+      "agentOutput": "Searching the project for the UID and nearby anchor context.\nFound the UID in `auth_service.py`; now checking the surrounding function to return the exact line span.\n{\"file\":\"auth_service.py\",\"anchor\":\"202605121017\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 16601.015332999872,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "operation": "reference-hop"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The output resolves the file to `ratelimit.md` and gives a 90-second value, but it names the anchor as `UID: 202605121009` instead of the accepted `rate:otp-window` or exact system anchor `202605121009`, so it does not clearly satisfy the rule.",
+      "agentOutput": "Searching the project for the zettelkasten UID and the policy anchor now.\nFound the UID in `ratelimit.md`; reading the surrounding policy text to extract the referenced value.\n{\"file\":\"ratelimit.md\",\"anchor\":\"UID: 202605121009\",\"value\":\"90-second window\"}",
+      "durationMs": 18117.353374999948,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "operation": "reference-hop"
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "The response resolved the file correctly and implied the right duration, but it named the anchor as \"UID: 202605121009\" instead of the accepted `rate:otp-window` or `202605121009`, so it does not satisfy the rule.",
+      "agentOutput": "I’m locating the UID across the docs and source, then I’ll extract the OTP validity window from the matching policy anchor.\nI found the UID in `ratelimit.md`; now I’m reading that policy to extract the validity window value.\n{\"file\":\"ratelimit.md\",\"anchor\":\"UID: 202605121009\",\"value\":\"90-second window\"}",
+      "durationMs": 18364.446125000017,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "operation": "reference-hop"
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it names the anchor as `UID: 202605121009` instead of the accepted `rate:otp-window` or `202605121009`, and it includes extra prose rather than only the required JSON.",
+      "agentOutput": "I’m locating the UID anchor in the docs, then I’ll extract the OTP validity window value.\nI found the anchor in `ratelimit.md`; now I’m reading the surrounding policy to extract the exact window.\n{\"file\":\"ratelimit.md\",\"anchor\":\"UID: 202605121009\",\"value\":\"90-second window\"}",
+      "durationMs": 17627.413375000004,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "operation": "reference-hop"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it did not return only raw JSON and it identifies the anchor as \"UID: 202605121009\" instead of the accepted anchor `rate:otp-window` or exact system surface anchor `202605121009`, even though it did name `ratelimit.md` and `90 seconds`.",
+      "agentOutput": "Searching the workspace for the UID and the matching policy anchor.\nThe UID points to `ratelimit.md`; I’m checking the anchor definition and nearby policy text for the OTP window.\n{\"file\":\"ratelimit.md\",\"anchor\":\"UID: 202605121009\",\"value\":\"90 seconds\"}",
+      "durationMs": 17596.43520800001,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "zettelkasten",
+          "operation": "reference-hop"
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The output resolved the file and approximate value, but it named the anchor as \"UID: 202605121009\" instead of the accepted `rate:otp-window` or `202605121009`, so it does not satisfy the rule.",
+      "agentOutput": "I’m locating the UID anchor in the project docs, then I’ll extract the OTP validity window value.\nI found the UID in `ratelimit.md`; now I’m reading the policy text to extract the validity window.\n{\"file\":\"ratelimit.md\",\"anchor\":\"UID: 202605121009\",\"value\":\"90-second window\"}",
+      "durationMs": 19498.031542000128,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "operation": "lookup"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The response resolved the file and value correctly (`session.md`, `30 minutes`) but named the anchor as `ANC:auth:session-timeout` instead of the accepted `auth:session-timeout`, so it does not satisfy the rule.",
+      "agentOutput": "Searching the documentation for the `auth:session-timeout` anchor, then I’ll extract the maximum idle timeout value.\nI found the anchor in `session.md`; now I’m reading the exact policy text to capture the maximum idle timeout value.\n{\"file\":\"session.md\",\"anchor\":\"ANC:auth:session-timeout\",\"value\":\"30 minutes\"}",
+      "durationMs": 19022.42879099981,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "operation": "lookup"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The agent output explicitly resolves the path-free reference to file `session.md`, anchor `auth:session-timeout`, and value `30 minutes`, which matches the rule exactly.",
+      "agentOutput": "I’m locating the anchor that matches `auth:session-timeout` and then I’ll extract the timeout value from the source text.\nI found the likely documentation set. Next I’m searching for the exact session-timeout anchor and the value attached to it.\n{\"file\":\"session.md\",\"anchor\":\"auth:session-timeout\",\"value\":\"30 minutes\"}",
+      "durationMs": 19347.628916000016,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "operation": "lookup"
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The response resolves the file correctly and gives the correct timeout value, but it names the anchor as `ANC:auth:session-timeout` instead of the required accepted anchor `auth:session-timeout`, so it does not satisfy the rule.",
+      "agentOutput": "Locating the matching anchor in the docs, then I’ll extract the timeout value.\nFound the anchor candidate in `session.md`; now reading the exact policy text.\n{\"file\":\"session.md\",\"anchor\":\"ANC:auth:session-timeout\",\"value\":\"30 minutes of inactivity\"}",
+      "durationMs": 16634.739541999996,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "operation": "lookup"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it does not return only raw JSON and it names the anchor as \"ANC:auth:session-timeout\" instead of the accepted \"auth:session-timeout\", even though the file and value are otherwise correct.",
+      "agentOutput": "I’m locating the matching anchor and the maximum idle timeout value in the docs.\nI found the anchor target in `session.md`; now I’m reading that section to extract the idle timeout maximum.\n{\"file\":\"session.md\",\"anchor\":\"ANC:auth:session-timeout\",\"value\":\"30 minutes of inactivity\"}",
+      "durationMs": 16088.46962499991,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "operation": "lookup"
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The response resolved the correct file `session.md` and value `30 minutes`, but the JSON names the anchor as `ANC:auth:session-timeout` instead of the accepted `auth:session-timeout`, so it does not satisfy the rule.",
+      "agentOutput": "I’m locating the anchor for `auth:session-timeout` across the project and will extract the maximum idle timeout value directly from the matching source.\nI found the anchor in `session.md`; I’m reading the surrounding policy text to extract the maximum idle timeout value precisely.\n{\"file\":\"session.md\",\"anchor\":\"ANC:auth:session-timeout\",\"value\":\"30 minutes\"}",
+      "durationMs": 20234.38599999994,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "operation": "boundary"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The response resolves the path-free reference to `auth_service.py` with anchor `impl:token-generator-v1` and the exact inclusive line range `7` to `18`, which matches the required target.",
+      "agentOutput": "Searching the repository for the anchor and nearby function definitions.\nFound the anchor in `auth_service.py`; now reading the function boundaries to get the exact line range.\n{\"file\":\"auth_service.py\",\"anchor\":\"impl:token-generator-v1\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 18673.164209000068,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "operation": "boundary"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response resolves the path-free reference to `auth_service.py` with anchor `impl:token-generator-v1` and the exact inclusive line range `7` to `18`, which matches the required target.",
+      "agentOutput": "I’m locating the anchor in the repository and then I’ll return the exact function span as JSON.\nI found the anchor marker in `auth_service.py`; now I’m reading the function boundaries to extract the exact line range.\n{\"file\":\"auth_service.py\",\"anchor\":\"impl:token-generator-v1\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 22390.498041999992,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "operation": "boundary"
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The output identifies the correct file and line range, but the JSON names the anchor as \"token-generator-v1\" instead of the required \"impl:token-generator-v1\", which the rule says must not be changed.",
+      "agentOutput": "Searching the repository for the anchor text and nearby SALP references now.\nFound the anchor in `auth_service.py`; now I’m extracting the enclosing function line range.\n{\"file\":\"auth_service.py\",\"anchor\":\"token-generator-v1\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 18937.00549999997,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "operation": "boundary"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly resolves the path-free reference to `auth_service.py` with anchor `impl:token-generator-v1` and inclusive line range `7` to `18`, which exactly matches the rule.",
+      "agentOutput": "Searching the codebase for the anchor text and its surrounding function.\nFound the anchor in `auth_service.py`; reading the function boundaries now.\n{\"file\":\"auth_service.py\",\"anchor\":\"impl:token-generator-v1\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 21922.963709000032,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "operation": "boundary"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The final response includes a JSON object that correctly resolves the reference to `auth_service.py` with anchor `impl:token-generator-v1` and the exact inclusive line range `7` to `18`.",
+      "agentOutput": "Searching the project for the matching anchor and surrounding function.\nFound the anchor in `auth_service.py`; reading the function boundaries now.\n{\"file\":\"auth_service.py\",\"anchor\":\"impl:token-generator-v1\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 17119.04379200004,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "operation": "reference-hop"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The response resolved the file and value correctly (`ratelimit.md`, `90 seconds`) but named a different anchor (`ANC:rate:otp-window` instead of the accepted `rate:otp-window`), which the rule says must fail.",
+      "agentOutput": "Searching the project for the `rate:otp-window` anchor and related OTP policy text.\nFound the anchor in `ratelimit.md`; reading that file and the linked OTP/session docs to extract the exact window value.\n{\"file\":\"ratelimit.md\",\"anchor\":\"ANC:rate:otp-window\",\"value\":\"90 seconds\"}",
+      "durationMs": 21284.146875000093,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "operation": "reference-hop"
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "The response does name the correct file and a near-correct value, but it fails the rule because it resolves the anchor as `ANC:rate:otp-window` instead of the required `rate:otp-window` and does not return only the specified raw JSON object.",
+      "agentOutput": "I’m locating the policy anchor first, then I’ll extract the OTP window value from the referenced document.\nI found the anchor in `ratelimit.md`; now I’m reading that policy block to capture the exact OTP window value.\n{\"file\":\"ratelimit.md\",\"anchor\":\"ANC:rate:otp-window\",\"value\":\"90-second window\"}",
+      "durationMs": 20306.13395799999,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "operation": "reference-hop"
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The JSON names `ratelimit.md` and a 90-second value, but it resolves the anchor as `ANC:rate:otp-window` instead of the required `rate:otp-window`, so it does not satisfy the rule.",
+      "agentOutput": "Searching the docs for the `otp-window` anchor and the policy it points to.\nI found the policy file; now I’m extracting the exact anchor and value from the source section.\n{\"file\":\"ratelimit.md\",\"anchor\":\"ANC:rate:otp-window\",\"value\":\"90-second window\"}",
+      "durationMs": 17509.08233299991,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "operation": "reference-hop"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The response does resolve `ratelimit.md` and gives a 90-second value, but it names the anchor as `ANC:rate:otp-window` instead of the required accepted anchor `rate:otp-window`, so it does not satisfy the rule.",
+      "agentOutput": "I’ll locate the anchor definition in the docs, then extract the OTP validity window value.\nI found the anchor in `ratelimit.md`; now I’m reading the surrounding policy text to extract the window value.\n{\"file\":\"ratelimit.md\",\"anchor\":\"ANC:rate:otp-window\",\"value\":\"90-second window\"}",
+      "durationMs": 19882.140957999974,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp",
+          "operation": "reference-hop"
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The response resolves the file and approximate value, but it names the anchor as `ANC:rate:otp-window` instead of the accepted `rate:otp-window`, so it does not satisfy the required reference resolution exactly.",
+      "agentOutput": "Searching the docs for the `rate:otp-window` anchor now.\nI found the anchor in `ratelimit.md`; now verifying the referenced value before returning JSON.\n{\"file\":\"ratelimit.md\",\"anchor\":\"ANC:rate:otp-window\",\"value\":\"90-second window\"}",
+      "durationMs": 18403.734540999867,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "operation": "lookup"
+        },
+        "trial": 0
+      },
+      "pass": false,
+      "judgeReason": "The output resolves the file as `session.md` and value as `30 minutes`, but it names the anchor `ANC:session-timeout` instead of the accepted `auth:session-timeout` or `session-timeout`, so it does not satisfy the rule.",
+      "agentOutput": "I’m locating the session-timeout anchor across the docs, then I’ll extract the maximum idle timeout value.\nI found the anchor file. I’m reading it now to extract the exact maximum idle timeout value.\n{\"file\":\"session.md\",\"anchor\":\"ANC:session-timeout\",\"value\":\"30 minutes\"}",
+      "durationMs": 20450.279125000117,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "operation": "lookup"
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "The response fails because it names the anchor as \"ANC:session-timeout\" instead of the accepted \"auth:session-timeout\" or \"session-timeout\", and it also includes extra prose before the JSON.",
+      "agentOutput": "I’m locating the anchor in the documentation, then I’ll extract the maximum idle timeout value exactly as referenced.\nI found the reference fan-out. Next I’m reading the session policy document to extract the exact maximum idle timeout.\n{\"file\":\"session.md\",\"anchor\":\"ANC:session-timeout\",\"value\":\"30 minutes\"}",
+      "durationMs": 19943.420041000005,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "operation": "lookup"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The agent output resolves the path-free reference to `session.md` with anchor `session-timeout` and gives the correct timeout value `30 minutes`, which the rule explicitly accepts.",
+      "agentOutput": "I’m locating the matching anchor and extracting the timeout value from the project docs.\nI found the anchor in `session.md`; now I’m reading that file and related references to extract the policy value.\n{\"file\":\"session.md\",\"anchor\":\"session-timeout\",\"value\":\"30 minutes\"}",
+      "durationMs": 24151.60708300001,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "operation": "lookup"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The output gives the correct file `session.md` and value `30 minutes`, but it names the anchor as `ANC:session-timeout` instead of the accepted `auth:session-timeout` or `session-timeout`.",
+      "agentOutput": "I’m locating the anchor that defines the session timeout policy, then I’ll extract the maximum idle timeout value.\nI found the anchor in `session.md`; now I’m reading that section to extract the max idle timeout.\n{\"file\":\"session.md\",\"anchor\":\"ANC:session-timeout\",\"value\":\"30 minutes\"}",
+      "durationMs": 17868.05995799997,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "operation": "lookup"
+        },
+        "trial": 4
+      },
+      "pass": false,
+      "judgeReason": "The response identified the correct file `session.md` and value `30 minutes`, but it used the anchor `ANC:session-timeout` instead of the accepted `auth:session-timeout` or `session-timeout`.",
+      "agentOutput": "Searching the docs for the `session-timeout` anchor and the idle timeout value.\nFound the anchor in `session.md`; reading it to extract the idle timeout value.\n{\"file\":\"session.md\",\"anchor\":\"ANC:session-timeout\",\"value\":\"30 minutes\"}",
+      "durationMs": 18651.04025000008,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "operation": "boundary"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly resolves the reference to `auth_service.py` with anchor `token-generator-v1` and inclusive line range `7` to `18`, which exactly matches the required file, anchor, and range.",
+      "agentOutput": "Searching the docs and source for the anchor text, then I’ll return the function’s line range as JSON.\nFound the anchor in `auth_service.py`; now I’m checking the enclosing function and its exact line bounds.\n{\"file\":\"auth_service.py\",\"anchor\":\"token-generator-v1\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 17545.293166999938,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "operation": "boundary"
+        },
+        "trial": 1
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly resolves the reference to `auth_service.py` with anchor `token-generator-v1` and inclusive line range `7` to `18`, which exactly matches the required file, anchor, and accepted range.",
+      "agentOutput": "Searching the project for the `token-generator-v1` anchor and nearby `token generator` references.\nI found the anchor in `auth_service.py`; now I’m checking the exact function boundaries to return the inclusive line range.\n{\"file\":\"auth_service.py\",\"anchor\":\"token-generator-v1\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 18879.726832999848,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "operation": "boundary"
+        },
+        "trial": 2
+      },
+      "pass": true,
+      "judgeReason": "The response resolves the reference to `auth_service.py` with anchor `token-generator-v1` and gives the exact inclusive line range `7` to `18`, which matches the required target.",
+      "agentOutput": "Searching the project for the anchor text and nearby function definitions.\nFound the anchor in `auth_service.py`; reading the surrounding function to capture its exact range.\n{\"file\":\"auth_service.py\",\"anchor\":\"token-generator-v1\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 19594.424499999965,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "operation": "boundary"
+        },
+        "trial": 3
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly resolves the reference to `auth_service.py` with anchor `token-generator-v1` and gives the exact inclusive function range `7..18`, which matches the required file and line range.",
+      "agentOutput": "I’m locating the anchor across the workspace, then I’ll return the containing function range as JSON.\nI found the anchor in `auth_service.py`; now I’m reading the function boundaries to get the exact inclusive line range.\n{\"file\":\"/private/var/folders/v9/3l0m1hj17g13s0sth9qm0fqr0000gn/T/flowai-exp-anchor-systems-link-cost-c24f8694975c4079/auth_service.py\",\"anchor\":\"token-generator-v1\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 15964.77562500001,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "operation": "boundary"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response explicitly resolves the reference to file `auth_service.py` with anchor `token-generator-v1` and line range `7` to `18`, which exactly matches the accepted target.",
+      "agentOutput": "Searching the project for the `token-generator-v1` anchor and the function that contains it.\nNarrowing to the exact anchor ID and the function that defines it.\n{\"file\":\"auth_service.py\",\"anchor\":\"token-generator-v1\",\"start_line\":7,\"end_line\":18}",
+      "durationMs": 23869.4359579999,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "operation": "reference-hop"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The response includes JSON resolving the path-free reference to file `ratelimit.md` with anchor `otp-window` and gives the correct 90-second value (`\"OTP codes are valid for a 90-second window.\"`).",
+      "agentOutput": "I’m locating the anchor across the docs and source files, then I’ll return the resolved policy value as JSON only.\nI found the anchor in the rate-limit policy and I’m reading the surrounding sections to extract the exact window value.\n{\"file\":\"ratelimit.md\",\"anchor\":\"otp-window\",\"value\":\"OTP codes are valid for a 90-second window.\"}",
+      "durationMs": 18255.81774999993,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "operation": "reference-hop"
+        },
+        "trial": 1
+      },
+      "pass": false,
+      "judgeReason": "The response resolves the file and 90-second value correctly, but it names the anchor as `ANC:otp-window` instead of the accepted `rate:otp-window` or `otp-window`, so it does not satisfy the rule.",
+      "agentOutput": "I’m locating the `otp-window` anchor in the docs, then I’ll return the referenced value as JSON.\nI found the anchor in `ratelimit.md`; now I’m reading the surrounding policy text to extract the validity window value.\n{\"file\":\"ratelimit.md\",\"anchor\":\"ANC:otp-window\",\"value\":\"OTP codes are valid for a 90-second window.\"}",
+      "durationMs": 17912.248167000012,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "operation": "reference-hop"
+        },
+        "trial": 2
+      },
+      "pass": false,
+      "judgeReason": "The response resolves the file correctly and gives a 90-second value, but it names the anchor as `ANC:otp-window` instead of the accepted `rate:otp-window` or `otp-window`, so it does not satisfy the rule.",
+      "agentOutput": "Searching the docs for the `otp-window` anchor and the policy text that defines the validity window.\nFound the anchor in `ratelimit.md`; checking the exact policy text so I can extract the value cleanly.\n{\"file\":\"ratelimit.md\",\"anchor\":\"ANC:otp-window\",\"value\":\"90-second window\"}",
+      "durationMs": 18584.270666999975,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "operation": "reference-hop"
+        },
+        "trial": 3
+      },
+      "pass": false,
+      "judgeReason": "The response does identify `ratelimit.md` and a 90-second value, but it names the anchor as `ANC:otp-window` instead of the accepted `rate:otp-window` or `otp-window`, so it does not correctly resolve the reference.",
+      "agentOutput": "Searching the docs for the `otp-window` anchor and matching policy text.\nFound the anchor in `ratelimit.md`; checking that policy and the MFA/session references for the exact value.\n{\"file\":\"ratelimit.md\",\"anchor\":\"ANC:otp-window\",\"value\":\"90-second window\"}",
+      "durationMs": 15974.10054200003,
+      "exitCode": 0
+    },
+    {
+      "cell": {
+        "axes": {
+          "system": "salp-short",
+          "operation": "reference-hop"
+        },
+        "trial": 4
+      },
+      "pass": true,
+      "judgeReason": "The response resolves the path-free reference to `ratelimit.md` with anchor `otp-window` and gives the correct OTP window value as 90 seconds (`\"90-second window\"`).",
+      "agentOutput": "I’m locating the referenced anchor in the repository and will return the resolved policy value as JSON.\nI found the anchor in the rate-limit policy and am checking the surrounding text to extract the exact window value.\n{\"file\":\"ratelimit.md\",\"anchor\":\"otp-window\",\"value\":\"90-second window\"}",
+      "durationMs": 21115.724833999993,
+      "exitCode": 0
+    }
+  ],
+  "adherenceByAxis": {
+    "system": {
+      "native": 0.5333333333333333,
+      "heading-refs": 0.4,
+      "wikilinks": 0.8,
+      "zettelkasten": 0.6,
+      "salp": 0.3333333333333333,
+      "salp-short": 0.5333333333333333
+    },
+    "operation": {
+      "lookup": 0.6,
+      "boundary": 0.7333333333333333,
+      "reference-hop": 0.26666666666666666
+    }
+  },
+  "durationMs": 1881591.52725,
+  "headline": "Path-free overhead vs file-qualified — +21 visible tokens (1.13x, n=5/cell)",
+  "customMarkdown": "## Token Cost\n\nVisible-token estimate: sent task prompt + final agent text only. This excludes system prompts, tool call payloads, tool results, file contents read by tools, and hidden runtime context.\n\n### By Link Class\n\n| operation | file-qualified tokens | path-free tokens | delta | ratio | file-qualified pass | path-free pass |\n|---|---:|---:|---:|---:|---:|---:|\n| lookup | 151 | 171 | +20 | 1.13x | 12/15 | 6/15 |\n| boundary | 166 | 182 | +16 | 1.10x | 8/15 | 14/15 |\n| reference-hop | 150 | 176 | +26 | 1.17x | 6/15 | 2/15 |\n\n### By System\n\n| system | class | operation | tokens | pass |\n|---|---|---|---:|---:|\n| native | file-qualified | lookup | 156 | 4/5 |\n| native | file-qualified | boundary | 180 | 2/5 |\n| native | file-qualified | reference-hop | 145 | 2/5 |\n| heading-refs | file-qualified | lookup | 154 | 3/5 |\n| heading-refs | file-qualified | boundary | 149 | 1/5 |\n| heading-refs | file-qualified | reference-hop | 157 | 2/5 |\n| wikilinks | file-qualified | lookup | 143 | 5/5 |\n| wikilinks | file-qualified | boundary | 169 | 5/5 |\n| wikilinks | file-qualified | reference-hop | 148 | 2/5 |\n| zettelkasten | path-free | lookup | 159 | 4/5 |\n| zettelkasten | path-free | boundary | 174 | 5/5 |\n| zettelkasten | path-free | reference-hop | 170 | 0/5 |\n| salp | path-free | lookup | 181 | 1/5 |\n| salp | path-free | boundary | 182 | 4/5 |\n| salp | path-free | reference-hop | 176 | 0/5 |\n| salp-short | path-free | lookup | 173 | 1/5 |\n| salp-short | path-free | boundary | 191 | 5/5 |\n| salp-short | path-free | reference-hop | 181 | 2/5 |\n\nVisible-token columns average estimated prompt + final output tokens over all trials in the cell. Pass columns show adherence so cheap failures are visible."
+}

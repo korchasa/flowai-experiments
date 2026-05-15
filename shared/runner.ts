@@ -29,12 +29,14 @@ import {
 export interface AgentTrialOutcome {
   output: string;
   exitCode: number;
-  tokens?: {
-    input: number;
-    output: number;
-    cacheRead: number;
-    cacheWrite: number;
-  };
+  tokens?: TokenUsage;
+}
+
+export interface TokenUsage {
+  input: number;
+  output: number;
+  cacheRead: number;
+  cacheWrite: number;
 }
 
 export type SpawnAgentFn = (opts: {
@@ -396,6 +398,7 @@ const defaultSpawnAgent: SpawnAgentFn = async (opts) => {
     model_provider: opts.modelProvider,
   });
   if (opts.adapter.ide === "opencode") {
+    const eventUsages: TokenUsage[] = [];
     const result = await invokeOpenCodeCli({
       processRegistry: defaultRegistry,
       cwd: opts.sandbox,
@@ -406,19 +409,18 @@ const defaultSpawnAgent: SpawnAgentFn = async (opts) => {
       retryDelaySeconds: 2,
       timeoutSeconds: Math.ceil(opts.stepTimeoutMs / 1000),
       env: opts.env,
+      onEvent(event: unknown) {
+        const usage = normalizeCliTokenUsage(event);
+        if (usage) eventUsages.push(usage);
+      },
     });
     const out = result.output;
+    const tokens = normalizeCliTokenUsage(out?.usage) ??
+      sumTokenUsages(eventUsages);
     return {
       output: out?.result ?? result.error ?? "",
       exitCode: out?.is_error || !out ? 1 : 0,
-      tokens: out?.usage
-        ? {
-          input: out.usage.input_tokens ?? 0,
-          output: out.usage.output_tokens ?? 0,
-          cacheRead: out.usage.cached_tokens ?? 0,
-          cacheWrite: 0,
-        }
-        : undefined,
+      tokens,
     };
   }
 
@@ -439,11 +441,127 @@ const defaultSpawnAgent: SpawnAgentFn = async (opts) => {
     claudeArgs: extraArgs,
   });
   const out = result.output;
+  const tokens = normalizeCliTokenUsage(out?.usage);
   return {
     output: out?.result ?? result.error ?? "",
     exitCode: out?.is_error || !out ? 1 : 0,
+    tokens,
   };
 };
+
+/** Normalize token telemetry from runtime-specific `ai-ide-cli` usage shapes. */
+export function normalizeCliTokenUsage(value: unknown): TokenUsage | undefined {
+  const seen = new Set<unknown>();
+  return normalizeCliTokenUsageInner(value, seen);
+}
+
+function normalizeCliTokenUsageInner(
+  value: unknown,
+  seen: Set<unknown>,
+): TokenUsage | undefined {
+  if (!isRecord(value) || seen.has(value)) return undefined;
+  seen.add(value);
+
+  const direct = readTokenUsageObject(value);
+  const nestedKeys = [
+    "usage",
+    "modelUsage",
+    "tokenUsage",
+    "tokens",
+    "inputTokenDetails",
+    "outputTokenDetails",
+    "part",
+  ];
+  const nested = nestedKeys
+    .map((key) => normalizeCliTokenUsageInner(value[key], seen))
+    .filter((usage): usage is TokenUsage => usage !== undefined);
+
+  return sumTokenUsages([direct, ...nested]);
+}
+
+function readTokenUsageObject(
+  value: Record<string, unknown>,
+): TokenUsage | undefined {
+  const input = firstNumber(value, [
+    "input_tokens",
+    "inputTokens",
+    "inputTokenCount",
+    "prompt_tokens",
+    "promptTokens",
+    "promptTokenCount",
+  ]);
+  const output = firstNumber(value, [
+    "output_tokens",
+    "outputTokens",
+    "outputTokenCount",
+    "completion_tokens",
+    "completionTokens",
+    "completionTokenCount",
+  ]);
+  const cacheRead = firstNumber(value, [
+    "cached_tokens",
+    "cachedTokens",
+    "cachedInputTokens",
+    "cache_read_input_tokens",
+    "cacheReadInputTokens",
+    "cacheReadTokens",
+  ]);
+  const cacheWrite = firstNumber(value, [
+    "cache_creation_input_tokens",
+    "cacheCreationInputTokens",
+    "cache_write_input_tokens",
+    "cacheWriteInputTokens",
+    "cacheWriteTokens",
+  ]);
+
+  if (
+    input === undefined && output === undefined && cacheRead === undefined &&
+    cacheWrite === undefined
+  ) {
+    return undefined;
+  }
+
+  return {
+    input: input ?? 0,
+    output: output ?? 0,
+    cacheRead: cacheRead ?? 0,
+    cacheWrite: cacheWrite ?? 0,
+  };
+}
+
+function firstNumber(
+  value: Record<string, unknown>,
+  keys: readonly string[],
+): number | undefined {
+  for (const key of keys) {
+    const raw = value[key];
+    if (typeof raw === "number" && Number.isFinite(raw)) return raw;
+    if (typeof raw === "string" && raw.trim() !== "") {
+      const parsed = Number(raw);
+      if (Number.isFinite(parsed)) return parsed;
+    }
+  }
+  return undefined;
+}
+
+function sumTokenUsages(
+  usages: readonly (TokenUsage | undefined)[],
+): TokenUsage | undefined {
+  let out: TokenUsage | undefined;
+  for (const usage of usages) {
+    if (!usage) continue;
+    out ??= { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 };
+    out.input += usage.input;
+    out.output += usage.output;
+    out.cacheRead += usage.cacheRead;
+    out.cacheWrite += usage.cacheWrite;
+  }
+  return out;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
 
 const defaultJudge: JudgeFn = async (
   rule,

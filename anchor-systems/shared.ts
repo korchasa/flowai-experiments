@@ -45,13 +45,6 @@ export interface GtBoundaryTarget {
   end_line: number;
 }
 
-export interface GtNoiseTarget {
-  anchor_id: string;
-  file: string;
-  target_function: string;
-  similar_functions: string[];
-}
-
 export interface GtAnomaly {
   type: "duplicate_anchor" | "orphaned_ref" | "shadowed_anchor";
   id?: string;
@@ -68,7 +61,6 @@ export interface GroundTruth {
   references: GtReference[];
   multi_hop_targets: Record<string, GtMultiHopTarget>;
   boundary_targets: GtBoundaryTarget[];
-  noise_target: GtNoiseTarget;
   anomalies: GtAnomaly[];
   zettelkasten_uids: Record<string, string>;
   salp_short_ids: Record<string, string>;
