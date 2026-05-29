@@ -393,11 +393,11 @@ const defaultSpawnAgent: SpawnAgentFn = async (opts) => {
   const { invokeClaudeCli, invokeOpenCodeCli, defaultRegistry } = await import(
     "@korchasa/ai-ide-cli"
   );
-  const model = modelRef({
-    model: opts.model,
-    model_provider: opts.modelProvider,
-  });
   if (opts.adapter.ide === "opencode") {
+    const model = modelRef({
+      model: opts.model,
+      model_provider: opts.modelProvider,
+    });
     const eventUsages: TokenUsage[] = [];
     const result = await invokeOpenCodeCli({
       processRegistry: defaultRegistry,
@@ -431,7 +431,7 @@ const defaultSpawnAgent: SpawnAgentFn = async (opts) => {
   const result = await invokeClaudeCli({
     processRegistry: defaultRegistry,
     cwd: opts.sandbox,
-    model,
+    model: opts.model,
     taskPrompt: opts.prompt,
     permissionMode: "bypassPermissions",
     maxRetries: 1,

@@ -8,6 +8,10 @@ Parameterized empirical studies of AI agent platforms. Measures how model × IDE
 shared/                        runner, judge, noise, report, tokens, adapters, llm
 claude-md-length/              variants single-file + tree-sum (rule adherence vs file size)
 context-anatomy/               variant baseline (CLI-intrinsic context floor + slope)
+chat-leakage-from-reasoning-lang/
+                                Russian chat leakage from instructed reasoning language
+chat-leakage-from-project-lang/
+                                Russian chat leakage from non-Russian project files
 anchor-systems/                documentation anchor/link navigation benchmark
 tokenizers/                    tokens/char across models × 40+ UDHR languages (OpenRouter)
 compression-decompression/     compress→decompress fact-retention benchmark (Claude CLI)
@@ -53,6 +57,8 @@ deno task experiment:compression
 
 See each experiment's `README.md` for flags and methodology.
 
+The chat-leakage experiments also report controlled input-context sizes by source language, excluding the final answer: project files, project memory, Russian chat query, and runtime prompt-token telemetry when available.
+
 All tasks **must be invoked from the repo root** — `config.json` is resolved CWD-relative (intentional).
 
 ## Evidence retention
@@ -88,12 +94,14 @@ The root README only tracks retained evidence coverage.
 | Experiment family | README | Retained result pairs |
 | --- | --- | ---: |
 | anchor-systems | [anchor-systems/README.md](anchor-systems/README.md) | 9 |
+| chat-leakage-from-reasoning-lang | [chat-leakage-from-reasoning-lang/README.md](chat-leakage-from-reasoning-lang/README.md) | 1 |
+| chat-leakage-from-project-lang | [chat-leakage-from-project-lang/README.md](chat-leakage-from-project-lang/README.md) | 31 |
 | context-anatomy | [context-anatomy/README.md](context-anatomy/README.md) | 3 |
 | claude-md-length | [claude-md-length/README.md](claude-md-length/README.md) | 2 |
 | tokenizers | [tokenizers/README.md](tokenizers/README.md) | 2 |
 | images-hard | [images-hard/README.md](images-hard/README.md) | 2 |
 | compression-decompression | [compression-decompression/README.md](compression-decompression/README.md) | 2 |
-| **Total** |  | **20** |
+| **Total** |  | **52** |
 
 ## License
 

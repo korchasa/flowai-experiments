@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "chat-leakage-from-project-lang-quick-combined",
+  "experimentName": "Chat leakage from project-file language (quick combined)",
+  "modelProvider": "anthropic",
+  "model": "claude-sonnet-4-6",
+  "ide": "claude",
+  "judgeModelProvider": "anthropic",
+  "judgeModel": "claude-sonnet-4-6",
+  "judgeRuntime": "claude",
+  "startedAt": "2026-05-20T16:18:47.190Z",
+  "finishedAt": "2026-05-20T16:20:24.455Z",
+  "seed": 1,
+  "reps": 1,
+  "axes": {
+    "project_language": [
+      "english"
+    ],
+    "tokens": [
+      400000
+    ],
+    "instruction": [
+      "baseline",
+      "guarded"
+    ]
+  },
+  "trials": [
+    {
+      "cell": {
+        "axes": {
+          "project_language": "english",
+          "tokens": 400000,
+          "instruction": "baseline"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "FINAL_ANSWER contains exactly two Russian sentences, selects the ограниченного пилотного запуска (limited pilot) as the priority plan, mentions the trade-off between broad coverage and managed risk, translates support capacity, access correctness, and rollback into Russian without copying source-language terms, contains no English words, and correctly identifies decision code 742.",
+      "agentOutput": "Достаточно прочитал — ключевая информация находится в первых строках файла. Остальное — повторяющийся исторический шум.\n\n---\n\nFINAL_ANSWER\n\nГлавная цель — выпустить продукт контролируемо, не превысив пропускную способность службы поддержки и убедившись, что права пользователей проверены, а возможность безопасно откатить изменения с сохранением обращений не утрачена. Компромисс между широким охватом и управляемым риском разрешается в пользу ограниченного пилотного запуска (код 742).",
+      "durationMs": 42828.215915999994,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 26,
+        "output": 1126,
+        "cacheRead": 52938,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "project_language": "english",
+          "tokens": 400000,
+          "instruction": "guarded"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The FINAL_ANSWER contains exactly two Russian sentences, identifies decision code 742, selects the limited pilot (ограниченная первая волна), mentions the trade-off between support capacity (службы поддержки), access transparency (прозрачность доступа), and rollback (безопасного отката), with no English words or untranslated source-language fragments.",
+      "agentOutput": "Ключевые сведения получены: три варианта плана (коды 111, 742, 999), из которых выбран 742 — ограниченная первая волна запуска. Остальные тысячи строк — намеренный информационный шум, повторяющий устаревшее предложение о массовом одновременном запуске.\n\n---\n\nFINAL_ANSWER\n\nГлавная цель — запустить продукт, не превысив возможности службы поддержки и обеспечив прозрачность того, кто и как получает доступ, что сделало невозможным ни охват всей аудитории в один день, ни полный перенос сроков. Выбран план 742 — ограниченная первая волна с сохранением возможности безопасного отката при необходимости.",
+      "durationMs": 54425.61275000001,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 26,
+        "output": 1707,
+        "cacheRead": 53119,
+        "cacheWrite": 0
+      }
+    }
+  ],
+  "adherenceByAxis": {
+    "project_language": {
+      "english": 1
+    },
+    "tokens": {
+      "400000": 1
+    },
+    "instruction": {
+      "baseline": 1,
+      "guarded": 1
+    }
+  },
+  "durationMs": 97264.220959,
+  "headline": "Max target tokens at >=80% adherence: english/baseline=400,000, english/guarded=400,000.",
+  "customMarkdown": "## Adherence by project language, instruction, and tokens\n\n| project_language | tokens | instruction | trials | pass | adherence |\n|---|---|---|---|---|---|\n| english | 400000 | baseline | 1 | 1 | 100.0% |\n| english | 400000 | guarded | 1 | 1 | 100.0% |\n\n## Final answer profile\n\nFinal answer is extracted from generated text after `FINAL_ANSWER`. Leakage adherence is judged only on this block.\n\n| project_language | tokens | instruction | trials | present | chars | tokens_est | russian | english |\n|---|---|---|---|---|---|---|---|---|\n| english | 400000 | baseline | 1 | 1 | 346 | 87 | 87 | 0 |\n| english | 400000 | guarded | 1 | 1 | 327 | 82 | 82 | 0 |\n\n## Diagnostic failure dimensions\n\nThe columns below are deterministic heuristics over `FINAL_ANSWER`; the judge verdict remains the canonical pass/fail signal.\n\n| project_language | tokens | instruction | trials | format_fail | language_leak | semantic_fail | source_term_leak | marker_fail |\n|---|---|---|---|---|---|---|---|---|\n| english | 400000 | baseline | 1 | 0 | 0 | 0 | 0 | 0 |\n| english | 400000 | guarded | 1 | 0 | 0 | 0 | 0 | 0 |\n\n## Controlled input context profile\n\nMeasured context below is rebuilt from the controlled trial input and excludes the final answer. Runtime token columns are shown only when the selected adapter exposes telemetry.\n\n| project_language | tokens | instruction | measured | project_file | memory | chat | russian | english | runtime_input | cache_read | cache_write |\n|---|---|---|---|---|---|---|---|---|---|---|---|\n| english | 400000 | baseline | 360,762 | 360,638 | 15 | 108 | 147 | 360,615 | 26 | 52,938 | 0 |\n| english | 400000 | guarded | 360,807 | 360,638 | 15 | 153 | 191 | 360,616 | 26 | 53,119 | 0 |"
+}

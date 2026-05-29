@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "chat-leakage-from-project-lang-quick-file-instruction",
+  "experimentName": "Chat leakage from project-file language (quick file instruction)",
+  "modelProvider": "anthropic",
+  "model": "claude-sonnet-4-6",
+  "ide": "claude",
+  "judgeModelProvider": "anthropic",
+  "judgeModel": "claude-sonnet-4-6",
+  "judgeRuntime": "claude",
+  "startedAt": "2026-05-20T14:57:15.268Z",
+  "finishedAt": "2026-05-20T14:59:50.881Z",
+  "seed": 1,
+  "reps": 1,
+  "axes": {
+    "project_language": [
+      "english",
+      "japanese"
+    ],
+    "tokens": [
+      400000
+    ],
+    "instruction": [
+      "baseline",
+      "guarded"
+    ]
+  },
+  "trials": [
+    {
+      "cell": {
+        "axes": {
+          "project_language": "english",
+          "tokens": 400000,
+          "instruction": "baseline"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The FINAL_ANSWER section contains exactly two Russian sentences: the first names the main goal and trade-off (broad coverage vs. safe auditability/access control), and the second explicitly chooses \"ограниченный пилот\" (limited pilot) in two prepared offices, citing access rights, logging, and rollback verification before scaling — satisfying all rule requirements with no English words or foreign language leakage.",
+      "agentOutput": "FINAL_ANSWER\n\nГлавная цель — запустить новый сервис обработки заявок для региональных офисов без потери данных и нарушений контроля доступа; компромисс состоит в выборе между широким охватом и безопасной проверяемостью. Приоритетный план — ограниченный пилот в двух подготовленных офисах, так как он сохраняет прогресс, проверяет права доступа, журналирование и откат на реальных запросах до масштабирования.",
+      "durationMs": 36513.238375,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 26,
+        "output": 633,
+        "cacheRead": 38723,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "project_language": "english",
+          "tokens": 400000,
+          "instruction": "guarded"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The FINAL_ANSWER contains exactly two Russian sentences with no English or Japanese words; it names the limited pilot plan (\"ограниченный пробный запуск\") as the priority and explicitly states the trade-off between broad coverage and safe auditability (\"широкий охват против безопасной проверяемости\"), satisfying all rule requirements.",
+      "agentOutput": "FINAL_ANSWER\nГлавная цель — ввести в эксплуатацию службу обработки заявок для региональных отделений без потери данных и ошибок в правах доступа, а ключевой компромисс — широкий охват против безопасной проверяемости. Приоритетный план — ограниченный пробный запуск в двух подготовленных отделениях, чтобы проверить права доступа, журналирование и обучение сотрудников до расширения на все отделения.",
+      "durationMs": 42314.721416,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 26,
+        "output": 1072,
+        "cacheRead": 53155,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "project_language": "japanese",
+          "tokens": 400000,
+          "instruction": "baseline"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The FINAL_ANSWER section contains exactly two Russian sentences, names the limited pilot (ограниченный пилотный запуск) as the priority plan, and explicitly addresses the trade-off between speed/coverage and safety, auditability, access correctness, rollback, and support capacity, with no English words or other non-Russian leakage.",
+      "agentOutput": "FINAL_ANSWER\n\nГлавная цель — внедрить сервис обработки заявок для региональных площадок так, чтобы первые пользователи работали без потери данных и неразрешённых споров по доступу; главный компромисс — между быстрым охватом всех площадок и безопасной проверяемостью управления. Приоритетный план — ограниченный пилотный запуск на двух подготовленных площадках, что позволяет подтвердить права доступа, аудит и процедуры отката на реальных заявках, не перегружая службу поддержки.",
+      "durationMs": 36472.317666999996,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 26,
+        "output": 750,
+        "cacheRead": 52991,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "project_language": "japanese",
+          "tokens": 400000,
+          "instruction": "guarded"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The FINAL_ANSWER section contains exactly two Russian sentences; the first names the conflict (rapid broad rollout vs. reliable access control, audit logs, and rollback capability), and the second clearly states the priority plan as a limited pilot in two prepared offices — satisfying all rule criteria with no English, Japanese, or transliterated leakage.",
+      "agentOutput": "FINAL_ANSWER\n\nГлавная цель — запустить службу обработки заявок в региональных отделениях без потери данных и нарушений контроля доступа, однако быстрый охват всех отделений сразу противоречит требованию надёжной проверки прав, журналов и возможности отката. Приоритетный план — ограниченное пробное внедрение в двух подготовленных отделениях, что позволяет проверить систему на реальных заявках, сохраняя нагрузку на службу поддержки в допустимых пределах.",
+      "durationMs": 40298.435708000005,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 26,
+        "output": 1068,
+        "cacheRead": 53095,
+        "cacheWrite": 0
+      }
+    }
+  ],
+  "adherenceByAxis": {
+    "project_language": {
+      "english": 1,
+      "japanese": 1
+    },
+    "tokens": {
+      "400000": 1
+    },
+    "instruction": {
+      "baseline": 1,
+      "guarded": 1
+    }
+  },
+  "durationMs": 155610.504625,
+  "headline": "Max target tokens at >=80% adherence: english/baseline=400,000, english/guarded=400,000, japanese/baseline=400,000, japanese/guarded=400,000.",
+  "customMarkdown": "## Adherence by project language, instruction, and tokens\n\n| project_language | tokens | instruction | trials | pass | adherence |\n|---|---|---|---|---|---|\n| english | 400000 | baseline | 1 | 1 | 100.0% |\n| english | 400000 | guarded | 1 | 1 | 100.0% |\n| japanese | 400000 | baseline | 1 | 1 | 100.0% |\n| japanese | 400000 | guarded | 1 | 1 | 100.0% |\n\n## Final answer profile\n\nFinal answer is extracted from generated text after `FINAL_ANSWER`. Leakage adherence is judged only on this block.\n\n| project_language | tokens | instruction | trials | present | chars | tokens_est | russian | english | japanese |\n|---|---|---|---|---|---|---|---|---|---|\n| english | 400000 | baseline | 1 | 1 | 394 | 99 | 99 | 0 | 0 |\n| english | 400000 | guarded | 1 | 1 | 386 | 97 | 97 | 0 | 0 |\n| japanese | 400000 | baseline | 1 | 1 | 465 | 116 | 116 | 0 | 0 |\n| japanese | 400000 | guarded | 1 | 1 | 442 | 111 | 111 | 0 | 0 |\n\n## Diagnostic failure dimensions\n\nThe columns below are deterministic heuristics over `FINAL_ANSWER`; the judge verdict remains the canonical pass/fail signal.\n\n| project_language | tokens | instruction | trials | format_fail | language_leak | semantic_fail | source_term_leak | marker_fail |\n|---|---|---|---|---|---|---|---|---|\n| english | 400000 | baseline | 1 | 0 | 0 | 0 | 0 | 0 |\n| english | 400000 | guarded | 1 | 0 | 0 | 0 | 0 | 0 |\n| japanese | 400000 | baseline | 1 | 0 | 0 | 0 | 0 | 0 |\n| japanese | 400000 | guarded | 1 | 0 | 0 | 0 | 0 | 0 |\n\n## Controlled input context profile\n\nMeasured context below is rebuilt from the controlled trial input and excludes the final answer. Runtime token columns are shown only when the selected adapter exposes telemetry.\n\n| project_language | tokens | instruction | measured | project_file | memory | chat | russian | english | japanese | runtime_input | cache_read | cache_write |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|\n| english | 400000 | baseline | 400,214 | 400,079 | 67 | 68 | 131 | 400,083 | 0 | 26 | 38,723 | 0 |\n| english | 400000 | guarded | 400,264 | 400,079 | 67 | 117 | 178 | 400,086 | 0 | 26 | 53,155 | 0 |\n| japanese | 400000 | baseline | 400,166 | 400,030 | 67 | 68 | 124 | 6 | 400,036 | 26 | 52,991 | 0 |\n| japanese | 400000 | guarded | 400,215 | 400,030 | 67 | 117 | 169 | 9 | 400,038 | 26 | 53,095 | 0 |"
+}

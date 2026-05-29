@@ -83,7 +83,7 @@ export class SpawnedAgent {
 
       await this.start(nextPrompt);
 
-      let timeoutId: number | undefined;
+      let timeoutId: ReturnType<typeof setTimeout> | undefined;
       const timeoutPromise = new Promise<AgentResult>((_, reject) => {
         timeoutId = setTimeout(() => {
           this.kill();

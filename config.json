@@ -22,7 +22,7 @@
     },
     "claude": {
       "default_agent_model_provider": "anthropic",
-      "default_agent_model": "claude-sonnet-4-6",
+      "default_agent_model": "haiku",
       "judge": {
         "runtime": "claude",
         "model_provider": "anthropic",

@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "chat-leakage-from-project-lang-quick-mixed-code-switch",
+  "experimentName": "Chat leakage from project-file language (quick mixed code-switch)",
+  "modelProvider": "anthropic",
+  "model": "claude-sonnet-4-6",
+  "ide": "claude",
+  "judgeModelProvider": "anthropic",
+  "judgeModel": "claude-sonnet-4-6",
+  "judgeRuntime": "claude",
+  "startedAt": "2026-05-20T16:12:04.325Z",
+  "finishedAt": "2026-05-20T16:13:22.844Z",
+  "seed": 1,
+  "reps": 1,
+  "axes": {
+    "project_language": [
+      "english"
+    ],
+    "tokens": [
+      400000
+    ],
+    "instruction": [
+      "baseline",
+      "guarded"
+    ]
+  },
+  "trials": [
+    {
+      "cell": {
+        "axes": {
+          "project_language": "english",
+          "tokens": 400000,
+          "instruction": "baseline"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The FINAL_ANSWER section contains exactly two Russian sentences, identifies the priority plan as \"ограниченный пилот\" (limited pilot), explicitly states the trade-off of \"скорость охвата против проверяемой безопасности запуска\" (speed vs. safety), mentions relevant concerns like \"права доступа, логирование и откат\" (access rights, auditability, rollback), and contains no English words or untranslated source-language fragments.",
+      "agentOutput": "FINAL_ANSWER\n\nГлавная цель — запустить сервис обработки заявок для региональных офисов без потери данных и спорных решений по доступу, а ключевой компромисс — скорость охвата против проверяемой безопасности запуска. Выбранный приоритетный план — ограниченный пилот в двух подготовленных офисах, поскольку он позволяет проверить права доступа, логирование и откат на реальных заявках до расширения на всю сеть.",
+      "durationMs": 34550.485041,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 26,
+        "output": 698,
+        "cacheRead": 52851,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "project_language": "english",
+          "tokens": 400000,
+          "instruction": "guarded"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The FINAL_ANSWER section contains exactly two Russian sentences: the first names the main goal and trade-off (speed of coverage vs. reliability/auditability), and the second names the priority plan as an \"ограниченный пробный запуск\" (limited pilot) with explicit mention of access rights, audit log, and rollback — all required elements are present with no English words or untranslated fragments.",
+      "agentOutput": "FINAL_ANSWER\n\nГлавная цель — запустить систему обработки заявок для региональных подразделений без потери данных и ошибочных решений по правам доступа, а ключевой компромисс — между скоростью охвата и надёжностью проверяемости. Приоритетный план — ограниченный пробный запуск в двух подготовленных подразделениях, который позволяет проверить права доступа, журнал действий и процедуру отката до расширения на всю сеть.",
+      "durationMs": 43958.090208,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 26,
+        "output": 1380,
+        "cacheRead": 52988,
+        "cacheWrite": 0
+      }
+    }
+  ],
+  "adherenceByAxis": {
+    "project_language": {
+      "english": 1
+    },
+    "tokens": {
+      "400000": 1
+    },
+    "instruction": {
+      "baseline": 1,
+      "guarded": 1
+    }
+  },
+  "durationMs": 78516.81708400001,
+  "headline": "Max target tokens at >=80% adherence: english/baseline=400,000, english/guarded=400,000.",
+  "customMarkdown": "## Adherence by project language, instruction, and tokens\n\n| project_language | tokens | instruction | trials | pass | adherence |\n|---|---|---|---|---|---|\n| english | 400000 | baseline | 1 | 1 | 100.0% |\n| english | 400000 | guarded | 1 | 1 | 100.0% |\n\n## Final answer profile\n\nFinal answer is extracted from generated text after `FINAL_ANSWER`. Leakage adherence is judged only on this block.\n\n| project_language | tokens | instruction | trials | present | chars | tokens_est | russian | english |\n|---|---|---|---|---|---|---|---|---|\n| english | 400000 | baseline | 1 | 1 | 395 | 99 | 99 | 0 |\n| english | 400000 | guarded | 1 | 1 | 404 | 101 | 101 | 0 |\n\n## Diagnostic failure dimensions\n\nThe columns below are deterministic heuristics over `FINAL_ANSWER`; the judge verdict remains the canonical pass/fail signal.\n\n| project_language | tokens | instruction | trials | format_fail | language_leak | semantic_fail | source_term_leak | marker_fail |\n|---|---|---|---|---|---|---|---|---|\n| english | 400000 | baseline | 1 | 0 | 0 | 0 | 0 | 0 |\n| english | 400000 | guarded | 1 | 0 | 0 | 0 | 0 | 0 |\n\n## Controlled input context profile\n\nMeasured context below is rebuilt from the controlled trial input and excludes the final answer. Runtime token columns are shown only when the selected adapter exposes telemetry.\n\n| project_language | tokens | instruction | measured | project_file | memory | chat | russian | english | runtime_input | cache_read | cache_write |\n|---|---|---|---|---|---|---|---|---|---|---|---|\n| english | 400000 | baseline | 400,213 | 400,129 | 15 | 68 | 136 | 400,077 | 26 | 52,851 | 0 |\n| english | 400000 | guarded | 400,258 | 400,129 | 15 | 113 | 179 | 400,079 | 26 | 52,988 | 0 |"
+}

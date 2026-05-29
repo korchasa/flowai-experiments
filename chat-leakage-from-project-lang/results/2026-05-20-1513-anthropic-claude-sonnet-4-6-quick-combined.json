@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "chat-leakage-from-project-lang-quick-combined",
+  "experimentName": "Chat leakage from project-file language (quick combined)",
+  "modelProvider": "anthropic",
+  "model": "claude-sonnet-4-6",
+  "ide": "claude",
+  "judgeModelProvider": "anthropic",
+  "judgeModel": "claude-sonnet-4-6",
+  "judgeRuntime": "claude",
+  "startedAt": "2026-05-20T15:13:29.276Z",
+  "finishedAt": "2026-05-20T15:16:41.010Z",
+  "seed": 1,
+  "reps": 1,
+  "axes": {
+    "project_language": [
+      "english",
+      "japanese"
+    ],
+    "tokens": [
+      400000
+    ],
+    "instruction": [
+      "baseline",
+      "guarded"
+    ]
+  },
+  "trials": [
+    {
+      "cell": {
+        "axes": {
+          "project_language": "english",
+          "tokens": 400000,
+          "instruction": "baseline"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "FINAL_ANSWER consists of exactly two Russian sentences, selects the limited pilot plan (ограниченного круга пользователей), translates key concepts into Russian (поддержки, отката, проверки прав доступа, скоростью охвата), contains no English or Japanese text, and correctly identifies decision code 742.",
+      "agentOutput": "Требований достаточно в первых строках — файл дальше содержит только устаревшие заметки. Готовлю ответ.\n\n---\n\nFINAL_ANSWER\n\nГлавная цель — запустить продукт для ограниченного круга пользователей, не превысив пропускную способность команды поддержки и сохранив возможность полного отката с удержанием всех обращений, тогда как широкий одномоментный запуск был отклонён из-за незавершённой проверки прав доступа. Выбран план постепенного контролируемого запуска первой волны (код 742), балансирующий между скоростью охвата и реальной готовностью инфраструктуры.",
+      "durationMs": 54657.059792,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 26,
+        "output": 1618,
+        "cacheRead": 53096,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "project_language": "english",
+          "tokens": 400000,
+          "instruction": "guarded"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "FINAL_ANSWER is exactly two Russian sentences, selects the limited pilot (plan 742), articulates the trade-off between immediate broad coverage and full delay, and translates all required source-language concepts into natural Russian without any English or Japanese words.",
+      "agentOutput": "Суть файла ясна из первых строк, остальное — повторяющийся исторический шум, явно помеченный устаревшим. Формирую ответ.\n\n---\n\nFINAL_ANSWER\n\nЦель запуска — обеспечить прозрачную проверку того, кто получает доступ, гарантировать сохранность заявок при откате и не перегрузить службу поддержки сверх её реальных возможностей. Компромисс между немедленным широким охватом и полным откладыванием разрешён в пользу ограниченной пилотной волны — план 742.",
+      "durationMs": 41872.42375,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 26,
+        "output": 1121,
+        "cacheRead": 53241,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "project_language": "japanese",
+          "tokens": 400000,
+          "instruction": "baseline"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "FINAL_ANSWER contains exactly two Russian sentences with no English or Japanese text, correctly identifies the limited pilot (ограниченного пилотного запуска) as the priority plan, articulates the relevant trade-offs (access verification, rollback procedure, support capacity), and explicitly cites decision code 742.",
+      "agentOutput": "FINAL_ANSWER\n\nЦель — развернуть систему с максимальным охватом, однако одновременный запуск на всех площадках был отклонён: проверка прав доступа не была прозрачной, процедура отката не гарантировала сохранность заявок, а служба поддержки не располагала достаточной пропускной способностью. Принят приоритетный план ограниченного пилотного запуска первой волны (код **742**), при котором каждое из этих условий проверяется поэтапно, до расширения охвата.",
+      "durationMs": 52634.854250000004,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 26,
+        "output": 1423,
+        "cacheRead": 53057,
+        "cacheWrite": 0
+      }
+    },
+    {
+      "cell": {
+        "axes": {
+          "project_language": "japanese",
+          "tokens": 400000,
+          "instruction": "guarded"
+        },
+        "trial": 0
+      },
+      "pass": true,
+      "judgeReason": "The FINAL_ANSWER section contains exactly two Russian sentences, identifies a limited pilot (ограниченный пилотный запуск), translates all source terms into Russian (проверка прав доступа, процедура отката, нагрузка на службу сопровождения), articulates the trade-off between full coverage and risk manageability, contains no English or Japanese words, and correctly specifies decision code 742.",
+      "agentOutput": "Ключевые данные получены. Файл написан на японском языке, перевожу понятия перед составлением ответа.\n\nFINAL_ANSWER\n\nГлавная цель — поэтапное внедрение системы при условии, что проверка прав доступа остаётся прозрачной, процедура отката сохраняет все заявки, а нагрузка на службу сопровождения не превышает допустимого предела; компромисс состоит в отказе от единовременного охвата всех площадок ради управляемости этих рисков. Выбран приоритетный план — ограниченный пилотный запуск первой волны (код **742**).",
+      "durationMs": 42553.88924999998,
+      "exitCode": 0,
+      "tokensUsed": {
+        "input": 26,
+        "output": 1049,
+        "cacheRead": 53208,
+        "cacheWrite": 0
+      }
+    }
+  ],
+  "adherenceByAxis": {
+    "project_language": {
+      "english": 1,
+      "japanese": 1
+    },
+    "tokens": {
+      "400000": 1
+    },
+    "instruction": {
+      "baseline": 1,
+      "guarded": 1
+    }
+  },
+  "durationMs": 191734.101583,
+  "headline": "Max target tokens at >=80% adherence: english/baseline=400,000, english/guarded=400,000, japanese/baseline=400,000, japanese/guarded=400,000.",
+  "customMarkdown": "## Adherence by project language, instruction, and tokens\n\n| project_language | tokens | instruction | trials | pass | adherence |\n|---|---|---|---|---|---|\n| english | 400000 | baseline | 1 | 1 | 100.0% |\n| english | 400000 | guarded | 1 | 1 | 100.0% |\n| japanese | 400000 | baseline | 1 | 1 | 100.0% |\n| japanese | 400000 | guarded | 1 | 1 | 100.0% |\n\n## Final answer profile\n\nFinal answer is extracted from generated text after `FINAL_ANSWER`. Leakage adherence is judged only on this block.\n\n| project_language | tokens | instruction | trials | present | chars | tokens_est | russian | english | japanese |\n|---|---|---|---|---|---|---|---|---|---|\n| english | 400000 | baseline | 1 | 1 | 435 | 109 | 109 | 0 | 0 |\n| english | 400000 | guarded | 1 | 1 | 308 | 77 | 77 | 0 | 0 |\n| japanese | 400000 | baseline | 1 | 1 | 440 | 110 | 110 | 0 | 0 |\n| japanese | 400000 | guarded | 1 | 1 | 394 | 99 | 99 | 0 | 0 |\n\n## Diagnostic failure dimensions\n\nThe columns below are deterministic heuristics over `FINAL_ANSWER`; the judge verdict remains the canonical pass/fail signal.\n\n| project_language | tokens | instruction | trials | format_fail | language_leak | semantic_fail | source_term_leak | marker_fail |\n|---|---|---|---|---|---|---|---|---|\n| english | 400000 | baseline | 1 | 0 | 0 | 0 | 0 | 0 |\n| english | 400000 | guarded | 1 | 0 | 0 | 0 | 0 | 0 |\n| japanese | 400000 | baseline | 1 | 0 | 0 | 0 | 0 | 0 |\n| japanese | 400000 | guarded | 1 | 0 | 0 | 0 | 0 | 0 |\n\n## Controlled input context profile\n\nMeasured context below is rebuilt from the controlled trial input and excludes the final answer. Runtime token columns are shown only when the selected adapter exposes telemetry.\n\n| project_language | tokens | instruction | measured | project_file | memory | chat | russian | english | japanese | runtime_input | cache_read | cache_write |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|\n| english | 400000 | baseline | 360,834 | 360,659 | 67 | 108 | 201 | 360,633 | 0 | 26 | 53,096 | 0 |\n| english | 400000 | guarded | 360,883 | 360,659 | 67 | 157 | 249 | 360,634 | 0 | 26 | 53,241 | 0 |\n| japanese | 400000 | baseline | 360,501 | 360,326 | 67 | 108 | 191 | 19 | 360,290 | 26 | 53,057 | 0 |\n| japanese | 400000 | guarded | 360,550 | 360,326 | 67 | 157 | 237 | 23 | 360,291 | 26 | 53,208 | 0 |"
+}
