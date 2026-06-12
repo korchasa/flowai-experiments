@@ -1,0 +1,10 @@
+Done.
+
+- Plan: `documents/tasks/2026/06/runs-doctor.md`
+- Implemented: `flowai-workflow runs doctor --workflow <dir> --run <run-id>` with `--repair` and `--json`
+- Review verdict: Approve
+- Verification: `deno task check` passed
+- Commit: `31e050b feat(engine): add runs doctor`
+- Push: `bench -> origin/bench`
+- Post-push: upstream and `HEAD` both `31e050b759b735899be9a868a24478b639742d41`
+- CI await: skipped per benchmark instructions

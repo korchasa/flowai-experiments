@@ -1,0 +1,9 @@
+## Final Combined Report
+
+- **Plan:** `documents/tasks/2026/06/runs-prune-subcommand.md` (GODS, `implements: [FR-E83]`, status `done`). Variant **B (architecturally-correct)** selected — pure policy module + thin CLI wiring, the only variant that satisfies the temp-dir unit-test constraint.
+- **Implement (TDD):** 11 FR-E83 tests pass. New `src/state/prune.ts` (`classifyRuns`/`planPrune`/`prune`/`formatPruneSummary`); exported `isTerminalStatus` from `run-journal.ts`; `runs prune` arg-parse + dispatch + help in `cli.ts`. Reuses `getRunDir`, the journal replayer, `defaultLockPath`/`readLockInfo` — no duplicated path/replay logic. `deno task check` green.
+- **Review:** **Approve** — 8/8 requirements covered, 0 critical/warning, 2 nits (worktree co-deletion non-issue for terminal runs; corrupt-lock fail-fast intentional).
+- **Commit:** `c140ccb` — `feat(engine): add 'runs prune' subcommand for safe run-dir cleanup (FR-E83)`. Docs synced (SRS FR-E83 + index, README usage; SDS files at token-budget capacity — split would be out of scope).
+- **Push:** `origin/bench` (new branch, upstream set); pushed SHA `c140ccb`; post-push `@{u} == HEAD` verified; CI skipped (no CI on benchmark remote).
+
+All Requested-behavior and Constraints items are satisfied; gate passes; work is committed and pushed. Done.

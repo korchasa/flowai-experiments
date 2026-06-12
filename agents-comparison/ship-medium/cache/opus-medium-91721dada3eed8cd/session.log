@@ -1,0 +1,9 @@
+Push verified (`@{u}` == `HEAD`). CI await skipped per benchmark (local remote, no CI). Workflow complete.
+
+## Final Combined Report
+
+- **Plan**: `documents/tasks/2026/06/runs-doctor.md`. Variant **B (dedicated `src/state/run-doctor.ts` module)** — chosen autonomously because the required test matrix demands the logic be callable without the process boundary while reusing the single replayer + state/lock helpers.
+- **Implement**: TDD. New `run-doctor.ts` (`diagnoseRun`/`repairRun`/`formatReport`), `lock.ts` exports `isLockHeldByLiveProcess`, `cli.ts` `runs doctor` subcommand + help. 17 new tests cover the full matrix (clean/torn/garbage/unknown-kind/after-terminal/cost-divergence/orphan/missing/stale-lock/repair round-trip/refusals/json/arg-parsing). `deno task check` **green**.
+- **Review**: **Approve** — every Requested-behavior + Constraint maps to code; no critical findings; repair is atomic + fail-safe; existing replayer is the sole replay source.
+- **Commit**: `be3ecca` — `feat(engine): add runs doctor journal health checker with mechanical repair (FR-E83)`. Docs synced (SRS FR-E83 + index + SDS §3.3b); task status auto-flipped to `done`.
+- **Push**: `origin/bench` @ `be3ecca` (new branch, upstream set). Post-push verification matched; CI await skipped (no CI on benchmark remote).

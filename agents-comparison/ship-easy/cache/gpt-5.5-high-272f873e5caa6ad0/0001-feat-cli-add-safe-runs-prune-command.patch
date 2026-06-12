@@ -1,0 +1,869 @@
+From 62548f2ff2dd919200f5cfc4d91a83103b9ee13b Mon Sep 17 00:00:00 2001
+From: korchasa <korchasa@icloud.com>
+Date: Thu, 11 Jun 2026 19:55:28 +0300
+Subject: [PATCH] feat(cli): add safe runs prune command
+
+---
+ README.md                                     |  10 +
+ .../design-engine/02-engine-modules-flow.md   |  14 ++
+ documents/index.md                            |   1 +
+ documents/requirements-engine.md              |   1 +
+ .../06-distribution-and-housekeeping.md       |  13 ++
+ documents/tasks/2026/06/runs-prune.md         | 113 ++++++++++
+ src/cli.ts                                    | 132 ++++++++++-
+ src/cli_test.ts                               |  50 +++++
+ src/state/runs-prune.ts                       | 208 ++++++++++++++++++
+ src/state/runs-prune_test.ts                  | 138 ++++++++++++
+ 10 files changed, 677 insertions(+), 3 deletions(-)
+ create mode 100644 documents/tasks/2026/06/runs-prune.md
+ create mode 100644 src/state/runs-prune.ts
+ create mode 100644 src/state/runs-prune_test.ts
+
+diff --git a/README.md b/README.md
+index c3c7d60..c34458c 100644
+--- a/README.md
++++ b/README.md
+@@ -303,6 +303,16 @@ Options:
+   -v                     Verbose output (detailed agent diagnostics)
+ ```
+ 
++Housekeeping:
++
++```bash
++flowai-workflow runs prune --workflow <workflow> --keep <N> [--dry-run]
++```
++
++Deletes old terminal unlocked run directories under `<workflow>/runs/` after
++replaying each `journal.jsonl`. Non-terminal, locked, missing-journal, and
++unreplayable-journal runs are always kept and reported as skipped.
++
+ ## Embedded MCP Server
+ 
+ `flowai-workflow mcp <workflow>` starts an embedded Model Context Protocol
+diff --git a/documents/design-engine/02-engine-modules-flow.md b/documents/design-engine/02-engine-modules-flow.md
+index e18840e..aa2e0f6 100644
+--- a/documents/design-engine/02-engine-modules-flow.md
++++ b/documents/design-engine/02-engine-modules-flow.md
+@@ -55,6 +55,16 @@
+     `Engine({resume:true})` construction site). `mcp-server.ts` and
+     `cli.ts` delegate here — no duplicated engine-resume or
+     inbox-write logic.
++  - `state/runs-prune.ts` — safe run cleanup core (FR-E83). Exports
++    `createRunsPrunePlan(workflowDir, keep)` and
++    `pruneRuns(workflowDir, {keep, dryRun})`. Enumerates direct
++    directories under `<workflowDir>/runs`, resolves each path with
++    `getRunDir()`, replays `journal.jsonl` via `replayRunJournal()`,
++    and reads `runs/.lock` through `defaultLockPath()` +
++    `readLockInfo()`. Only terminal unlocked runs (`completed`,
++    `failed`, `aborted`) can be selected. Missing / malformed journals,
++    non-terminal runs, locked runs, and unreadable locks are skipped with
++    explicit reasons.
+   - `hitl-injection.ts` — engine-side HITL plumbing on top of the
+     library's generic primitives. `buildHitlMcpServers()` returns the
+     `mcpServers` invoke entry registering the engine's
+@@ -231,6 +241,10 @@
+     file, print `{inboxPath, live}`; on `live:false` hint to resume
+     separately; missing `--node`/run/non-waiting node → non-zero exit
+     with a clear message).
++    `runs prune --workflow <dir> --keep <N> [--dry-run]` →
++    `state/runs-prune.ts::pruneRuns` (FR-E83: deletes old terminal
++    unlocked run directories only; dry-run prints the same summary without
++    deleting).
+     `runEngine()` extracted as named function shared by `run` and compat
+     shim; its `--resume` path delegates to `commands.resumeRun` (FR-E75
+     — same engine-resume construction as MCP `resume_node`).
+diff --git a/documents/index.md b/documents/index.md
+index 7b5f797..c377c5c 100644
+--- a/documents/index.md
++++ b/documents/index.md
+@@ -15,4 +15,5 @@
+ - [FR-E77](requirements-engine/04-runtime-and-hooks.md#377-fr-e77-acp-as-the-sole-runtime-transport) — ACP as the sole runtime transport (implicit `transport: "acp"`, no config knob) — [x]
+ - [FR-E78](requirements-engine/07-mcp-and-plugin-runtime.md#378-fr-e78-plugin-precondition--release-binary-distribution) — Plugin precondition + release binary distribution (supersedes FR-E74 launcher) — [ ]
+ - [FR-E80](requirements-engine/05-cli-and-observability.md#380-fr-e80-cumulative-wall-clock-retry-cap) — Cumulative wall-clock retry cap per node via AbortSignal pass-through — [x]
++- [FR-E83](requirements-engine/06-distribution-and-housekeeping.md#383-fr-e83-runs-prune-safe-cleanup) — Safe local pruning of old terminal run directories — [ ]
+ - [FR-E9](requirements-engine/01-execution-model.md#39-fr-e9-run-artifacts-folder-structure) — Run artifacts live under the selected workflow run directory — [x]
+diff --git a/documents/requirements-engine.md b/documents/requirements-engine.md
+index 4313a52..67770b3 100644
+--- a/documents/requirements-engine.md
++++ b/documents/requirements-engine.md
+@@ -118,3 +118,4 @@ FR-IDs are stable — never renumber them on move.
+ - FR-E80 (Cumulative Wall-Clock Retry Cap) → 05-cli-and-observability
+ - FR-E81 (Claude CLI Version Probe Gated on Runtime) → 04-runtime-and-hooks
+ - FR-E82 (Fail-Fast on Runtime `is_error`)            → 04-runtime-and-hooks
++- FR-E83 (`runs prune` Safe Cleanup)                  → 06-distribution-and-housekeeping
+diff --git a/documents/requirements-engine/06-distribution-and-housekeeping.md b/documents/requirements-engine/06-distribution-and-housekeeping.md
+index bac9550..7728d8b 100644
+--- a/documents/requirements-engine/06-distribution-and-housekeeping.md
++++ b/documents/requirements-engine/06-distribution-and-housekeeping.md
+@@ -508,3 +508,16 @@
+     `release: v0.7.16 (synced from engine@d565ebba8ccc)` on `main`
+     plus the matching `v0.7.16` tag and the `claude/` + `codex/`
+     payload roots at root level.
++
++### 3.83 FR-E83: `runs prune` Safe Cleanup
++
++- **Description:** `flowai-workflow runs prune --workflow <dir> --keep <N> [--dry-run]` deletes terminal run dirs; state source = replayed `journal.jsonl` only.
++- **Tasks:** [REF:task:2026-06-runs-prune | runs-prune]
++- **Status:** [ ]
++- **Motivation:** Runs accumulate; cleanup preserves live/unknown state.
++- **Acceptance criteria:**
++  - [x] Keeps `N` newest terminal unlocked runs by replayed `started_at`; older ones are targets. Evidence: `runs-prune_test.ts::keeps N newest`.
++  - [x] Skips non-terminal, locked, missing/unreplayable-journal runs with reasons. Evidence: `runs-prune_test.ts::skips protected and unknown`.
++  - [x] `--keep 0` targets all terminal unlocked runs; `--dry-run` deletes none. Evidence: `runs-prune_test.ts::keep zero and dry run`.
++  - [x] Bad `--keep` rejected. Evidence: `cli_test.ts::parseRunsPruneArgs rejects bad keep values`.
++  - [x] Help lists `runs prune`. Evidence: `cli_test.ts::usage includes runs prune`.
+diff --git a/documents/tasks/2026/06/runs-prune.md b/documents/tasks/2026/06/runs-prune.md
+new file mode 100644
+index 0000000..a733d56
+--- /dev/null
++++ b/documents/tasks/2026/06/runs-prune.md
+@@ -0,0 +1,113 @@
++---
++date: "2026-06-11"
++status: done
++implements: [FR-E83]
++tags: [engine, cli, housekeeping, runs, journal]
++related_tasks:
++  - documents/tasks/2026/05/durable-run-lifecycle-replay.md
++---
++# Runs Prune Safe Cleanup
++
++## Goal
++
++Add a safe local run cleanup command that removes old terminal run
++directories while preserving active, locked, and unknown-state runs.
++
++## Overview
++
++### Context
++
++Run folders accumulate under `<workflow-dir>/runs/`. Their only durable
++status source is `journal.jsonl`; cleanup must replay the journal instead of
++reading stale snapshots or inferring from folder names. Operators need a
++non-interactive CLI command for local filesystem cleanup only.
++
++### Current State
++
++`src/state/run-journal.ts` owns journal path construction and replay.
++`src/state/state.ts` owns `getRunDir()`. `src/state/lock.ts` owns
++`runs/.lock` path and JSON format. `src/cli.ts` routes `run`, `init`,
++`answer`, and `mcp`, but has no `runs prune` command.
++
++### Constraints
++
++- Reuse `getRunDir()`, `replayRunJournal()`, and lock helpers.
++- No new dependencies.
++- Treat missing or unreplayable journals as unknown state and keep them.
++- Never delete non-terminal or locked runs.
++- `--keep` must be a non-negative integer.
++- Non-interactive benchmark adaptation: selected variant is
++  architecturally-correct because it isolates prune selection in `src/state/`
++  and keeps `src/cli.ts` as thin argument routing.
++
++## Definition of Done
++
++- [x] FR-E83: selection keeps `N` newest terminal unlocked runs and deletes
++  only older terminal unlocked runs. Test:
++  `src/state/runs-prune_test.ts::runsPrunePlan keeps N newest terminal unlocked runs`.
++  Evidence: `deno task check`.
++- [x] FR-E83: non-terminal, locked, missing-journal, and unreplayable-journal
++  runs are skipped with explicit reasons. Test:
++  `src/state/runs-prune_test.ts::runsPrunePlan skips protected and unknown runs`.
++  Evidence: `deno task check`.
++- [x] FR-E83: `--keep 0` deletes all terminal unlocked runs and `--dry-run`
++  deletes nothing. Test:
++  `src/state/runs-prune_test.ts::pruneRuns applies keep zero and dry run`.
++  Evidence: `deno task check`.
++- [x] FR-E83: bad `--keep` is rejected with clear non-zero CLI error. Test:
++  `src/cli_test.ts::FR-E83 parseRunsPruneArgs rejects bad keep values`.
++  Evidence: `deno task check`.
++- [x] FR-E83: CLI help lists `runs prune`. Test:
++  `src/cli_test.ts::FR-E83 usage includes runs prune`.
++  Evidence: `deno task check`.
++- [x] FR-E83: SRS section added to
++  `documents/requirements-engine/06-distribution-and-housekeeping.md` with
++  acceptance criteria and task back-pointer. Test:
++  `manual — Codex`. Evidence:
++  `rg 'FR-E83|runs prune' documents/requirements-engine.md documents/requirements-engine/06-distribution-and-housekeeping.md documents/index.md`.
++
++## Solution
++
++1. Add `src/state/runs-prune.ts`.
++   - Define `RunPrunePlan`, `RunPruneEntry`, and skip reason types.
++   - Enumerate direct child directories of `<workflowDir>/runs`.
++   - Ignore non-run entries such as `.lock`.
++   - For each directory, use `getRunDir(runId, workflowDir)` to resolve the
++     run path, `replayRunJournal(runDir)` to recover `status` and
++     `started_at`, and `defaultLockPath()` + `readLockInfo()` to protect the
++     locked run.
++   - Sort deletable terminal runs by `started_at` descending with `run_id` as a
++     deterministic tie-breaker, keep the newest `N`, delete the remaining
++     oldest.
++   - Return a plan containing deleted, kept, skipped, and dry-run status.
++   - Error handling: replay/read errors become skipped unknown-state entries;
++     filesystem delete errors throw clearly.
++2. Add `src/state/runs-prune_test.ts`.
++   - Build temp workflow fixtures with engine-shaped journals via
++     `RunJournalWriter`.
++   - Cover newest retention, protected skips, unknown journals, `--keep 0`,
++     dry-run, and actual deletion.
++3. Extend `src/cli.ts`.
++   - Add `parseRunsPruneArgs(args)` using the existing manual parser style.
++   - Add `runRunsPrune(args)` for `flowai-workflow runs prune --workflow <dir>
++     --keep <N> [--dry-run]`.
++   - Route `runs prune` before the default unknown-subcommand branch; do not
++     pass it through `run` or generic flag parsing.
++   - Print deleted, kept, and skipped counts plus per-run skip reasons.
++   - Use the same summary shape for dry-run and delete modes, with labels
++     distinguishing `would delete` from `deleted`.
++   - Add `runs prune` to usage output.
++4. Extend `src/cli_test.ts`.
++   - Unit-test prune argument parsing, bad `--keep`, and help text helper.
++5. Update docs.
++   - Add FR-E83 to `documents/requirements-engine.md`,
++     `documents/requirements-engine/06-distribution-and-housekeeping.md`,
++     and `documents/index.md`.
++   - Add SDS notes for `runs-prune.ts` and CLI routing.
++6. Verification.
++   - Run focused RED checks before implementation.
++   - Run `deno task check` after GREEN and after final documentation sync.
++
++## Follow-ups
++
++- Future listing or inspection command stays out of scope.
+diff --git a/src/cli.ts b/src/cli.ts
+index 43c95a1..d194d58 100644
+--- a/src/cli.ts
++++ b/src/cli.ts
+@@ -50,6 +50,7 @@ import {
+ import { installSignalHandlers } from "./process-registry.ts";
+ import { checkForUpdate, VERSION } from "./version.ts";
+ import { runMcpServer } from "./mcp/mcp-server.ts";
++import { pruneRuns, type RunsPruneResult } from "./state/runs-prune.ts";
+ 
+ /** Re-exported for back-compat: VERSION lives in `version.ts` (leaf module)
+  * so the library graph never imports this CLI entry point. */
+@@ -179,6 +180,16 @@ export interface AnswerArgs {
+   text: string;
+ }
+ 
++/** Parsed arguments for `runs prune` (FR-E83). */
++export interface RunsPruneArgs {
++  /** Workflow folder (trailing slashes stripped). */
++  workflowDir: string;
++  /** Number of newest terminal unlocked runs to keep. */
++  keep: number;
++  /** True when the command should only report what would be deleted. */
++  dryRun: boolean;
++}
++
+ /**
+  * Parse `answer [--workflow <path>] <run-id> --node <id> "<text>"` (FR-E75).
+  * Workflow is optional: when `--workflow <path>` is omitted the caller
+@@ -235,6 +246,59 @@ export function parseAnswerArgs(args: string[]): AnswerArgs {
+   };
+ }
+ 
++/** Parse `runs prune --workflow <dir> --keep <N> [--dry-run]` (FR-E83). */
++export function parseRunsPruneArgs(args: string[]): RunsPruneArgs {
++  let workflow: string | undefined;
++  let keepRaw: string | undefined;
++  let dryRun = false;
++  for (let i = 0; i < args.length; i++) {
++    const arg = args[i];
++    if (arg === "--workflow") {
++      workflow = args[++i];
++      continue;
++    }
++    if (arg.startsWith("--workflow=")) {
++      workflow = arg.slice("--workflow=".length);
++      continue;
++    }
++    if (arg === "--keep") {
++      keepRaw = args[++i];
++      continue;
++    }
++    if (arg.startsWith("--keep=")) {
++      keepRaw = arg.slice("--keep=".length);
++      continue;
++    }
++    if (arg === "--dry-run") {
++      dryRun = true;
++      continue;
++    }
++    if (arg.startsWith("--")) {
++      throw new Error(`runs prune: unknown flag ${arg}.`);
++    }
++    throw new Error(`runs prune: unexpected positional argument: ${arg}.`);
++  }
++  if (!workflow) {
++    throw new Error(
++      "runs prune: missing --workflow <dir>. " +
++        "Usage: flowai-workflow runs prune --workflow <dir> --keep <N> [--dry-run]",
++    );
++  }
++  if (keepRaw === undefined) {
++    throw new Error("runs prune: missing --keep <N>.");
++  }
++  if (!/^(0|[1-9]\d*)$/.test(keepRaw)) {
++    throw new Error(
++      `Invalid --keep value: ${keepRaw}. Expected non-negative integer.`,
++    );
++  }
++  return {
++    workflowDir: normalizeWorkflowDir(workflow),
++    keep: Number(keepRaw),
++    dryRun,
++  };
++}
++
+ /**
+  * Parse CLI arguments into EngineOptions.
+  *
+@@ -365,8 +429,9 @@ function handleVersion(): never {
+   Deno.exit(0);
+ }
+ 
+-function printUsage(): void {
+-  console.log(`
++/** Return the CLI help text shown by `--help`. */
++export function getUsageText(): string {
++  return `
+ Workflow Engine — Configurable multi-agent workflow runner
+ 
+ Usage:
+@@ -375,6 +440,8 @@ Usage:
+   flowai-workflow answer [--workflow <path>] <run-id> --node <id> "<text>"
+                                              Deliver a local HITL reply (FR-E75)
+   flowai-workflow mcp [<workflow>]           Start embedded MCP server (FR-E73)
++  flowai-workflow runs prune --workflow <dir> --keep <N> [--dry-run]
++                                             Delete old terminal run directories
+ 
+ Subcommands:
+   run                   Execute DAG workflow engine
+@@ -384,6 +451,8 @@ Subcommands:
+                         {inboxPath, live}; when live is false, resume the run to
+                         consume the queued answer.
+   mcp                   Start embedded MCP server exposing 8 engine-control tools over stdio.
++  runs prune            Delete old terminal run directories under <workflow>/runs/
++                        while keeping locked, non-terminal, and unknown-state runs.
+ 
+ Workflow resolution (run / answer / mcp; FR-E78):
+   Every subcommand that accepts a workflow shares one rule when the
+@@ -415,6 +484,11 @@ Run options:
+                         with --resume)
+   --skip-update-check   Do not check JSR for a newer version on startup
+ 
++Runs prune options:
++  --workflow <dir>      Workflow folder containing the runs/ directory
++  --keep <N>            Keep N newest terminal unlocked runs; N must be >= 0
++  --dry-run             Print what would be deleted without deleting anything
++
+ Global options:
+   -V, --version         Print version and exit
+   -h, --help            Show this help
+@@ -427,7 +501,12 @@ Examples:
+   flowai-workflow answer 20260529T094727 --node specification "monetization"
+   flowai-workflow answer --workflow .flowai-workflow/autonomous-sdlc 20260529T094727 --node specification "monetization"
+   flowai-workflow mcp .flowai-workflow/github-inbox
+-`);
++  flowai-workflow runs prune --workflow .flowai-workflow/github-inbox --keep 10 --dry-run
++`;
++}
++
++function printUsage(): void {
++  console.log(getUsageText());
+ }
+ 
+ // --- Main ---
+@@ -587,6 +666,43 @@ async function runAnswer(args: string[]): Promise<never> {
+   }
+ }
+ 
++async function runRunsPrune(args: string[]): Promise<never> {
++  try {
++    const parsed = parseRunsPruneArgs(args);
++    const result = await pruneRuns(parsed.workflowDir, {
++      keep: parsed.keep,
++      dryRun: parsed.dryRun,
++    });
++    console.log(formatRunsPruneSummary(result));
++    Deno.exit(0);
++  } catch (err) {
++    console.error(`Error: ${(err as Error).message}`);
++    Deno.exit(1);
++  }
++}
++
++function formatRunsPruneSummary(result: RunsPruneResult): string {
++  const action = result.dry_run ? "would delete" : "deleted";
++  const lines = [
++    `Runs prune ${result.dry_run ? "dry-run " : ""}summary:`,
++    `  ${action}: ${result.deleted.length}`,
++    `  kept: ${result.kept.length}`,
++    `  skipped: ${result.skipped.length}`,
++  ];
++  if (result.deleted.length > 0) {
++    lines.push(`${result.dry_run ? "Would delete" : "Deleted"}:`);
++    for (const entry of result.deleted) lines.push(`  ${entry.run_id}`);
++  }
++  if (result.skipped.length > 0) {
++    lines.push("Skipped:");
++    for (const entry of result.skipped) {
++      const suffix = entry.detail ? ` (${entry.detail})` : "";
++      lines.push(`  ${entry.run_id}: ${entry.reason}${suffix}`);
++    }
++  }
++  return lines.join("\n");
++}
++
+ /**
+  * Print a one-line deprecation banner for users who installed the engine
+  * via JSR or a prebuilt binary (FR-E70 plugin-first distribution). The
+@@ -697,6 +813,16 @@ if (import.meta.main) {
+     Deno.exit(0);
+   }
+ 
++  if (subcommand === "runs") {
++    const action = Deno.args[1];
++    if (action === "prune") {
++      await runRunsPrune(Deno.args.slice(2));
++    }
++    console.error(`Error: unknown runs subcommand: ${action ?? ""}`);
++    printUsage();
++    Deno.exit(1);
++  }
++
+   // Backward-compat shim: bare `--` flags without `run` prefix.
+   // Treat as `run <args>` with a deprecation warning. Remove after 2 minor releases.
+   if (subcommand && subcommand.startsWith("--")) {
+diff --git a/src/cli_test.ts b/src/cli_test.ts
+index 4f8abbe..7f7ae1c 100644
+--- a/src/cli_test.ts
++++ b/src/cli_test.ts
+@@ -4,10 +4,12 @@
+ import { assertEquals, assertThrows } from "@std/assert";
+ import {
+   extractCliFlags,
++  getUsageText,
+   getVersionString,
+   normalizeWorkflowDir,
+   parseAnswerArgs,
+   parseArgs,
++  parseRunsPruneArgs,
+   resolveActiveWorkflow,
+   VERSION,
+ } from "./cli.ts";
+@@ -461,3 +463,51 @@ Deno.test("FR-E73 mcp subcommand parses the same workflow path shape as run", ()
+   const mcpWorkflowDir = normalizeWorkflowDir(".flowai-workflow/github-inbox/");
+   assertEquals(runWorkflowYaml, `${mcpWorkflowDir}/workflow.yaml`);
+ });
++
++Deno.test("FR-E83 parseRunsPruneArgs parses required flags and dry-run", () => {
++  const args = parseRunsPruneArgs([
++    "--workflow",
++    ".flowai-workflow/github-inbox/",
++    "--keep",
++    "2",
++    "--dry-run",
++  ]);
++  assertEquals(args.workflowDir, ".flowai-workflow/github-inbox");
++  assertEquals(args.keep, 2);
++  assertEquals(args.dryRun, true);
++});
++
++Deno.test("FR-E83 parseRunsPruneArgs rejects bad keep values", () => {
++  for (const value of ["-1", "1.5", "abc", ""]) {
++    assertThrows(
++      () =>
++        parseRunsPruneArgs([
++          "--workflow",
++          ".flowai-workflow/github-inbox",
++          "--keep",
++          value,
++        ]),
++      Error,
++      "Invalid --keep",
++    );
++  }
++});
++
++Deno.test("FR-E83 parseRunsPruneArgs requires workflow and keep", () => {
++  assertThrows(
++    () => parseRunsPruneArgs(["--keep", "1"]),
++    Error,
++    "--workflow",
++  );
++  assertThrows(
++    () => parseRunsPruneArgs(["--workflow", ".flowai-workflow/x"]),
++    Error,
++    "--keep",
++  );
++});
++
++Deno.test("FR-E83 usage includes runs prune", () => {
++  const usage = getUsageText();
++  assertEquals(usage.includes("flowai-workflow runs prune"), true);
++  assertEquals(usage.includes("Delete old terminal run directories"), true);
++});
+diff --git a/src/state/runs-prune.ts b/src/state/runs-prune.ts
+new file mode 100644
+index 0000000..8bc809d
+--- /dev/null
++++ b/src/state/runs-prune.ts
+@@ -0,0 +1,208 @@
++/**
++ * @module
++ * Safe local cleanup for old workflow run directories.
++ * [REF:fr:e83]
++ */
++
++import { defaultLockPath, readLockInfo } from "./lock.ts";
++import { replayRunJournal } from "./run-journal.ts";
++import { getRunDir } from "./state.ts";
++import type { RunState } from "../types.ts";
++
++/** Reason a run was protected from pruning. */
++export type RunPruneSkipReason =
++  | "locked"
++  | "lock_unreadable"
++  | "non_terminal"
++  | "journal_missing"
++  | "journal_unreplayable";
++
++/** A terminal run selected for keeping or deletion. */
++export interface RunPruneEntry {
++  /** Run identifier, equal to the run directory basename. */
++  run_id: string;
++  /** Absolute or caller-relative run directory path. */
++  run_dir: string;
++  /** Replayed run status. */
++  status: RunState["status"];
++  /** Replayed run start timestamp. */
++  started_at: string;
++}
++
++/** A run skipped because deletion is unsafe. */
++export interface RunPruneSkippedEntry {
++  /** Run identifier, equal to the run directory basename. */
++  run_id: string;
++  /** Absolute or caller-relative run directory path. */
++  run_dir: string;
++  /** Machine-readable skip reason. */
++  reason: RunPruneSkipReason;
++  /** Replayed run status when available. */
++  status?: RunState["status"];
++  /** Diagnostic text for unreadable state. */
++  detail?: string;
++}
++
++/** Planned prune operation, before filesystem deletion. */
++export interface RunsPrunePlan {
++  /** Workflow directory containing `workflow.yaml` and `runs/`. */
++  workflow_dir: string;
++  /** Number of newest terminal unlocked runs retained. */
++  keep: number;
++  /** Terminal unlocked runs selected for deletion, oldest first. */
++  toDelete: RunPruneEntry[];
++  /** Terminal unlocked runs retained by `keep`, newest first. */
++  kept: RunPruneEntry[];
++  /** Runs protected from deletion. */
++  skipped: RunPruneSkippedEntry[];
++}
++
++/** Result of applying or dry-running a prune plan. */
++export interface RunsPruneResult {
++  /** Workflow directory containing `workflow.yaml` and `runs/`. */
++  workflow_dir: string;
++  /** Number of newest terminal unlocked runs retained. */
++  keep: number;
++  /** True when no directories were deleted. */
++  dry_run: boolean;
++  /** Runs selected by the plan; deleted unless `dry_run` is true. */
++  deleted: RunPruneEntry[];
++  /** Terminal unlocked runs retained by `keep`, newest first. */
++  kept: RunPruneEntry[];
++  /** Runs protected from deletion. */
++  skipped: RunPruneSkippedEntry[];
++}
++
++/** Build a safe prune plan without deleting anything. */
++export async function createRunsPrunePlan(
++  workflowDir: string,
++  keep: number,
++): Promise<RunsPrunePlan> {
++  assertNonNegativeInteger(keep, "keep");
++  const runIds = await listRunIds(workflowDir);
++  const lockState = await readLockedRun(workflowDir);
++  const terminal: RunPruneEntry[] = [];
++  const skipped: RunPruneSkippedEntry[] = [];
++
++  for (const runId of runIds) {
++    const runDir = getRunDir(runId, workflowDir);
++    if (lockState.error) {
++      skipped.push({
++        run_id: runId,
++        run_dir: runDir,
++        reason: "lock_unreadable",
++        detail: lockState.error,
++      });
++      continue;
++    }
++    if (lockState.runId === runId) {
++      skipped.push({ run_id: runId, run_dir: runDir, reason: "locked" });
++      continue;
++    }
++
++    let state: RunState;
++    try {
++      state = (await replayRunJournal(runDir)).state;
++    } catch (error) {
++      skipped.push({
++        run_id: runId,
++        run_dir: runDir,
++        reason: error instanceof Deno.errors.NotFound
++          ? "journal_missing"
++          : "journal_unreplayable",
++        detail: error instanceof Error ? error.message : String(error),
++      });
++      continue;
++    }
++
++    if (!isTerminalStatus(state.status)) {
++      skipped.push({
++        run_id: runId,
++        run_dir: runDir,
++        reason: "non_terminal",
++        status: state.status,
++      });
++      continue;
++    }
++
++    terminal.push({
++      run_id: runId,
++      run_dir: runDir,
++      status: state.status,
++      started_at: state.started_at,
++    });
++  }
++
++  terminal.sort(compareNewestFirst);
++  const kept = terminal.slice(0, keep);
++  const toDelete = terminal.slice(keep).sort(compareOldestFirst);
++  skipped.sort((a, b) => a.run_id.localeCompare(b.run_id));
++  return { workflow_dir: workflowDir, keep, toDelete, kept, skipped };
++}
++
++/** Apply a safe prune plan, or return the same targets without deleting. */
++export async function pruneRuns(
++  workflowDir: string,
++  options: { keep: number; dryRun?: boolean },
++): Promise<RunsPruneResult> {
++  const plan = await createRunsPrunePlan(workflowDir, options.keep);
++  if (!options.dryRun) {
++    for (const entry of plan.toDelete) {
++      await Deno.remove(entry.run_dir, { recursive: true });
++    }
++  }
++  return {
++    workflow_dir: plan.workflow_dir,
++    keep: plan.keep,
++    dry_run: options.dryRun === true,
++    deleted: plan.toDelete,
++    kept: plan.kept,
++    skipped: plan.skipped,
++  };
++}
++
++function assertNonNegativeInteger(value: number, name: string): void {
++  if (!Number.isInteger(value) || value < 0) {
++    throw new Error(`${name} must be a non-negative integer.`);
++  }
++}
++
++async function listRunIds(workflowDir: string): Promise<string[]> {
++  const runsDir = `${workflowDir}/runs`;
++  const runIds: string[] = [];
++  try {
++    for await (const entry of Deno.readDir(runsDir)) {
++      if (entry.isDirectory) runIds.push(entry.name);
++    }
++  } catch (error) {
++    if (error instanceof Deno.errors.NotFound) return [];
++    throw error;
++  }
++  return runIds.sort();
++}
++
++async function readLockedRun(
++  workflowDir: string,
++): Promise<{ runId?: string; error?: string }> {
++  try {
++    const lock = await readLockInfo(defaultLockPath(workflowDir));
++    return { runId: lock.run_id };
++  } catch (error) {
++    if (error instanceof Deno.errors.NotFound) return {};
++    return { error: error instanceof Error ? error.message : String(error) };
++  }
++}
++
++function isTerminalStatus(status: RunState["status"]): boolean {
++  return status === "completed" || status === "failed" || status === "aborted";
++}
++
++function compareNewestFirst(a: RunPruneEntry, b: RunPruneEntry): number {
++  return b.started_at.localeCompare(a.started_at) ||
++    b.run_id.localeCompare(a.run_id);
++}
++
++function compareOldestFirst(a: RunPruneEntry, b: RunPruneEntry): number {
++  return a.started_at.localeCompare(b.started_at) ||
++    a.run_id.localeCompare(b.run_id);
++}
+diff --git a/src/state/runs-prune_test.ts b/src/state/runs-prune_test.ts
+new file mode 100644
+index 0000000..caccd6c
+--- /dev/null
++++ b/src/state/runs-prune_test.ts
+@@ -0,0 +1,138 @@
++import { assertEquals, assertRejects } from "@std/assert";
++import { getRunDir } from "./state.ts";
++import { RunJournalWriter } from "./run-journal.ts";
++import { createRunsPrunePlan, pruneRuns } from "./runs-prune.ts";
++import { defaultLockPath } from "./lock.ts";
++
++async function writeRun(
++  workflowDir: string,
++  runId: string,
++  startedAt: string,
++  status: "running" | "completed" | "failed" | "aborted",
++): Promise<void> {
++  const runDir = getRunDir(runId, workflowDir);
++  const writer = await RunJournalWriter.open(runDir, runId);
++  await writer.append({
++    kind: "run_started",
++    config_path: `${workflowDir}/workflow.yaml`,
++    started_at: startedAt,
++    args: {},
++    env: {},
++    ts: startedAt,
++  });
++  if (status !== "running") {
++    await writer.append({
++      kind: status === "completed"
++        ? "run_completed"
++        : status === "failed"
++        ? "run_failed"
++        : "run_aborted",
++      status,
++      completed_at: startedAt,
++      ts: startedAt,
++    });
++  }
++}
++
++async function withWorkflow(
++  fn: (workflowDir: string) => Promise<void>,
++): Promise<void> {
++  const root = await Deno.makeTempDir({ prefix: "runs-prune-" });
++  try {
++    const workflowDir = `${root}/workflow`;
++    await Deno.mkdir(`${workflowDir}/runs`, { recursive: true });
++    await fn(workflowDir);
++  } finally {
++    await Deno.remove(root, { recursive: true });
++  }
++}
++
++Deno.test("runsPrunePlan keeps N newest terminal unlocked runs", async () => {
++  await withWorkflow(async (workflowDir) => {
++    await writeRun(workflowDir, "old", "2026-01-01T00:00:00.000Z", "failed");
++    await writeRun(
++      workflowDir,
++      "middle",
++      "2026-01-02T00:00:00.000Z",
++      "completed",
++    );
++    await writeRun(
++      workflowDir,
++      "new",
++      "2026-01-03T00:00:00.000Z",
++      "aborted",
++    );
++
++    const plan = await createRunsPrunePlan(workflowDir, 2);
++
++    assertEquals(plan.toDelete.map((entry) => entry.run_id), ["old"]);
++    assertEquals(plan.kept.map((entry) => entry.run_id), ["new", "middle"]);
++    assertEquals(plan.skipped, []);
++  });
++});
++
++Deno.test("runsPrunePlan skips protected and unknown runs", async () => {
++  await withWorkflow(async (workflowDir) => {
++    await writeRun(
++      workflowDir,
++      "locked",
++      "2026-01-01T00:00:00.000Z",
++      "completed",
++    );
++    await writeRun(
++      workflowDir,
++      "running",
++      "2026-01-02T00:00:00.000Z",
++      "running",
++    );
++    await Deno.mkdir(getRunDir("missing-journal", workflowDir), {
++      recursive: true,
++    });
++    const badDir = getRunDir("bad-journal", workflowDir);
++    await Deno.mkdir(badDir, { recursive: true });
++    await Deno.writeTextFile(`${badDir}/journal.jsonl`, "{bad json}\n");
++    await Deno.writeTextFile(
++      defaultLockPath(workflowDir),
++      JSON.stringify({
++        pid: 123,
++        hostname: "test",
++        run_id: "locked",
++        started_at: "2026-01-01T00:00:00.000Z",
++      }) + "\n",
++    );
++
++    const plan = await createRunsPrunePlan(workflowDir, 0);
++
++    assertEquals(plan.toDelete, []);
++    assertEquals(
++      plan.skipped.map((entry) => [entry.run_id, entry.reason]),
++      [
++        ["bad-journal", "journal_unreplayable"],
++        ["locked", "locked"],
++        ["missing-journal", "journal_missing"],
++        ["running", "non_terminal"],
++      ],
++    );
++  });
++});
++
++Deno.test("pruneRuns applies keep zero and dry run", async () => {
++  await withWorkflow(async (workflowDir) => {
++    await writeRun(
++      workflowDir,
++      "delete-me",
++      "2026-01-01T00:00:00.000Z",
++      "completed",
++    );
++    const dry = await pruneRuns(workflowDir, { keep: 0, dryRun: true });
++    assertEquals(dry.deleted.map((entry) => entry.run_id), ["delete-me"]);
++    await Deno.stat(getRunDir("delete-me", workflowDir));
++
++    const applied = await pruneRuns(workflowDir, { keep: 0, dryRun: false });
++    assertEquals(applied.deleted.map((entry) => entry.run_id), ["delete-me"]);
++    await assertRejects(
++      () => Deno.stat(getRunDir("delete-me", workflowDir)),
++      Deno.errors.NotFound,
++    );
++  });
++});
+-- 
+2.54.0
+

@@ -1,0 +1,9 @@
+Done.
+
+- Plan: `documents/tasks/2026/06/journal-snapshots-compaction.md`
+- Review verdict: `Approve` recorded in the plan
+- Gate: `deno task check` passed
+- Commit: `c1f71a9 feat: add journal snapshots and compaction`
+- Push: `bench -> origin/bench`
+- Remote verified: local `HEAD` equals upstream `origin/bench`
+- Worktree: clean

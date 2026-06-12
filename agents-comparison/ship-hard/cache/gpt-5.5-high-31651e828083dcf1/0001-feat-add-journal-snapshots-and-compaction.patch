@@ -1,0 +1,1557 @@
+From c1f71a9d3d683679c36f344eba19e643b81684e6 Mon Sep 17 00:00:00 2001
+From: korchasa <korchasa@icloud.com>
+Date: Fri, 12 Jun 2026 11:52:36 +0300
+Subject: [PATCH] feat: add journal snapshots and compaction
+
+---
+ documents/design-engine/04-data-and-logic.md  |  20 +-
+ documents/index.md                            |   1 +
+ documents/requirements-engine.md              |   1 +
+ .../requirements-engine/01-execution-model.md |  37 +++
+ .../2026/06/journal-snapshots-compaction.md   | 211 +++++++++++++++++
+ src/cli.ts                                    | 108 +++++++++
+ src/cli_test.ts                               |  98 ++++++++
+ src/config/config.ts                          |  32 +++
+ src/config/config_test.ts                     |  87 +++++++
+ src/engine/engine.ts                          |  27 +++
+ src/engine/engine_test.ts                     |  52 +++-
+ src/mod.ts                                    |   9 +-
+ src/state/lifecycle-replay_test.ts            | 223 ++++++++++++++++++
+ src/state/run-journal.ts                      | 216 ++++++++++++++++-
+ src/types.ts                                  |  34 ++-
+ 15 files changed, 1135 insertions(+), 21 deletions(-)
+ create mode 100644 documents/tasks/2026/06/journal-snapshots-compaction.md
+
+diff --git a/documents/design-engine/04-data-and-logic.md b/documents/design-engine/04-data-and-logic.md
+index d172148..3f37562 100644
+--- a/documents/design-engine/04-data-and-logic.md
++++ b/documents/design-engine/04-data-and-logic.md
+@@ -54,7 +54,7 @@
+     ...payload }` — bootstrap, node lifecycle, attempt, loop, and terminal
+     run facts, one JSONL record per fact (FR-E69).
+   - WorkflowDefaults: `{ ..., budget?: { max_usd?: number; max_turns?: number } }`
+-    — default budget applied to all nodes via cascade merge (FR-E47)
++    — default budget applied to all nodes via cascade merge (FR-E47).
+   - NodeConfig: `{ ..., run_on?: "always"|"success"|"failure", phase?: string,
+     env?: Record<string, string>, model?: string,
+     allowed_paths?: string[] }` — `run_on` for conditional post-workflow
+@@ -400,15 +400,15 @@
+     timestamps where available. `EngineContext` threads helpers through all
+     node paths; callback rejection becomes `NodeLifecycleCallbackError`
+     without recursive failed-event emission.
+-  - **Durable Lifecycle Replay (FR-E69):** `run-journal.ts` owns the
+-    recovery surface. Writer appends enveloped JSON lines with monotonic `seq`
+-    and deterministic `event_id`, continuing after existing valid records on
+-    resume. Fresh runs write ordinary bootstrap facts, not a snapshot blob.
+-    Replay reads only the run directory, ignores duplicate `event_id`s and a
+-    malformed partial tail, fails on malformed non-tail lines, and derives
+-    `RunState`. Terminal records beat stale non-terminal run facts; later
+-    terminal facts can supersede earlier ones. Dashboard and resume replay the
+-    journal rather than `state.json`.
++  - **Durable Lifecycle Replay + Compaction (FR-E69, FR-E83):** `run-journal.ts`
++    owns recovery. Writer appends enveloped JSON lines with monotonic `seq` and
++    deterministic `event_id`. Replay reads only the run dir, ignores duplicate
++    IDs and partial tail, fails on malformed non-tail lines, derives
++    `RunState` from facts or latest supported `state_snapshot` plus suffix
++    events, and lets terminal records beat stale facts. Dashboard/resume replay
++    the journal, not `state.json`. Compaction writes/fsyncs snapshot tmp,
++    backs up journal then renames; manual mode refuses live/corrupt runs,
++    auto mode runs past threshold
+   - **CLI Auto-Update Prevention (FR-E49):** In `run()`, before node
+     execution loop:
+     1. Save original `Deno.env.get("DISABLE_AUTOUPDATER")`.
+diff --git a/documents/index.md b/documents/index.md
+index 7b5f797..5f0dfd3 100644
+--- a/documents/index.md
++++ b/documents/index.md
+@@ -15,4 +15,5 @@
+ - [FR-E77](requirements-engine/04-runtime-and-hooks.md#377-fr-e77-acp-as-the-sole-runtime-transport) — ACP as the sole runtime transport (implicit `transport: "acp"`, no config knob) — [x]
+ - [FR-E78](requirements-engine/07-mcp-and-plugin-runtime.md#378-fr-e78-plugin-precondition--release-binary-distribution) — Plugin precondition + release binary distribution (supersedes FR-E74 launcher) — [ ]
+ - [FR-E80](requirements-engine/05-cli-and-observability.md#380-fr-e80-cumulative-wall-clock-retry-cap) — Cumulative wall-clock retry cap per node via AbortSignal pass-through — [x]
++- [FR-E83](requirements-engine/01-execution-model.md#383-fr-e83-journal-snapshots-and-crash-safe-compaction) — Journal state snapshots and crash-safe compaction — [ ]
+ - [FR-E9](requirements-engine/01-execution-model.md#39-fr-e9-run-artifacts-folder-structure) — Run artifacts live under the selected workflow run directory — [x]
+diff --git a/documents/requirements-engine.md b/documents/requirements-engine.md
+index 4313a52..d786c80 100644
+--- a/documents/requirements-engine.md
++++ b/documents/requirements-engine.md
+@@ -118,3 +118,4 @@ FR-IDs are stable — never renumber them on move.
+ - FR-E80 (Cumulative Wall-Clock Retry Cap) → 05-cli-and-observability
+ - FR-E81 (Claude CLI Version Probe Gated on Runtime) → 04-runtime-and-hooks
+ - FR-E82 (Fail-Fast on Runtime `is_error`)            → 04-runtime-and-hooks
++- FR-E83 (Journal Snapshots + Crash-Safe Compaction)  → 01-execution-model
+diff --git a/documents/requirements-engine/01-execution-model.md b/documents/requirements-engine/01-execution-model.md
+index adade0a..c25dcfa 100644
+--- a/documents/requirements-engine/01-execution-model.md
++++ b/documents/requirements-engine/01-execution-model.md
+@@ -169,3 +169,40 @@
+   - **Tests:** `engine_test.ts` (FR-E34; regression-locked; 5 cases
+     cover the 4 interaction rules + log-message format).
+ 
++
++### 3.83 FR-E83: Journal Snapshots and Crash-Safe Compaction
++
++- **Description:** `journal.jsonl` supports embedded `state_snapshot` events
++  and a compaction operation that replaces an old replay prefix with one
++  snapshot record. The snapshot payload has `snapshot_version: 1`, the complete
++  replayed run model, and `events_covered`. Journals without snapshots replay
++  exactly as before.
++- **Tasks:** [REF:task:2026-06-journal-snapshots-compaction | journal-snapshots-compaction]
++- **Motivation:** FR-E69 made replay linear in journal size. Long autonomous
++  runs can accumulate enough lifecycle facts that restart/recovery cost grows
++  without bound. Snapshots cap replay cost while keeping the single-file
++  durable recovery contract.
++- **Decision:**
++  - Replay uses `src/state/run-journal.ts` only. If snapshots exist, replay
++    seeds from the latest supported snapshot and applies only subsequent
++    events.
++  - A `state_snapshot.snapshot_version` greater than the supported version
++    fails replay with a clear error naming the journal path and version.
++  - Compaction protocol is fixed: replay current journal, write
++    `journal.jsonl.tmp` with one snapshot and zero tail events, fsync tmp,
++    copy current journal to `journal.jsonl.bak`, then atomically rename tmp
++    over `journal.jsonl`.
++  - Manual compaction refuses live runs and corrupt non-tail journals. Engine
++    auto-compaction runs only while owning the active run and only after node
++    completion.
++  - `settings.journal_compaction_threshold_events` is a non-negative integer;
++    default is `1000`; `0` disables auto-compaction.
++  - Manual CLI:
++    `flowai-workflow runs compact --workflow <dir> --run <runId> [--dry-run]`.
++- **Acceptance criteria:**
++  - **Tests:** `lifecycle-replay_test.ts`, `config_test.ts`,
++    `engine_test.ts`, `cli_test.ts` (FR-E83; regression-locked; snapshot
++    equivalence, suffix-only replay, torn-tail tolerance, crash injection,
++    live/corrupt refusal, threshold validation, node-boundary auto trigger,
++    dry-run no-op, exact summary format, help listing).
++  - [x] Full project check passes.
+diff --git a/documents/tasks/2026/06/journal-snapshots-compaction.md b/documents/tasks/2026/06/journal-snapshots-compaction.md
+new file mode 100644
+index 0000000..5a4fa4f
+--- /dev/null
++++ b/documents/tasks/2026/06/journal-snapshots-compaction.md
+@@ -0,0 +1,211 @@
++---
++date: "2026-06-12"
++status: done
++implements: [FR-E83]
++tags: [engine, recovery, journal, cli, config]
++related_tasks:
++  - 2026/05/durable-run-lifecycle-replay.md
++---
++# engine: Journal snapshots with crash-safe compaction
++
++## Goal
++
++Add journal-embedded run-state snapshots and a crash-safe compaction operation
++so long runs replay from a bounded suffix while preserving the durable
++`journal.jsonl` recovery contract.
++
++## Overview
++
++### Context
++
++FR-E69 made `journal.jsonl` the canonical recovery surface and explicitly
++deferred snapshots and compaction. Long runs now need that deferred capability:
++the journal must support `state_snapshot` events, replay from the latest valid
++snapshot, and compact old prefixes without ever leaving an unreplayable file.
++
++### Current State
++
++- `src/state/run-journal.ts` owns journal writing and replay.
++- Replay currently starts from `run_started`, applies every unique event, and
++  tolerates only a malformed trailing line.
++- The engine opens a `RunJournalWriter`, appends bootstrap and lifecycle facts,
++  and resumes by replaying the full journal.
++- CLI subcommands live in `src/cli.ts`; run-control helpers already reuse state
++  path and lock helpers.
++- Config defaults and validation live in `src/config/config.ts`.
++
++### Constraints
++
++- Keep `src/state/run-journal.ts` the single replay source.
++- Preserve old journals with no snapshots.
++- Refuse unsupported future snapshot versions clearly.
++- Compaction protocol order is fixed: replay, tmp snapshot write, fsync tmp,
++  backup copy, atomic rename.
++- Manual and automatic compaction must share the same implementation.
++- Automatic compaction only runs after node completion.
++- No new dependencies.
++- Do not call `gh`; push only to the local `origin` benchmark remote.
++
++## Definition of Done
++
++- [x] FR-E83: `state_snapshot` event carries `snapshot_version: 1`, full
++      replayed run model, and `events_covered`; replay refuses newer snapshot
++      versions with journal path and version. Test:
++      `src/state/lifecycle-replay_test.ts::FR-E83 snapshot round-trip equivalence`;
++      Evidence: `deno task check`.
++- [x] FR-E83: replay seeds from the latest snapshot, applies only suffix
++      events, remains byte-equivalent to full replay, and tolerates a torn line
++      immediately after a snapshot. Test:
++      `src/state/lifecycle-replay_test.ts::FR-E83 suffix-only replay touches only snapshot and tail`;
++      `src/state/lifecycle-replay_test.ts::FR-E83 compacted journal tolerates torn tail after snapshot`;
++      Evidence: `deno task check`.
++- [x] FR-E83: shared compaction follows the fixed crash-safe protocol, keeps
++      one `journal.jsonl.bak`, refuses active live runs, and refuses corrupt
++      non-tail journals without modification. Test:
++      `src/state/lifecycle-replay_test.ts::FR-E83 compaction crash injection preserves replay`;
++      `src/state/lifecycle-replay_test.ts::FR-E83 compaction refuses live run`;
++      `src/state/lifecycle-replay_test.ts::FR-E83 compaction refuses corrupt journal`;
++      Evidence: `deno task check`.
++- [x] FR-E83: `journal_compaction_threshold_events` is validated as a
++      non-negative integer, defaults to a documented non-zero value, and is
++      covered by config drift tests. Test:
++      `src/config/config_test.ts::FR-E83 journal compaction threshold validates and cascades`;
++      Evidence: `deno task check`.
++- [x] FR-E83: engine auto-compacts only at node-completion boundaries when
++      events since the latest snapshot exceed threshold and emits one verbose
++      line. Test:
++      `src/engine/engine_test.ts::FR-E83 auto compaction runs only after node completion`;
++      Evidence: `deno task check`.
++- [x] FR-E83: `flowai-workflow runs compact --workflow <dir> --run <runId>
++      [--dry-run]` supports dry-run no-op stats, exact success summary,
++      one-line non-stack errors, and help text. Test:
++      `src/cli_test.ts::FR-E83 runs compact dry-run is no-op`;
++      `src/cli_test.ts::FR-E83 runs compact exact success summary`;
++      `src/cli_test.ts::FR-E83 help lists runs compact`;
++      Evidence: `deno task check`.
++- [x] FR-E83: SRS and SDS document snapshots, replay, compaction protocol,
++      config field, and CLI command. Test:
++      `documents/requirements-engine/01-execution-model.md::FR-E83`;
++      `documents/design-engine/04-data-and-logic.md::Journal compaction`;
++      Evidence: `deno task check`.
++- [x] FR-E83: Full project gate passes. Test: `deno task check`. Evidence:
++      `deno task check`.
++
++## Solution
++
++### Selected Variant
++
++Use the architecturally correct variant: extend `run-journal.ts` as the single
++replay and compaction source, add a shared compaction API, invoke it from both
++the CLI and the engine's node-completion path, and keep config validation in
++the existing defaults cascade.
++
++Non-interactive rationale: this is the only variant that satisfies all hard
++requirements without introducing speculative storage abstractions.
++
++### Files to Modify
++
++- `src/types.ts`
++  - Add `state_snapshot` to the journal event union.
++  - Add config field `journal_compaction_threshold_events` on workflow
++    defaults and node settings only if existing settings cascade requires it;
++    keep it settings-level per task wording.
++  - Add result types for compaction summaries and dry-run stats if needed.
++- `src/state/run-journal.ts`
++  - Extend replay to locate the latest valid snapshot, seed state from it, and
++    deduplicate/apply suffix events only.
++  - Keep old no-snapshot replay unchanged.
++  - Add `compactRunJournal()` and `dryRunJournalCompaction()` using
++    `getJournalPath()`, `parseJournal()`, replay, and `Deno.FsFile.sync()`.
++  - Add a test-only crash hook after each protocol step.
++  - Refuse live locks via `isRunLive(workflowDir, runId)`.
++- `src/config/config.ts`
++  - Add default threshold, non-negative integer validation, and cascade.
++  - Include the field in settings key allowlists and default extraction.
++- `src/engine/engine.ts`
++  - Track event counts at node-completion boundaries.
++  - Trigger shared compaction when `eventsSinceSnapshot > threshold`.
++  - Emit one verbose/status line for the trigger.
++- `src/cli.ts`
++  - Add `runs compact --workflow <dir> --run <runId> [--dry-run]`.
++  - Follow existing manual argument parsing style.
++  - Print exact success line and one-line errors.
++  - Add help text.
++- Tests:
++  - `src/state/lifecycle-replay_test.ts`
++  - `src/config/config_test.ts`
++  - `src/engine/engine_test.ts`
++  - `src/cli_test.ts`
++- Docs:
++  - `documents/requirements-engine.md`
++  - `documents/requirements-engine/01-execution-model.md`
++  - `documents/design-engine/04-data-and-logic.md`
++  - `documents/index.md`
++
++### Implementation Approach
++
++1. RED: add state journal tests for snapshot equivalence, suffix-only parse
++   count, torn tail after snapshot, crash injection, live-run refusal, and
++   corrupt-journal refusal.
++2. GREEN: implement snapshot event types, replay seeding, compaction protocol,
++   dry-run stats, and clear errors.
++3. RED: add config tests for threshold default, zero disable, invalid negative,
++   invalid non-integer, and cascade.
++4. GREEN: add settings field validation/defaulting.
++5. RED: add CLI tests for argument parsing, dry-run no-op, exact summary, and
++   help text.
++6. GREEN: add `runs compact` subcommand with shared compaction calls.
++7. RED: add engine boundary test proving auto compaction is called only after
++   node completion and threshold crossing.
++8. GREEN: wire engine auto compaction using the shared API.
++9. REFACTOR: keep parsing and path logic centralized; avoid duplicated journal
++   path construction.
++10. CHECK: run focused tests as needed, then `deno task check`.
++
++### Error Handling Strategy
++
++- Unsupported snapshot versions throw `Unsupported journal state_snapshot
++  version <N> in <path>`.
++- Malformed non-tail lines fail replay and make compaction refuse before any
++  tmp, backup, or rename change.
++- Active live lock refusal returns a clear one-line CLI error and leaves files
++  unchanged.
++- Crash hook errors are test-only and simulate process abort at each protocol
++  boundary; every injected state must leave old or new journal replayable.
++
++### Verification Commands
++
++- `deno task test -- --filter "FR-E83"`
++- `deno task check`
++
++## Critique
++
++1. Snapshot payload must include enough data to resume replay without original
++   bootstrap records, including node declarations and directory declarations.
++2. `events_covered` must count pre-deduplication journal events, not only
++   unique events, otherwise compacted summaries drift from file size reality.
++3. Automatic compaction must not run while the writer still has stale sequence
++   state, or later appends may reuse sequence numbers.
++4. The CLI exact summary requires measuring bytes after rename, not estimating
++   from the tmp string.
++
++## Refinements
++
++- Applied 4 critique items: the Solution now requires full replay payload,
++  explicit `events_covered` semantics, writer sequence refresh after
++  compaction, and post-rename byte measurement.
++
++## Follow-ups
++
++- Multi-generation backup retention is out of scope.
++- Compression or binary snapshot encoding is out of scope.
++
++## Review
++
++## Review: Approve
++
++- Scope checked against TASK.md requested behavior and constraints.
++- Evidence: `deno task check` passed on 2026-06-12.
++- Residual risk: `deno doc --lint` still prints pre-existing npm type
++  resolution warnings for MCP SDK paths, but the project gate treats them as
++  warnings and passes.
+diff --git a/src/cli.ts b/src/cli.ts
+index 43c95a1..e4fd22a 100644
+--- a/src/cli.ts
++++ b/src/cli.ts
+@@ -43,6 +43,12 @@ import { dirname, join } from "@std/path";
+ import type { EngineOptions, Verbosity } from "./types.ts";
+ import { Engine } from "./engine/engine.ts";
+ import { deliverHumanAnswer, resumeRun } from "./mcp/commands.ts";
++import {
++  compactRunJournal,
++  journalCompactionDryRun,
++  type JournalCompactionSummary,
++} from "./state/run-journal.ts";
++import { getRunDir } from "./state/state.ts";
+ import {
+   INTERNAL_HITL_MCP_ARG,
+   runFlowaiHitlMcpServer,
+@@ -179,6 +185,16 @@ export interface AnswerArgs {
+   text: string;
+ }
+ 
++/** Parsed arguments for `runs compact` (FR-E83). */
++export interface RunsCompactArgs {
++  /** Workflow directory containing `workflow.yaml`. */
++  workflowDir: string;
++  /** Run ID to compact. */
++  runId: string;
++  /** When true, print stats and modify nothing. */
++  dryRun: boolean;
++}
++
+ /**
+  * Parse `answer [--workflow <path>] <run-id> --node <id> "<text>"` (FR-E75).
+  * Workflow is optional: when `--workflow <path>` is omitted the caller
+@@ -235,6 +251,64 @@ export function parseAnswerArgs(args: string[]): AnswerArgs {
+   };
+ }
+ 
++/** Parse `runs compact --workflow <dir> --run <runId> [--dry-run]`. */
++export function parseRunsCompactArgs(args: string[]): RunsCompactArgs {
++  const [action, ...rest] = args;
++  if (action !== "compact") {
++    throw new Error(
++      "runs: unknown action. Usage: flowai-workflow runs compact --workflow <dir> --run <runId> [--dry-run]",
++    );
++  }
++  let workflowDir: string | undefined;
++  let runId: string | undefined;
++  let dryRun = false;
++  for (let i = 0; i < rest.length; i++) {
++    const arg = rest[i];
++    if (arg === "--workflow") {
++      workflowDir = normalizeWorkflowDir(rest[++i] ?? "");
++      continue;
++    }
++    if (arg.startsWith("--workflow=")) {
++      workflowDir = normalizeWorkflowDir(arg.slice("--workflow=".length));
++      continue;
++    }
++    if (arg === "--run") {
++      runId = rest[++i];
++      continue;
++    }
++    if (arg.startsWith("--run=")) {
++      runId = arg.slice("--run=".length);
++      continue;
++    }
++    if (arg === "--dry-run") {
++      dryRun = true;
++      continue;
++    }
++    throw new Error(`runs compact: unknown argument '${arg}'`);
++  }
++  if (!workflowDir) throw new Error("runs compact: missing --workflow <dir>");
++  if (!runId) throw new Error("runs compact: missing --run <runId>");
++  return { workflowDir, runId, dryRun };
++}
++
++/** Format the exact manual compaction success line required by FR-E83. */
++export function formatRunCompactSummary(
++  summary: Pick<
++    JournalCompactionSummary,
++    | "run_id"
++    | "events_before"
++    | "events_after"
++    | "bytes_before"
++    | "bytes_after"
++    | "backup_path"
++  >,
++): string {
++  const backup = summary.backup_path.endsWith("journal.jsonl.bak")
++    ? "journal.jsonl.bak"
++    : summary.backup_path;
++  return `compacted ${summary.run_id}: ${summary.events_before} -> ${summary.events_after} events, ${summary.bytes_before} -> ${summary.bytes_after} bytes (backup: ${backup})`;
++}
++
+ /**
+  * Parse CLI arguments into EngineOptions.
+  *
+@@ -374,6 +448,8 @@ Usage:
+   flowai-workflow init [options]             Scaffold .flowai-workflow/ directory
+   flowai-workflow answer [--workflow <path>] <run-id> --node <id> "<text>"
+                                              Deliver a local HITL reply (FR-E75)
++  flowai-workflow runs compact --workflow <dir> --run <runId> [--dry-run]
++                                             Compact a run journal (FR-E83)
+   flowai-workflow mcp [<workflow>]           Start embedded MCP server (FR-E73)
+ 
+ Subcommands:
+@@ -383,6 +459,7 @@ Subcommands:
+                         local inbox file (transport-independent). Prints
+                         {inboxPath, live}; when live is false, resume the run to
+                         consume the queued answer.
++  runs compact          Compact one run's journal with a crash-safe snapshot.
+   mcp                   Start embedded MCP server exposing 8 engine-control tools over stdio.
+ 
+ Workflow resolution (run / answer / mcp; FR-E78):
+@@ -426,6 +503,7 @@ Examples:
+   flowai-workflow run .flowai-workflow/github-inbox --dry-run
+   flowai-workflow answer 20260529T094727 --node specification "monetization"
+   flowai-workflow answer --workflow .flowai-workflow/autonomous-sdlc 20260529T094727 --node specification "monetization"
++  flowai-workflow runs compact --workflow .flowai-workflow/github-inbox --run 20260529T094727
+   flowai-workflow mcp .flowai-workflow/github-inbox
+ `);
+ }
+@@ -587,6 +665,31 @@ async function runAnswer(args: string[]): Promise<never> {
+   }
+ }
+ 
++/** Run `runs compact` and print one-line output/errors (FR-E83). */
++async function runRuns(args: string[]): Promise<never> {
++  try {
++    const parsed = parseRunsCompactArgs(args);
++    const runDir = getRunDir(parsed.runId, parsed.workflowDir);
++    if (parsed.dryRun) {
++      const stats = await journalCompactionDryRun(runDir);
++      console.log(
++        `would compact ${parsed.runId}: ${stats.events_before} -> ${stats.events_after} events, ${stats.bytes_before} -> ${stats.bytes_after} bytes (backup: journal.jsonl.bak)`,
++      );
++      Deno.exit(0);
++    }
++    const summary = await compactRunJournal({
++      runDir,
++      workflowDir: parsed.workflowDir,
++      runId: parsed.runId,
++    });
++    console.log(formatRunCompactSummary(summary));
++    Deno.exit(0);
++  } catch (err) {
++    console.error(`Error: ${(err as Error).message}`);
++    Deno.exit(1);
++  }
++}
++
+ /**
+  * Print a one-line deprecation banner for users who installed the engine
+  * via JSR or a prebuilt binary (FR-E70 plugin-first distribution). The
+@@ -652,6 +755,11 @@ if (import.meta.main) {
+     await runAnswer(Deno.args.slice(1));
+   }
+ 
++  // Subcommand: `runs compact --workflow <dir> --run <runId>` (FR-E83).
++  if (subcommand === "runs") {
++    await runRuns(Deno.args.slice(1));
++  }
++
+   // Subcommand: `init` → verbatim copy of a bundled workflow folder.
+   if (subcommand === "init") {
+     const { runInit } = await import("./init/mod.ts");
+diff --git a/src/cli_test.ts b/src/cli_test.ts
+index 4f8abbe..fa55e96 100644
+--- a/src/cli_test.ts
++++ b/src/cli_test.ts
+@@ -4,13 +4,16 @@
+ import { assertEquals, assertThrows } from "@std/assert";
+ import {
+   extractCliFlags,
++  formatRunCompactSummary,
+   getVersionString,
+   normalizeWorkflowDir,
+   parseAnswerArgs,
+   parseArgs,
++  parseRunsCompactArgs,
+   resolveActiveWorkflow,
+   VERSION,
+ } from "./cli.ts";
++import { getJournalPath, RunJournalWriter } from "./state/run-journal.ts";
+ 
+ Deno.test("parseArgs — --prompt sets args.prompt", () => {
+   const opts = parseArgs(["--prompt", "Fix the login bug"]);
+@@ -461,3 +464,98 @@ Deno.test("FR-E73 mcp subcommand parses the same workflow path shape as run", ()
+   const mcpWorkflowDir = normalizeWorkflowDir(".flowai-workflow/github-inbox/");
+   assertEquals(runWorkflowYaml, `${mcpWorkflowDir}/workflow.yaml`);
+ });
++
++// --- FR-E83: runs compact CLI ---
++
++Deno.test("FR-E83 parseRunsCompactArgs accepts required compact flags", () => {
++  const args = parseRunsCompactArgs([
++    "compact",
++    "--workflow",
++    ".flowai-workflow/github-inbox/",
++    "--run",
++    "run-1",
++    "--dry-run",
++  ]);
++  assertEquals(args.workflowDir, ".flowai-workflow/github-inbox");
++  assertEquals(args.runId, "run-1");
++  assertEquals(args.dryRun, true);
++});
++
++Deno.test("FR-E83 parseRunsCompactArgs rejects missing required flags", () => {
++  assertThrows(
++    () => parseRunsCompactArgs(["compact", "--workflow", "wf"]),
++    Error,
++    "missing --run",
++  );
++  assertThrows(
++    () => parseRunsCompactArgs(["compact", "--run", "run-1"]),
++    Error,
++    "missing --workflow",
++  );
++});
++
++Deno.test("FR-E83 runs compact exact success summary", () => {
++  assertEquals(
++    formatRunCompactSummary({
++      run_id: "run-1",
++      events_before: 9,
++      events_after: 1,
++      bytes_before: 900,
++      bytes_after: 100,
++      backup_path: "journal.jsonl.bak",
++    }),
++    "compacted run-1: 9 -> 1 events, 900 -> 100 bytes (backup: journal.jsonl.bak)",
++  );
++});
++
++Deno.test("FR-E83 help lists runs compact", async () => {
++  const result = await new Deno.Command(Deno.execPath(), {
++    args: ["run", "-A", "--no-check", "src/cli.ts", "--help"],
++    stdout: "piped",
++    stderr: "piped",
++  }).output();
++  assertEquals(result.code, 0);
++  const stdout = new TextDecoder().decode(result.stdout);
++  assertEquals(stdout.includes("flowai-workflow runs compact"), true);
++});
++
++Deno.test("FR-E83 runs compact dry-run is no-op", async () => {
++  const workflowDir = await Deno.makeTempDir();
++  const runId = "run-cli-dry";
++  const runDir = `${workflowDir}/runs/${runId}`;
++  try {
++    const writer = await RunJournalWriter.open(runDir, runId);
++    await writer.append({
++      kind: "run_started",
++      config_path: "workflow.yaml",
++      started_at: "2026-05-17T00:00:00.000Z",
++      ts: "2026-05-17T00:00:00.000Z",
++      args: {},
++      env: {},
++    });
++    const before = await Deno.readTextFile(getJournalPath(runDir));
++    const result = await new Deno.Command(Deno.execPath(), {
++      args: [
++        "run",
++        "-A",
++        "--no-check",
++        "src/cli.ts",
++        "runs",
++        "compact",
++        "--workflow",
++        workflowDir,
++        "--run",
++        runId,
++        "--dry-run",
++      ],
++      stdout: "piped",
++      stderr: "piped",
++    }).output();
++    assertEquals(result.code, 0);
++    assertEquals(await Deno.readTextFile(getJournalPath(runDir)), before);
++    const stdout = new TextDecoder().decode(result.stdout).trim();
++    assertEquals(stdout.startsWith(`would compact ${runId}: `), true);
++  } finally {
++    await Deno.remove(workflowDir, { recursive: true });
++  }
++});
+diff --git a/src/config/config.ts b/src/config/config.ts
+index c3ae840..cb97866 100644
+--- a/src/config/config.ts
++++ b/src/config/config.ts
+@@ -41,6 +41,7 @@ export const DEFAULT_SETTINGS: Required<
+   on_error: "fail",
+   max_retries: 3,
+   retry_delay_seconds: 5,
++  journal_compaction_threshold_events: 1000,
+ };
+ 
+ /** Default workflow-level settings. Fields intentionally excluded from
+@@ -274,6 +275,12 @@ function validateSchema(config: Record<string, unknown>): void {
+         defaults.max_retry_wall_clock_seconds,
+       );
+     }
++    if (defaults.journal_compaction_threshold_events !== undefined) {
++      validateJournalCompactionThreshold(
++        "defaults",
++        defaults.journal_compaction_threshold_events,
++      );
++    }
+ 
+     // Validate memory_paths if present (FR-S28)
+     if (defaults.memory_paths !== undefined) {
+@@ -604,6 +611,7 @@ function validateSettings(
+     "max_retries",
+     "retry_delay_seconds",
+     "max_retry_wall_clock_seconds",
++    "journal_compaction_threshold_events",
+   ];
+   for (const key of Object.keys(settings)) {
+     if (!validKeys.includes(key)) {
+@@ -627,6 +635,12 @@ function validateSettings(
+       settings.max_retry_wall_clock_seconds,
+     );
+   }
++  if (settings.journal_compaction_threshold_events !== undefined) {
++    validateJournalCompactionThreshold(
++      `Node '${nodeId}' settings`,
++      settings.journal_compaction_threshold_events,
++    );
++  }
+ }
+ 
+ /** Validate FR-E80 `max_retry_wall_clock_seconds`: positive integer. */
+@@ -640,6 +654,20 @@ function validateWallClockBudget(context: string, value: unknown): void {
+   }
+ }
+ 
++/** Validate FR-E83 journal compaction threshold: non-negative integer. */
++function validateJournalCompactionThreshold(
++  context: string,
++  value: unknown,
++): void {
++  if (
++    typeof value !== "number" || !Number.isInteger(value) || value < 0
++  ) {
++    throw new Error(
++      `${context}.journal_compaction_threshold_events must be a non-negative integer (got '${value}')`,
++    );
++  }
++}
++
+ function validateValidationRule(
+   nodeId: string,
+   rule: Record<string, unknown>,
+@@ -1214,5 +1242,9 @@ function extractNodeSettings(defaults: WorkflowDefaults): NodeSettings {
+     settings.max_retry_wall_clock_seconds =
+       defaults.max_retry_wall_clock_seconds;
+   }
++  if (defaults.journal_compaction_threshold_events !== undefined) {
++    settings.journal_compaction_threshold_events =
++      defaults.journal_compaction_threshold_events;
++  }
+   return settings;
+ }
+diff --git a/src/config/config_test.ts b/src/config/config_test.ts
+index 1628c6e..b5e6e85 100644
+--- a/src/config/config_test.ts
++++ b/src/config/config_test.ts
+@@ -2218,3 +2218,90 @@ nodes:
+     "Node 'n' settings.max_retry_wall_clock_seconds must be a positive integer (got '0')",
+   );
+ });
++
++// --- FR-E83: journal compaction threshold ---
++
++Deno.test("FR-E83 journal compaction threshold validates and cascades", () => {
++  const config = parseConfig(`
++name: w
++version: "1"
++defaults:
++  journal_compaction_threshold_events: 42
++nodes:
++  n:
++    type: agent
++    label: n
++    prompt: p
++`);
++  assertEquals(config.defaults!.journal_compaction_threshold_events, 42);
++  assertEquals(
++    config.nodes.n.settings!.journal_compaction_threshold_events,
++    42,
++  );
++});
++
++Deno.test("FR-E83 journal compaction threshold zero disables auto compaction", () => {
++  const config = parseConfig(`
++name: w
++version: "1"
++defaults:
++  journal_compaction_threshold_events: 0
++nodes:
++  n:
++    type: agent
++    label: n
++    prompt: p
++`);
++  assertEquals(config.nodes.n.settings!.journal_compaction_threshold_events, 0);
++});
++
++Deno.test("FR-E83 journal compaction threshold has non-zero default", () => {
++  const config = parseConfig(`
++name: w
++version: "1"
++nodes:
++  n:
++    type: agent
++    label: n
++    prompt: p
++`);
++  assertEquals(
++    config.nodes.n.settings!.journal_compaction_threshold_events,
++    DEFAULT_SETTINGS.journal_compaction_threshold_events,
++  );
++});
++
++Deno.test("FR-E83 journal compaction threshold rejects invalid values", () => {
++  assertThrows(
++    () =>
++      parseConfig(`
++name: w
++version: "1"
++defaults:
++  journal_compaction_threshold_events: -1
++nodes:
++  n:
++    type: agent
++    label: n
++    prompt: p
++`),
++    Error,
++    "journal_compaction_threshold_events must be a non-negative integer",
++  );
++  assertThrows(
++    () =>
++      parseConfig(`
++name: w
++version: "1"
++nodes:
++  n:
++    type: agent
++    label: n
++    prompt: p
++    settings:
++      journal_compaction_threshold_events: 1.5
++`),
++    Error,
++    "journal_compaction_threshold_events must be a non-negative integer",
++  );
++});
+diff --git a/src/engine/engine.ts b/src/engine/engine.ts
+index eea1d17..0a6fa5d 100644
+--- a/src/engine/engine.ts
++++ b/src/engine/engine.ts
+@@ -48,6 +48,8 @@ import {
+   workPath,
+ } from "../state/state.ts";
+ import {
++  compactRunJournal,
++  journalCompactionDryRun,
+   nodeDeclarationPayload,
+   replayRunJournal,
+   resultExcerpt,
+@@ -635,6 +637,7 @@ export class Engine {
+       this.options.onNodeLifecycle,
+       this.journal,
+     );
++    await this.maybeCompactJournal(nodeId);
+   }
+ 
+   /** Apply failed transition and publish optional lifecycle callback. */
+@@ -679,6 +682,30 @@ export class Engine {
+     );
+   }
+ 
++  /** Compact the durable journal only at node-completion boundaries (FR-E83). */
++  private async maybeCompactJournal(nodeId: string): Promise<void> {
++    const node = findNodeConfig(this.config, nodeId);
++    const threshold = node?.settings?.journal_compaction_threshold_events ??
++      this.config.defaults?.journal_compaction_threshold_events;
++    if (threshold === undefined || threshold === 0) return;
++
++    const runDir = getRunDir(this.state.run_id, this.workflowDir);
++    const stats = await journalCompactionDryRun(runDir);
++    if (stats.events_since_snapshot <= threshold) return;
++
++    this.output.status(
++      "journal",
++      `COMPACT node=${nodeId} events=${stats.events_since_snapshot} threshold=${threshold}`,
++    );
++    await compactRunJournal({
++      runDir,
++      workflowDir: this.workflowDir,
++      runId: this.state.run_id,
++      allowActiveRun: true,
++    });
++    this.journal = await RunJournalWriter.open(runDir, this.state.run_id);
++  }
++
+   /** Build template context for a node (searches top-level and loop body nodes). */
+   private buildContext(
+     nodeId: string,
+diff --git a/src/engine/engine_test.ts b/src/engine/engine_test.ts
+index 61e6375..5f76d17 100644
+--- a/src/engine/engine_test.ts
++++ b/src/engine/engine_test.ts
+@@ -47,7 +47,11 @@ import {
+   nodeStarted,
+   nodeWaiting,
+ } from "./node-lifecycle.ts";
+-import { replayRunJournal, RunJournalWriter } from "../state/run-journal.ts";
++import {
++  getJournalPath,
++  replayRunJournal,
++  RunJournalWriter,
++} from "../state/run-journal.ts";
+ 
+ /** Capture output lines from an OutputManager. */
+ function createCapture(): { lines: string[]; writer: (text: string) => void } {
+@@ -1850,3 +1854,49 @@ Deno.test("FR-E81 workflowUsesClaude — loop body claude override detected", ()
+   };
+   assertEquals(workflowUsesClaude(cfg), true);
+ });
++
++Deno.test("FR-E83 auto compaction runs only after node completion", async () => {
++  const tmpDir = await Deno.makeTempDir();
++  const origCwd = Deno.cwd();
++  try {
++    await Deno.writeTextFile(
++      `${tmpDir}/workflow.yaml`,
++      [
++        "name: compact-engine",
++        "version: '1'",
++        "defaults:",
++        "  worktree_disabled: true",
++        "  journal_compaction_threshold_events: 1",
++        "nodes:",
++        "  merge:",
++        "    type: merge",
++        "    label: Merge",
++        "    merge_strategy: copy_all",
++        "",
++      ].join("\n"),
++    );
++    Deno.chdir(tmpDir);
++
++    const engine = new Engine({
++      config_path: "workflow.yaml",
++      run_id: "run-auto-compact",
++      verbosity: "verbose",
++      args: {},
++      env_overrides: {},
++      lock_path: "test.lock",
++    });
++    const state = await engine.run();
++    assertEquals(state.status, "completed");
++
++    const journalPath = getJournalPath("runs/run-auto-compact");
++    const kinds = (await Deno.readTextFile(journalPath)).trim().split("\n")
++      .map((line) => JSON.parse(line).kind);
++    assertEquals(kinds, ["state_snapshot", "run_completed"]);
++
++    const replay = await replayRunJournal("runs/run-auto-compact");
++    assertEquals(replay.state.nodes.merge.status, "completed");
++  } finally {
++    Deno.chdir(origCwd);
++    await Deno.remove(tmpDir, { recursive: true });
++  }
++});
+diff --git a/src/mod.ts b/src/mod.ts
+index c3d021d..76bc322 100644
+--- a/src/mod.ts
++++ b/src/mod.ts
+@@ -36,6 +36,7 @@ export type {
+   RunState,
+   RunTerminalJournalEvent,
+   RuntimeId,
++  StateSnapshotJournalEvent,
+   TemplateContext,
+   ValidationRule,
+   Verbosity,
+@@ -69,13 +70,19 @@ export {
+   PhaseRegistry,
+ } from "./state/state.ts";
+ export {
++  compactRunJournal,
+   getJournalPath,
++  journalCompactionDryRun,
+   loadStateFromJournal,
+   replayRunJournal,
+   resultExcerpt,
+   RunJournalWriter,
+ } from "./state/run-journal.ts";
+-export type { NewRunJournalEvent } from "./state/run-journal.ts";
++export type {
++  JournalCompactionCrashStep,
++  JournalCompactionSummary,
++  NewRunJournalEvent,
++} from "./state/run-journal.ts";
+ export { installSignalHandlers, ProcessRegistry } from "./process-registry.ts";
+ export { runAgent } from "./engine/agent.ts";
+ export type { AgentResult, AgentRunOptions } from "./engine/agent.ts";
+diff --git a/src/state/lifecycle-replay_test.ts b/src/state/lifecycle-replay_test.ts
+index 61b9e67..720f1a9 100644
+--- a/src/state/lifecycle-replay_test.ts
++++ b/src/state/lifecycle-replay_test.ts
+@@ -6,10 +6,13 @@ import {
+   nodeStarted,
+ } from "../engine/node-lifecycle.ts";
+ import {
++  compactRunJournal,
+   getJournalPath,
++  journalCompactionDryRun,
+   loadStateFromJournal,
+   replayRunJournal,
+   RunJournalWriter,
++  setJournalParseLineHookForTest,
+ } from "./run-journal.ts";
+ import { createRunState, markRunCompleted } from "./state.ts";
+ import type { NodeLifecycleEvent, RunJournalEvent } from "../types.ts";
+@@ -390,3 +393,223 @@ Deno.test("lifecycle replay — Engine.run writes journal and no state json", as
+     await Deno.remove(tmpDir, { recursive: true });
+   }
+ });
++
++Deno.test("FR-E83 snapshot round-trip equivalence", async () => {
++  const original = await Deno.makeTempDir();
++  const compacted = await Deno.makeTempDir();
++  try {
++    const writer = await RunJournalWriter.open(original, "run-snap");
++    await appendRunStart(writer, "run-snap");
++    const state = createRunState(
++      "run-snap",
++      "workflow.yaml",
++      ["build"],
++      {},
++      {},
++    );
++    await nodeStarted(state, "build", undefined, writer);
++    await nodeCompleted(state, "build", 0.4, "done", undefined, writer);
++    markRunCompleted(state);
++    await writer.append({
++      kind: "run_completed",
++      status: "completed",
++      completed_at: state.completed_at!,
++    });
++
++    const before = await replayRunJournal(original);
++    await Deno.copyFile(getJournalPath(original), getJournalPath(compacted));
++    await compactRunJournal({
++      runDir: compacted,
++      workflowDir: ".",
++      runId: "run-snap",
++      allowActiveRun: true,
++    });
++    const after = await replayRunJournal(compacted);
++
++    assertEquals(JSON.stringify(after), JSON.stringify(before));
++  } finally {
++    await Deno.remove(original, { recursive: true });
++    await Deno.remove(compacted, { recursive: true });
++  }
++});
++
++Deno.test("FR-E83 suffix-only replay touches only snapshot and tail", async () => {
++  const dir = await Deno.makeTempDir();
++  try {
++    const writer = await RunJournalWriter.open(dir, "run-suffix");
++    await appendRunStart(writer, "run-suffix");
++    await compactRunJournal({
++      runDir: dir,
++      workflowDir: ".",
++      runId: "run-suffix",
++      allowActiveRun: true,
++    });
++    const resumed = await RunJournalWriter.open(dir, "run-suffix");
++    await resumed.append({
++      kind: "run_completed",
++      status: "completed",
++      completed_at: "2026-05-17T00:02:00.000Z",
++    });
++
++    let parsedLines = 0;
++    setJournalParseLineHookForTest(() => {
++      parsedLines++;
++    });
++    try {
++      const replay = await replayRunJournal(dir);
++      assertEquals(replay.state.status, "completed");
++    } finally {
++      setJournalParseLineHookForTest(undefined);
++    }
++    assertEquals(parsedLines, 2);
++  } finally {
++    await Deno.remove(dir, { recursive: true });
++  }
++});
++
++Deno.test("FR-E83 compacted journal tolerates torn tail after snapshot", async () => {
++  const dir = await Deno.makeTempDir();
++  try {
++    const writer = await RunJournalWriter.open(dir, "run-torn-snapshot");
++    await appendRunStart(writer, "run-torn-snapshot");
++    await compactRunJournal({
++      runDir: dir,
++      workflowDir: ".",
++      runId: "run-torn-snapshot",
++      allowActiveRun: true,
++    });
++    await Deno.writeTextFile(getJournalPath(dir), '{"schema_version":1', {
++      append: true,
++    });
++
++    const replay = await replayRunJournal(dir);
++    assertEquals(replay.state.run_id, "run-torn-snapshot");
++    assertEquals(replay.ignored_partial_tail, true);
++  } finally {
++    await Deno.remove(dir, { recursive: true });
++  }
++});
++
++Deno.test("FR-E83 unsupported snapshot version refuses replay clearly", async () => {
++  const dir = await Deno.makeTempDir();
++  try {
++    await Deno.writeTextFile(
++      getJournalPath(dir),
++      JSON.stringify({
++        schema_version: 1,
++        run_id: "run-future",
++        seq: 1,
++        event_id: "run-future:1:state_snapshot",
++        kind: "state_snapshot",
++        ts: "2026-05-17T00:00:00.000Z",
++        snapshot_version: 2,
++        state: createRunState("run-future", "workflow.yaml", ["build"], {}, {}),
++        events: [],
++        events_covered: 0,
++        ignored_duplicate_event_ids: 0,
++      }) + "\n",
++    );
++    await assertRejects(
++      () => replayRunJournal(dir),
++      Error,
++      "Unsupported journal state_snapshot version 2",
++    );
++  } finally {
++    await Deno.remove(dir, { recursive: true });
++  }
++});
++
++Deno.test("FR-E83 compaction crash injection preserves replay", async () => {
++  for (
++    const crashAfterStep of [
++      "after_replay",
++      "after_write_tmp",
++      "after_fsync_tmp",
++      "after_backup",
++    ] as const
++  ) {
++    const dir = await Deno.makeTempDir();
++    try {
++      const runId = `run-${crashAfterStep}`;
++      const writer = await RunJournalWriter.open(dir, runId);
++      await appendRunStart(writer, runId);
++      await assertRejects(
++        () =>
++          compactRunJournal({
++            runDir: dir,
++            workflowDir: ".",
++            runId,
++            allowActiveRun: true,
++            crashAfterStep,
++          }),
++        Error,
++        crashAfterStep,
++      );
++      const replay = await replayRunJournal(dir);
++      assertEquals(replay.state.run_id, runId);
++    } finally {
++      await Deno.remove(dir, { recursive: true });
++    }
++  }
++});
++
++Deno.test("FR-E83 compaction refuses live run", async () => {
++  const workflowDir = await Deno.makeTempDir();
++  const runId = "run-live";
++  const runDir = `${workflowDir}/runs/${runId}`;
++  try {
++    const writer = await RunJournalWriter.open(runDir, runId);
++    await appendRunStart(writer, runId);
++    await Deno.writeTextFile(
++      `${workflowDir}/runs/.lock`,
++      JSON.stringify({
++        pid: Deno.pid,
++        hostname: Deno.hostname(),
++        run_id: runId,
++        started_at: new Date().toISOString(),
++      }) + "\n",
++    );
++    const before = await Deno.readTextFile(getJournalPath(runDir));
++    await assertRejects(
++      () => compactRunJournal({ runDir, workflowDir, runId }),
++      Error,
++      "run is currently active",
++    );
++    assertEquals(await Deno.readTextFile(getJournalPath(runDir)), before);
++  } finally {
++    await Deno.remove(workflowDir, { recursive: true });
++  }
++});
++
++Deno.test("FR-E83 compaction refuses corrupt journal", async () => {
++  const dir = await Deno.makeTempDir();
++  try {
++    await Deno.writeTextFile(
++      getJournalPath(dir),
++      '{"schema_version":1\n{"schema_version":1}\n',
++    );
++    await assertRejects(
++      () => compactRunJournal({ runDir: dir, workflowDir: ".", runId: "bad" }),
++      Error,
++      "Malformed journal record",
++    );
++    await assertRejects(() => Deno.stat(`${getJournalPath(dir)}.tmp`));
++    await assertRejects(() => Deno.stat(`${getJournalPath(dir)}.bak`));
++  } finally {
++    await Deno.remove(dir, { recursive: true });
++  }
++});
++
++Deno.test("FR-E83 journal compaction dry-run reports no-op stats", async () => {
++  const dir = await Deno.makeTempDir();
++  try {
++    const writer = await RunJournalWriter.open(dir, "run-dry");
++    await appendRunStart(writer, "run-dry");
++    const before = await Deno.readTextFile(getJournalPath(dir));
++    const stats = await journalCompactionDryRun(dir);
++    assertEquals(stats.events_after, 1);
++    assertEquals(await Deno.readTextFile(getJournalPath(dir)), before);
++  } finally {
++    await Deno.remove(dir, { recursive: true });
++  }
++});
+diff --git a/src/state/run-journal.ts b/src/state/run-journal.ts
+index 71f20be..5bb4833 100644
+--- a/src/state/run-journal.ts
++++ b/src/state/run-journal.ts
+@@ -16,7 +16,9 @@ import type {
+   RunJournalEventKind,
+   RunJournalReplayResult,
+   RunState,
++  StateSnapshotJournalEvent,
+ } from "../types.ts";
++import { isRunLive } from "./lock.ts";
+ import { updateRunCost } from "./state.ts";
+ 
+ /** Event payload accepted by `RunJournalWriter.append()` before enveloping. */
+@@ -28,6 +30,42 @@ export type NewRunJournalEvent = RunJournalEvent extends infer Event
+   : never
+   : never;
+ 
++const SUPPORTED_SNAPSHOT_VERSION = 1;
++
++/** Crash injection point used by compaction tests. */
++export type JournalCompactionCrashStep =
++  | "after_replay"
++  | "after_write_tmp"
++  | "after_fsync_tmp"
++  | "after_backup";
++
++/** Summary returned by journal compaction and dry-run planning. */
++export interface JournalCompactionSummary {
++  /** Run ID whose journal was inspected or compacted. */
++  run_id: string;
++  /** Physical JSON events before compaction. */
++  events_before: number;
++  /** Physical JSON events after compaction. */
++  events_after: number;
++  /** Journal byte size before compaction. */
++  bytes_before: number;
++  /** Journal byte size after compaction. */
++  bytes_after: number;
++  /** Backup file path retained by compaction. */
++  backup_path: string;
++  /** Physical events after the latest snapshot before compaction. */
++  events_since_snapshot: number;
++}
++
++let parseLineHookForTest: (() => void) | undefined;
++
++/** Install a parse-line hook for tests that prove suffix-only replay. */
++export function setJournalParseLineHookForTest(
++  hook: (() => void) | undefined,
++): void {
++  parseLineHookForTest = hook;
++}
++
+ /** Return the durable lifecycle journal path for a run directory. */
+ export function getJournalPath(runDir: string): string {
+   return `${runDir}/journal.jsonl`;
+@@ -98,11 +136,21 @@ export async function replayRunJournal(
+   runDir: string,
+ ): Promise<RunJournalReplayResult> {
+   const parsed = await parseJournal(runDir, { allowMissing: false });
++  validateSnapshotVersions(parsed.events, getJournalPath(runDir));
++  const snapshotIndex = latestSnapshotIndex(parsed.events);
++  const snapshot = snapshotIndex >= 0
++    ? parsed.events[snapshotIndex] as StateSnapshotJournalEvent
++    : undefined;
++  const replayEvents = snapshot
++    ? parsed.events.slice(snapshotIndex + 1)
++    : parsed.events;
+   const unique: RunJournalEvent[] = [];
+-  const seen = new Set<string>();
+-  let ignoredDuplicates = 0;
++  const seen = new Set<string>(
++    snapshot?.events.map((event) => event.event_id) ?? [],
++  );
++  let ignoredDuplicates = snapshot?.ignored_duplicate_event_ids ?? 0;
+ 
+-  for (const event of parsed.events) {
++  for (const event of replayEvents) {
+     if (seen.has(event.event_id)) {
+       ignoredDuplicates++;
+       continue;
+@@ -111,10 +159,10 @@ export async function replayRunJournal(
+     unique.push(event);
+   }
+ 
+-  const state = applyJournalEvents(unique);
++  const state = applyJournalEvents(unique, snapshot?.state);
+   return {
+     state,
+-    events: unique,
++    events: snapshot ? [...snapshot.events, ...unique] : unique,
+     ignored_duplicate_event_ids: ignoredDuplicates,
+     ignored_partial_tail: parsed.ignoredPartialTail,
+   };
+@@ -161,6 +209,7 @@ async function parseJournal(
+       continue;
+     }
+     try {
++      parseLineHookForTest?.();
+       events.push(JSON.parse(line) as RunJournalEvent);
+     } catch (error) {
+       const isPartialTail = i === lines.length - 1 && !endedWithNewline;
+@@ -182,11 +231,20 @@ async function parseJournal(
+   return { events, ignoredPartialTail, validByteLength };
+ }
+ 
+-function applyJournalEvents(events: RunJournalEvent[]): RunState {
+-  let state: RunState | undefined;
++function applyJournalEvents(
++  events: RunJournalEvent[],
++  initialState?: RunState,
++): RunState {
++  let state: RunState | undefined = initialState
++    ? structuredClone(initialState)
++    : undefined;
+ 
+   for (const event of events) {
+     switch (event.kind) {
++      case "state_snapshot":
++        throw new Error(
++          "Cannot apply state_snapshot as a tail event in journal replay",
++        );
+       case "run_started": {
+         if (state) {
+           assertSameRun(state, event);
+@@ -281,6 +339,34 @@ function applyJournalEvents(events: RunJournalEvent[]): RunState {
+   return state;
+ }
+ 
++function validateSnapshotVersions(
++  events: RunJournalEvent[],
++  journalPath: string,
++): void {
++  for (const event of events) {
++    if (event.kind !== "state_snapshot") continue;
++    const version = (event as unknown as { snapshot_version?: number })
++      .snapshot_version;
++    if (version !== SUPPORTED_SNAPSHOT_VERSION) {
++      throw new Error(
++        `Unsupported journal state_snapshot version ${version} in ${journalPath}`,
++      );
++    }
++  }
++}
++
++function latestSnapshotIndex(events: RunJournalEvent[]): number {
++  for (let i = events.length - 1; i >= 0; i--) {
++    if (events[i].kind === "state_snapshot") return i;
++  }
++  return -1;
++}
++
++function eventsSinceLatestSnapshot(events: RunJournalEvent[]): number {
++  const idx = latestSnapshotIndex(events);
++  return idx < 0 ? events.length : events.length - idx - 1;
++}
++
+ function assertSameRun(state: RunState, event: RunJournalEvent): void {
+   if (event.run_id !== state.run_id) {
+     throw new Error(
+@@ -327,6 +413,122 @@ function buildEventId(
+     .join(":");
+ }
+ 
++function buildSnapshotEvent(
++  runId: string,
++  replay: RunJournalReplayResult,
++  eventsCovered: number,
++): StateSnapshotJournalEvent {
++  const seq = replay.events.reduce(
++    (max, event) => Math.max(max, event.seq),
++    0,
++  ) + 1;
++  const event = {
++    schema_version: 1,
++    run_id: runId,
++    seq,
++    event_id: "",
++    kind: "state_snapshot",
++    ts: new Date().toISOString(),
++    snapshot_version: SUPPORTED_SNAPSHOT_VERSION,
++    state: replay.state,
++    events: replay.events,
++    events_covered: eventsCovered,
++    ignored_duplicate_event_ids: replay.ignored_duplicate_event_ids,
++  } satisfies StateSnapshotJournalEvent;
++  event.event_id = buildEventId(runId, seq, event.kind, event);
++  return event;
++}
++
++async function statSize(path: string): Promise<number> {
++  return (await Deno.stat(path)).size;
++}
++
++function maybeCrash(
++  actual: JournalCompactionCrashStep,
++  requested?: JournalCompactionCrashStep,
++): void {
++  if (actual === requested) {
++    throw new Error(actual);
++  }
++}
++
++/** Return compaction stats without modifying the journal. */
++export async function journalCompactionDryRun(
++  runDir: string,
++): Promise<JournalCompactionSummary> {
++  const journalPath = getJournalPath(runDir);
++  const parsed = await parseJournal(runDir, { allowMissing: false });
++  validateSnapshotVersions(parsed.events, journalPath);
++  const replay = await replayRunJournal(runDir);
++  const snapshot = buildSnapshotEvent(
++    replay.state.run_id,
++    replay,
++    parsed.events.length,
++  );
++  const bytesAfter = new TextEncoder().encode(`${JSON.stringify(snapshot)}\n`)
++    .length;
++  return {
++    run_id: replay.state.run_id,
++    events_before: parsed.events.length,
++    events_after: 1,
++    bytes_before: await statSize(journalPath),
++    bytes_after: bytesAfter,
++    backup_path: `${journalPath}.bak`,
++    events_since_snapshot: eventsSinceLatestSnapshot(parsed.events),
++  };
++}
++
++/** Compact `journal.jsonl` to a single snapshot event using the FR-E83 protocol. */
++export async function compactRunJournal(opts: {
++  runDir: string;
++  workflowDir: string;
++  runId: string;
++  allowActiveRun?: boolean;
++  crashAfterStep?: JournalCompactionCrashStep;
++}): Promise<JournalCompactionSummary> {
++  if (!opts.allowActiveRun && await isRunLive(opts.workflowDir, opts.runId)) {
++    throw new Error(`Cannot compact ${opts.runId}: run is currently active`);
++  }
++
++  const journalPath = getJournalPath(opts.runDir);
++  const tmpPath = `${journalPath}.tmp`;
++  const backupPath = `${journalPath}.bak`;
++  const parsed = await parseJournal(opts.runDir, { allowMissing: false });
++  validateSnapshotVersions(parsed.events, journalPath);
++  const replay = await replayRunJournal(opts.runDir);
++  maybeCrash("after_replay", opts.crashAfterStep);
++
++  const bytesBefore = await statSize(journalPath);
++  const snapshot = buildSnapshotEvent(opts.runId, replay, parsed.events.length);
++  const file = await Deno.open(tmpPath, {
++    create: true,
++    write: true,
++    truncate: true,
++  });
++  try {
++    await file.write(new TextEncoder().encode(`${JSON.stringify(snapshot)}\n`));
++    maybeCrash("after_write_tmp", opts.crashAfterStep);
++    await file.sync();
++    maybeCrash("after_fsync_tmp", opts.crashAfterStep);
++  } finally {
++    file.close();
++  }
++
++  await Deno.copyFile(journalPath, backupPath);
++  maybeCrash("after_backup", opts.crashAfterStep);
++  await Deno.rename(tmpPath, journalPath);
++
++  return {
++    run_id: opts.runId,
++    events_before: parsed.events.length,
++    events_after: 1,
++    bytes_before: bytesBefore,
++    bytes_after: await statSize(journalPath),
++    backup_path: backupPath,
++    events_since_snapshot: eventsSinceLatestSnapshot(parsed.events),
++  };
++}
++
+ /** Build the compact agent result excerpt persisted in node lifecycle facts. */
+ export function resultExcerpt(result: string): string {
+   return result
+diff --git a/src/types.ts b/src/types.ts
+index 1acd3d4..e0973d3 100644
+--- a/src/types.ts
++++ b/src/types.ts
+@@ -305,6 +305,10 @@ export interface NodeSettings {
+    * Undefined ≡ no cap; only the per-attempt `timeout_seconds` applies.
+    */
+   max_retry_wall_clock_seconds?: number;
++  /** Number of journal events after the latest snapshot that triggers
++   * automatic compaction at node-completion boundaries (FR-E83).
++   * `0` disables automatic compaction. */
++  journal_compaction_threshold_events?: number;
+ }
+ 
+ /**
+@@ -313,8 +317,16 @@ export interface NodeSettings {
+  * remains optional because `undefined` is the documented "no cap" state.
+  */
+ export type ResolvedNodeSettings =
+-  & Required<Omit<NodeSettings, "max_retry_wall_clock_seconds">>
+-  & Pick<NodeSettings, "max_retry_wall_clock_seconds">;
++  & Required<
++    Omit<
++      NodeSettings,
++      "max_retry_wall_clock_seconds" | "journal_compaction_threshold_events"
++    >
++  >
++  & Pick<
++    NodeSettings,
++    "max_retry_wall_clock_seconds" | "journal_compaction_threshold_events"
++  >;
+ 
+ /** Artifact validation rule. */
+ export interface ValidationRule {
+@@ -443,6 +455,7 @@ export type NodeLifecycleCallback = (
+ /** Versioned durable lifecycle event kinds stored in `journal.jsonl`. */
+ export type RunJournalEventKind =
+   | "run_started"
++  | "state_snapshot"
+   | "run_metadata_updated"
+   | "workflow_loaded"
+   | "node_declared"
+@@ -492,6 +505,22 @@ export interface RunStartedJournalEvent extends RunJournalEventBase {
+   env: Record<string, string>;
+ }
+ 
++/** Replayed journal model embedded by a compaction snapshot. */
++export interface StateSnapshotJournalEvent extends RunJournalEventBase {
++  /** Event kind. */
++  kind: "state_snapshot";
++  /** Snapshot payload version. */
++  snapshot_version: 1;
++  /** Complete replayed run state at the compaction point. */
++  state: RunState;
++  /** Unique events covered by the snapshot, preserving replay result shape. */
++  events: RunJournalEvent[];
++  /** Number of physical journal events subsumed by this snapshot. */
++  events_covered: number;
++  /** Duplicate event IDs already accounted for by the snapshot replay. */
++  ignored_duplicate_event_ids: number;
++}
++
+ /** Run metadata update fact. */
+ export interface RunMetadataUpdatedJournalEvent extends RunJournalEventBase {
+   /** Event kind. */
+@@ -616,6 +645,7 @@ export interface RunTerminalJournalEvent extends RunJournalEventBase {
+ /** Any durable lifecycle event stored in `journal.jsonl`. */
+ export type RunJournalEvent =
+   | RunStartedJournalEvent
++  | StateSnapshotJournalEvent
+   | RunMetadataUpdatedJournalEvent
+   | WorkflowLoadedJournalEvent
+   | NodeDeclaredJournalEvent
+-- 
+2.54.0
+

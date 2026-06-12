@@ -1,0 +1,20 @@
+Push verified. CI await skipped per benchmark (local bare remote, no CI). Done.
+
+## Final Combined Report
+
+**Plan** — `documents/tasks/2026/06/journal-snapshots-compaction.md` (GODS, 13 DoD tuples, frontmatter `implements: [FR-E83]`). Variant chosen autonomously: **Architecturally-correct** (extend the single replayer + dedicated shared `journal-compaction.ts` + `WorkflowDefaults` field) — smallest design satisfying every hard requirement without exceeding the stated scope (rationale in the plan).
+
+**Implement** — TDD; `deno task check` exits 0 (type-check, lint, full suite, JSR dry-run, doc-budget, FR field-set all green). New code:
+- `types.ts` — `state_snapshot` kind + `StateSnapshotJournalEvent`; `journal_compaction_threshold_events` on `WorkflowDefaults`; additive replay-result fields.
+- `state/run-journal.ts` — single replayer extended: latest-snapshot seeding via end-scan (suffix-only, pre-snapshot lines never parsed), forward-refusal on unsupported version, torn-tail tolerance preserved, `eventsSinceSnapshot` tracking, `buildStateSnapshotEvent`.
+- `state/journal-compaction.ts` (new) — exact 5-step crash-safe protocol + `faultHook` seam; `compactRun` (active-lock refusal); `formatCompactionSummary`.
+- `engine.ts` — auto-compaction after each level boundary (never mid-node; race-free).
+- `config.ts`, `cli.ts` (`runs compact`), `mod.ts` exports.
+- Tests: snapshot replay, compaction (crash-injection at every step, both refusals, one-gen backup, dry-run), config validation, engine auto-trigger, CLI parse+summary. CLI smoke test produced the byte-exact summary line.
+- Docs: FR-E83 SRS section + index row + SDS notes.
+
+**Review** — Verdict **Approve**. No issues, no hygiene markers, no scope creep; every changed file maps to a Solution bullet.
+
+**Commit** — `4ac9893 feat(engine): journal snapshots + crash-safe compaction (FR-E83)` (all changes, one cohesive purpose; task auto-flipped to `done`).
+
+**Push** — `origin/bench` (upstream set on first push). Post-push verified: `@{u} == HEAD == 4ac9893`. CI await skipped (benchmark remote has no CI).

@@ -1,0 +1,11 @@
+All five phases complete.
+
+## Final Report
+
+- **Plan** — `documents/tasks/2026/06/runs-doctor-journal-health.md` (status `done`). Selected variant **V2 Architecturally-correct**: dedicated `src/state/doctor.ts` reusing the existing replayer + state/lock helpers, thin CLI wiring. FR-E83 registered in the engine SRS index + `01-execution-model.md` + `documents/index.md`.
+- **Implement** — TDD; 17 new tests (13 doctor + 4 CLI), all green. `deno task check` exits 0. New `runs doctor` subcommand; `diagnoseRun`/`repairRun`/`toJson`/`renderReport` in `doctor.ts`; `classifyRunLock` added to `lock.ts`; `RUN_JOURNAL_EVENT_KINDS` to `run-journal.ts`. End-to-end CLI smoke-tested (exit codes, `--json`, `--repair` backup, missing-run error).
+- **Review** — **Approve**. All 4 Requested-behavior items + every Constraint satisfied; no critical/warning/nit findings; no surviving catching tests.
+- **Commit** — `daa8ee1 feat(engine): add \`runs doctor\` journal health checker with mechanical repair` (10 files; doc sync verified no drift; task auto-flipped to `done`).
+- **Push** — `origin/bench` (new branch, upstream set); post-push verify `@{u}` == `HEAD` == `daa8ee1`; CI await skipped (benchmark remote).
+
+Goal met: plan exists per convention, implementation satisfies every Requested-behavior + Constraint, `deno task check` passes, verdict recorded (Approve), committed with a Conventional Commits message, and pushed to origin.

@@ -1,0 +1,16 @@
+## Final Combined Report
+
+**Plan** — `documents/tasks/2026/06/journal-snapshots-compaction.md` (FR-E83). Variant B selected autonomously: snapshot stored in the journal line + dedicated `journal-compaction.ts` module (rationale recorded; quick-fix bloats the replayer, sidecar/generational variant is out of scope).
+
+**Implement** — TDD, `deno task check` green: 1041 tests, doc budget, lints, `deno publish --dry-run` all pass.
+- `state_snapshot` journal event (full `RunState`, `events_covered`); single replayer extended to seed from the latest valid snapshot + tail, forward-refuse unsupported versions, suffix-only replay, torn-tail tolerance after a snapshot; snapshot-free journals unchanged.
+- `journal-compaction.ts`: exact 5-step crash-safe protocol (replay → `.tmp` → fsync → `.bak` → atomic rename) with per-step fault hook; refuses active/unreplayable runs.
+- Config `journal_compaction_threshold_events` (default 1000, `0` off); engine auto-compacts at level boundaries with one verbose line; CLI `runs compact` with the pinned summary line + `--dry-run`.
+
+**Review** — **Approve**. 15/15 requirements mapped to tested changes; 0 critical/warning, 1 nit (terminal `after_rename` fault hook — intentional). No regressions.
+
+**Commit** — `cf163d8` `feat(engine): journal state snapshots with crash-safe compaction (FR-E83)` (code + tests + docs in one commit; task auto-flipped to `done`).
+
+**Push** — `origin/bench` (new upstream set). Post-push verification: `@{u}` == `HEAD` == `cf163d8`. CI await skipped (benchmark remote).
+
+Goal met: plan filed, all Requested-behavior/Constraints items satisfied, `deno task check` green, Approve verdict recorded, committed with Conventional Commits, pushed to origin.

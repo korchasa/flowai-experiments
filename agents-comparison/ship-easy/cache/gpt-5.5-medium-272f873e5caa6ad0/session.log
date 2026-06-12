@@ -1,0 +1,8 @@
+Done.
+
+- Implemented `flowai-workflow runs prune --workflow <dir> --keep <N> [--dry-run]`.
+- Added tests and docs, including plan file and recorded review verdict.
+- Verification: `deno task check` passed.
+- Commit: `a6f88a4 feat(cli): add safe runs prune command`.
+- Pushed: `origin/bench`.
+- Final state: clean, local `HEAD` matches upstream.

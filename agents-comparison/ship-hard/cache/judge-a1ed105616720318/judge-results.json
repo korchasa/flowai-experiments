@@ -1,0 +1,152 @@
+{
+  "task": "journal snapshots with crash-safe compaction (FR-E83)",
+  "base_commit": "c7305ca",
+  "push_branch": "bench",
+  "judged_at": "2026-06-12",
+  "judge_notes": "All 8 cells pushed bench (1 commit ahead of base, local==remote tip) and pass `deno task check` (full gate: fmt, lint, type-check, tests, doc-lint, FR field-set, SALP, config drift). Functional CLI spot-checks run against fabricated /tmp fixtures. KEY DIFFERENTIATOR verified by judge: gpt-5.5-high and gpt-5.5-xhigh embed the full event history inside each state_snapshot, so compaction INCREASES file size (defeats the task's core goal of bounding journal growth); opus/fable/gpt-5.5-medium store only the run model and shrink the file.",
+  "cells": [
+    {
+      "cell": "opus-xhigh",
+      "rank": 1,
+      "requirementsMet": 1.0,
+      "gatePass": true,
+      "pushOk": true,
+      "workflowFidelity": 5,
+      "workflowFidelityNote": "Exemplary task doc: A/B/C variant archetypes + reasoned selection, per-item DoD TDD trace with test+evidence, 8-point self-critique with triage, dual-reviewer (QA+lead) PASS verdict, FR registered in SRS section+index+map+design+README.",
+      "compactionShrinks": true,
+      "functionalResults": {"successLine": "compacted 20260612T120000: 6 -> 1 events, 1718 -> 578 bytes (backup: journal.jsonl.bak)", "summaryFormatExact": true, "dryRunNoop": true, "notFoundExitNonZero": true, "notFoundNoStackTrace": true, "helpShowsCompact": true, "forwardRefusal": true},
+      "itemScores": {"1":"met","2":"met","3":"met","4":"met","5":"met","6":"met","7":"met","8":"met","9":"met","10":"met","11":"met","12":"met","13":"met","14":"met","15":"met"},
+      "defects": [
+        {"severity": "info", "desc": "Auto-compaction verbose line printed via output.status, visible at normal verbosity too (verbose is a superset) — satisfies 'visible in verbose' but broader than literal.", "evidence": "src/output.ts:45-50 status() returns only when verbosity==='quiet'"},
+        {"severity": "info", "desc": "Item 7 proven via unparseable-prefix fixture rather than literal parse-count (equivalent/stronger proof).", "evidence": "journal-compaction_test.ts:194-216"}
+      ],
+      "commitHygiene": "Single focused feat(FR-E83) commit; src/mcp/commands.ts (+99) is in-scope shared compactRun core (alongside resumeRun/deliverHumanAnswer), not churn; no new deps.",
+      "summary": "Flawless. All 15 met with non-vacuous colocated tests, exact CLI behavior, exact 5-step protocol with per-step fault hook + crash-injection at all boundaries, single replayer extended, shrinking compaction, validated/documented config, in-scope MCP shared-core. Exemplary workflow record."
+    },
+    {
+      "cell": "fable-medium",
+      "rank": 2,
+      "requirementsMet": 1.0,
+      "gatePass": true,
+      "pushOk": true,
+      "workflowFidelity": 5,
+      "workflowFidelityNote": "Plan file with V1/V2/V3 variant analysis + rationale, per-DoD TDD trace to named tests, FR registration, verification commands.",
+      "compactionShrinks": true,
+      "functionalResults": {"successLine": "compacted 20260101T000000: 5 -> 1 events, 1288 -> 481 bytes (backup: journal.jsonl.bak)", "summaryFormatExact": true, "dryRunNoop": true, "notFoundExitNonZero": true, "notFoundNoStackTrace": true, "helpShowsCompact": true, "forwardRefusal": true},
+      "itemScores": {"1":"met","2":"met","3":"met","4":"met","5":"met","6":"met","7":"met","8":"met","9":"met","10":"met","11":"met","12":"met","13":"met","14":"met","15":"met"},
+      "defects": [
+        {"severity": "info", "desc": "tmp file fsync'd but not parent directory — spec's 5-step protocol does not require dir fsync, so spec-compliant.", "evidence": "run-journal.ts:570 tmpFile.sync() then :580 Deno.rename"},
+        {"severity": "info", "desc": "Dry-run prints distinct 'dry-run: would compact ...' prefix rather than exact success line — spec reserves exact format for real success only; acceptable.", "evidence": "cli.ts:333-335"}
+      ],
+      "commitHygiene": "Single Conventional-Commits feat(engine)(FR-E83); cohesive code+tests+docs+plan; Co-Authored-By trailer.",
+      "summary": "Complete, high quality. All 15 met, 215 tests pass, compaction shrinks, full doc/FR registration, exact protocol order, all refusals tested. Only info-level notes."
+    },
+    {
+      "cell": "fable-high",
+      "rank": 3,
+      "requirementsMet": 1.0,
+      "gatePass": true,
+      "pushOk": true,
+      "workflowFidelity": 4,
+      "workflowFidelityNote": "Variants+rationale, per-item TDD trace, DoD checklist, FR registration; no explicit recorded review verdict.",
+      "compactionShrinks": true,
+      "functionalResults": {"successLine": "compacted 20260612T120000: 7 -> 1 events, 1725 -> 515 bytes (backup: journal.jsonl.bak)", "summaryFormatExact": true, "dryRunNoop": true, "notFoundExitNonZero": true, "notFoundNoStackTrace": true, "helpShowsCompact": true, "forwardRefusal": true},
+      "itemScores": {"1":"met","2":"met","3":"met","4":"met","5":"met","6":"met","7":"met","8":"met","9":"met","10":"met","11":"met","12":"met","13":"met","14":"met","15":"met"},
+      "defects": [],
+      "commitHygiene": "Conventional Commits feat(engine)(FR-E83); focused 23-file diff (separate design-engine/06-journal-durability.md doc); plan file present.",
+      "summary": "Complete, no defects found. Exact 5-step protocol (separate journal-compaction.ts that calls the single replayer), 4-point crash injection, shrinking compaction, validated config, FR+design docs. Slightly lower workflow score (no recorded review verdict)."
+    },
+    {
+      "cell": "gpt-5.5-medium",
+      "rank": 4,
+      "requirementsMet": 1.0,
+      "gatePass": true,
+      "pushOk": true,
+      "workflowFidelity": 5,
+      "workflowFidelityNote": "Task doc has 3 variants with rationale + selection, per-item DoD TDD trace to named tests, explicit Review Verdict (Approve), FR registration.",
+      "compactionShrinks": true,
+      "functionalResults": {"successLine": "compacted 20260517T000000: 7 -> 1 events, 1998 -> 606 bytes (backup: journal.jsonl.bak)", "summaryFormatExact": true, "dryRunNoop": true, "notFoundExitNonZero": true, "notFoundNoStackTrace": true, "helpShowsCompact": true, "forwardRefusal": true},
+      "itemScores": {"1":"met","2":"met","3":"met","4":"met","5":"met","6":"met","7":"met","8":"met","9":"met","10":"met","11":"met","12":"met","13":"met","14":"met","15":"met"},
+      "defects": [
+        {"severity": "low", "desc": "run-not-found surfaces a raw OS error ('No such file or directory (os error 2): stat <path>') instead of a domain message; still one line, no stack, exit 1.", "evidence": "cli.ts runRunsCompact catch returns `Error: ${err.message}`"},
+        {"severity": "low", "desc": "`runs --help` (no subcommand) errors instead of listing help; only top-level --help and `runs compact --help` show usage — item 15 satisfied via top-level help.", "evidence": "cli.ts:748-759 runs dispatch"},
+        {"severity": "low", "desc": "SRS FR-E83 Status checkbox '[ ]' while task doc marks done — doc inconsistency.", "evidence": "documents/requirements-engine/01-execution-model.md vs task frontmatter status: done"}
+      ],
+      "commitHygiene": "Single conventional feat(engine) commit; clean tree; 19 cohesive files.",
+      "summary": "All 15 met, compaction shrinks, exact protocol with 4-boundary crash injection, both refusals tested, validated config, WF5. Only low-severity polish (raw not-found error, runs --help, doc checkbox)."
+    },
+    {
+      "cell": "opus-medium",
+      "rank": 5,
+      "requirementsMet": 0.9667,
+      "gatePass": true,
+      "pushOk": true,
+      "workflowFidelity": 4,
+      "workflowFidelityNote": "Thorough task doc: frontmatter, per-item DoD checklist with test+check trace, selected variant B with explicit A/C rejection; no explicit self-review verdict section.",
+      "compactionShrinks": true,
+      "functionalResults": {"successLine": "compacted 20260612T100000: 4 -> 1 events, 1261 -> 532 bytes (backup: journal.jsonl.bak)", "summaryFormatExact": true, "dryRunNoop": true, "notFoundExitNonZero": true, "notFoundNoStackTrace": true, "helpShowsCompact": true, "forwardRefusal": true},
+      "itemScores": {"1":"met","2":"met","3":"met","4":"met","5":"met","6":"met","7":"met","8":"met","9":"met","10":"met","11":"met","12":"met","13":"met","14":"partial","15":"met"},
+      "defects": [
+        {"severity": "low", "desc": "Item 14 boundary-only auto-trigger + single verbose line not exercised through a real Engine.run(); coverage stops at maybeCompactAtBoundary unit (behavior correct in code, not test-locked).", "evidence": "no maybeCompactJournal/'journal compacted' reference in src/engine/*_test.ts"},
+        {"severity": "info", "desc": "Item 6 equivalence test compares reconstructed RunState JSON only, not full replay result — correct/only-meaningful comparison (documented).", "evidence": "snapshot-replay_test.ts:137-140"}
+      ],
+      "commitHygiene": "Single focused cf163d8 feat(engine)(FR-E83) with bulleted body + Co-Authored-By; clean tree; 16 on-topic files.",
+      "summary": "Strong, clean shrinking compaction, all behaviors verified live, exact protocol with 5-boundary crash injection. Item 14 scored partial only for missing end-to-end engine test of the auto-trigger/verbose line; no real code defects."
+    },
+    {
+      "cell": "opus-high",
+      "rank": 6,
+      "requirementsMet": 0.9667,
+      "gatePass": true,
+      "pushOk": true,
+      "workflowFidelity": 4,
+      "workflowFidelityNote": "Thorough task doc: variant selection with 3 archetypes+rationale, full DoD TDD trace, exact protocol; no explicit review-verdict section AND a leaked tool-call artifact committed at end of doc.",
+      "compactionShrinks": true,
+      "functionalResults": {"successLine": "compacted 20260612T000000: 5 -> 1 events, 1474 -> 578 bytes (backup: journal.jsonl.bak)", "summaryFormatExact": true, "dryRunNoop": true, "notFoundExitNonZero": true, "notFoundNoStackTrace": true, "helpShowsCompact": true, "forwardRefusal": true},
+      "itemScores": {"1":"met","2":"met","3":"met","4":"met","5":"met","6":"met","7":"met","8":"met","9":"met","10":"met","11":"met","12":"met","13":"met","14":"partial","15":"met"},
+      "defects": [
+        {"severity": "low", "desc": "Leaked tool-call wrapper artifact committed into the task doc — junk lines '</content>' and '</invoke>' after the body.", "evidence": "tail of documents/tasks/2026/06/journal-snapshots-compaction.md lines 232-233"},
+        {"severity": "low", "desc": "Item 14: engine tests assert trigger-when-exceeded and threshold-0-disabled but no test asserts 'never mid-node' nor single-line verbose (behavior correct in code, not test-locked).", "evidence": "engine_test.ts:1874-1928 only two tests"}
+      ],
+      "commitHygiene": "Single feat(engine)(FR-E83) commit, clean tree, 17 cohesive files; but committed doc contains leaked artifact.",
+      "summary": "Strong, clean shrinking compaction, all CLI behaviors verified, exact protocol + 4-boundary crash injection, both refusals. Docked for committed junk artifact in task doc and item-14 test gap."
+    },
+    {
+      "cell": "gpt-5.5-xhigh",
+      "rank": 7,
+      "requirementsMet": 1.0,
+      "gatePass": true,
+      "pushOk": true,
+      "workflowFidelity": 5,
+      "workflowFidelityNote": "Task doc: selected-variant rationale, 10-step RED/GREEN/REFACTOR TDD trace, DoD checklist with test+evidence, APPROVE review verdict, FR registered across SRS/SDS/index.",
+      "compactionShrinks": false,
+      "functionalResults": {"successLine": "compacted run-x: 4 -> 1 events, 871 -> 1279 bytes (backup: journal.jsonl.bak)", "summaryFormatExact": true, "dryRunNoop": true, "notFoundExitNonZero": true, "notFoundNoStackTrace": true, "helpShowsCompact": true, "forwardRefusal": true},
+      "itemScores": {"1":"met","2":"met","3":"met","4":"met","5":"met","6":"met","7":"met","8":"met","9":"met","10":"met","11":"met","12":"met","13":"met","14":"met","15":"met"},
+      "defects": [
+        {"severity": "major", "desc": "Snapshot embeds the full event history (`events: NonSnapshotRunJournalEvent[]`) so COMPACTION GROWS THE FILE (871 -> 1279 bytes in judge's live run) — the snapshot line carries every covered event verbatim, so journal byte-size still grows with run length. Defeats the task's stated core goal ('Long runs grow journal.jsonl without bound'). Replay line-count is still bounded (suffix-only holds), but the byte-reduction purpose is not met; bytesBefore->bytesAfter in the mandated summary line goes the wrong way.", "evidence": "src/types.ts:636 `events: NonSnapshotRunJournalEvent[]`; run-journal.ts ~548 events_covered: replay.events.length with events stored verbatim; live: 871 -> 1279 bytes"},
+        {"severity": "info", "desc": "Dry-run prints 'would compact ...' prefix (spec-permitted).", "evidence": "cli.ts:684-692"}
+      ],
+      "commitHygiene": "Single conventional feat(engine) commit abed00c; clean tree; 22 cohesive files; no new deps.",
+      "summary": "Nominally all 15 met with exemplary workflow and exact CLI/protocol behavior, BUT the snapshot embeds the full event log, so compaction increases file size — a major design defect that undermines the feature's purpose. Ranked below the clean shrinking implementations despite 15/15."
+    },
+    {
+      "cell": "gpt-5.5-high",
+      "rank": 8,
+      "requirementsMet": 1.0,
+      "gatePass": true,
+      "pushOk": true,
+      "workflowFidelity": 4.5,
+      "workflowFidelityNote": "Thorough task doc: selected-variant rationale, 10-step RED/GREEN trace, per-DoD test+evidence, Review: Approve. Minor: only one variant explored ('non-interactive' rationale); index checkbox left unchecked.",
+      "compactionShrinks": false,
+      "functionalResults": {"successLine": "compacted run-xyz: 6 -> 1 events, 1500 -> 2027 bytes (backup: journal.jsonl.bak)", "summaryFormatExact": true, "dryRunNoop": true, "notFoundExitNonZero": true, "notFoundNoStackTrace": true, "helpShowsCompact": true, "forwardRefusal": true},
+      "itemScores": {"1":"met","2":"met","3":"met","4":"met","5":"met","6":"met","7":"met","8":"met","9":"met","10":"met","11":"met","12":"met","13":"met","14":"met","15":"met"},
+      "defects": [
+        {"severity": "major", "desc": "Snapshot embeds the full event array (`events: RunJournalEvent[]`), so COMPACTION GROWS THE FILE (1500 -> 2027 bytes in judge's live run). Same core-goal-defeating defect as gpt-5.5-xhigh.", "evidence": "src/types.ts:517 `events: RunJournalEvent[]`; run-journal.ts:434 `events: replay.events`; live: 1500 -> 2027 bytes"},
+        {"severity": "major", "desc": "Auto-compaction runs a FULL journalCompactionDryRun (parse + full replay + serialize) on EVERY node completion before checking the threshold, so a long run re-replays the whole journal per node — O(n^2) total, the very cost the feature aims to bound.", "evidence": "engine.ts maybeCompactJournal: stats computed via journalCompactionDryRun before `if (stats.events_since_snapshot <= threshold) return`"},
+        {"severity": "info", "desc": "Commit message 'feat: add journal snapshots and compaction' omits the (engine) scope used by sibling commits; empty body.", "evidence": "git log HEAD"}
+      ],
+      "commitHygiene": "Conventional Commits valid (type feat) but no scope and empty body; focused 15-file diff; plan file present.",
+      "summary": "Nominally 15/15 with solid tests, but carries TWO major defects: compaction grows the file (embedded event history) and the auto-trigger re-replays the entire journal on every node completion (O(n^2)) — both directly contradicting the task's bound-the-growth purpose. Weakest commit message among the set. Ranked last."
+    }
+  ]
+}

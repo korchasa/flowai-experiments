@@ -1,0 +1,13 @@
+Push verified: `HEAD` == `origin/bench` at `44fc1f7`. CI await skipped per benchmark (local bare remote). Workflow complete.
+
+## Ship complete — all five phases done
+
+**Plan** — `documents/tasks/2026/06/journal-snapshot-compaction.md` (GODS format, `implements: [FR-E83]`, status auto-flipped to `done` with 7/7 DoD checked). Variant B selected autonomously: extend the existing replayer + shared compaction core in `src/state/journal-compaction.ts`; rationale recorded in the file.
+
+**Implement** — all 15 requested behaviors + constraints delivered with TDD: `state_snapshot` event (version 1, full run model, `node_dirs`, `events_covered`); single replayer extended to seed from the latest snapshot with fail-fast on unsupported versions; byte-equality equivalence via canonical `RunState` ordering; suffix-only proof via JSON.parse call counting; exact 5-step crash-safe protocol with fault-hook crash-injection tests at all 4 step boundaries; live-lock/corrupt-journal refusals; single `.bak` generation; validated `journal_compaction_threshold_events` config (default 500, 0 disables); engine trigger at level/chunk boundaries only with one verbose line; `runs compact` CLI with the exact summary format and `--help` listing. `deno task check` green (the only fallout was the SDS doc exceeding its token budget — resolved by splitting journal/recovery content into new `documents/design-engine/06-journal-durability.md`, following the project's 05-mcp-server precedent).
+
+**Review** — verdict **Approve**: 15/15 requirements mapped to diff+tests, zero hygiene findings, parent baseline green, 3 JiT regression tests passed on both parent and diff (zero catching tests), mutant kill-rate 3 killed / 1 equivalent / 1 benign survivor (engine threshold `>` vs `>=` boundary, recorded as uncovered risk).
+
+**Commit** — `44fc1f7` `feat(engine): journal state snapshots with crash-safe compaction (FR-E83)`, 23 files, +1924/−22, single Conventional Commits commit; tree clean.
+
+**Push** — `bench` pushed to `origin` with upstream set; `git rev-parse HEAD @{u}` both `44fc1f7` — confirmed identical.

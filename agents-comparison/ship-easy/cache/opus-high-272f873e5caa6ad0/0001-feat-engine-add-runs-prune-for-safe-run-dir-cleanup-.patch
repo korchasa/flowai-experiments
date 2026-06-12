@@ -1,0 +1,1596 @@
+From 5e348bbd59f3fddc037d44d9bbc438286c945a72 Mon Sep 17 00:00:00 2001
+From: korchasa <korchasa@icloud.com>
+Date: Thu, 11 Jun 2026 19:50:45 +0300
+Subject: [PATCH] feat(engine): add `runs prune` for safe run-dir cleanup
+ (FR-E83)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Add `flowai-workflow runs prune [--workflow <dir>] --keep <N> [--dry-run]`:
+delete the oldest run directories under `<workflow>/runs/` so at most N
+most-recent SAFE-to-delete runs remain. Status + start time come only from
+replaying each run's journal; safety rules (all override --keep): never
+delete a non-terminal run, never delete the run named by `runs/.lock`, and
+treat a missing/unreplayable journal as unknown state (kept). Invalid
+--keep is rejected with a clear error and non-zero exit; --dry-run is a
+no-op that prints what would be deleted.
+
+Selection/execution lives in src/state/prune.ts (reusing getRunDir, the
+journal replayer, and the lock helpers — no duplicated path/replay logic);
+cli.ts gains the `runs` dispatcher and help entry. Register FR-E83 in the
+SRS and split the plugin-distribution FRs (E70/E71/E72) into a new
+06b-plugin-distribution.md section to keep both files within the docs token
+budget.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
+---
+ documents/index.md                            |   7 +-
+ documents/requirements-engine.md              |  13 +-
+ .../06-distribution-and-housekeeping.md       | 287 ++----------------
+ .../06b-plugin-distribution.md                | 266 ++++++++++++++++
+ documents/tasks/2026/06/runs-prune.md         | 187 ++++++++++++
+ src/cli.ts                                    | 131 +++++++-
+ src/cli_test.ts                               |  33 ++
+ src/state/prune.ts                            | 230 ++++++++++++++
+ src/state/prune_test.ts                       | 237 +++++++++++++++
+ 9 files changed, 1121 insertions(+), 270 deletions(-)
+ create mode 100644 documents/requirements-engine/06b-plugin-distribution.md
+ create mode 100644 documents/tasks/2026/06/runs-prune.md
+ create mode 100644 src/state/prune.ts
+ create mode 100644 src/state/prune_test.ts
+
+diff --git a/documents/index.md b/documents/index.md
+index 7b5f797..b6f6112 100644
+--- a/documents/index.md
++++ b/documents/index.md
+@@ -7,12 +7,13 @@
+ - [FR-E43](requirements-engine/02-nodes-and-models.md#343-fr-e43-runtime-fallback-fallback) — Runtime fallback (`defaults.fallback`): switch entire runtime on overload / quota / availability errors — [ ]
+ - [FR-E68](requirements-engine/05-cli-and-observability.md#368-fr-e68-node-lifecycle-callback-for-embedded-hosts) — Expose node lifecycle callback for embedded hosts — [x]
+ - [FR-E69](requirements-engine/05-cli-and-observability.md#369-fr-e69-durable-run-journal-replay) — Persist durable run journal for host recovery replay — [x]
+-- [FR-E70](requirements-engine/06-distribution-and-housekeeping.md#370-fr-e70-claude-code--codex-plugin-distribution) — Claude Code / Codex plugin distribution (plugin-first; downstream `flowai-workflow-plugins` repo) — [x]
+-- [FR-E71](requirements-engine/06-distribution-and-housekeeping.md#371-fr-e71-codex-plugin-install-path) — Codex plugin install path (Codex-native payload + auto-MCP, no manual `config.toml` patch) — [x]
+-- [FR-E72](requirements-engine/06-distribution-and-housekeeping.md#372-fr-e72-cross-repo-plugin-payload-sync) — Cross-repo plugin payload sync from engine repo to `korchasa/flowai-workflow-plugins` — [x]
++- [FR-E70](requirements-engine/06b-plugin-distribution.md#370-fr-e70-claude-code--codex-plugin-distribution) — Claude Code / Codex plugin distribution (plugin-first; downstream `flowai-workflow-plugins` repo) — [x]
++- [FR-E71](requirements-engine/06b-plugin-distribution.md#371-fr-e71-codex-plugin-install-path) — Codex plugin install path (Codex-native payload + auto-MCP, no manual `config.toml` patch) — [x]
++- [FR-E72](requirements-engine/06b-plugin-distribution.md#372-fr-e72-cross-repo-plugin-payload-sync) — Cross-repo plugin payload sync from engine repo to `korchasa/flowai-workflow-plugins` — [x]
+ - [FR-E73](requirements-engine/07-mcp-and-plugin-runtime.md#373-fr-e73-embedded-mcp-server-over-engine) — Embedded MCP server over engine (7 tools, MCP SDK) — [ ]
+ - [FR-E74](requirements-engine/07-mcp-and-plugin-runtime.md#374-fr-e74-plugin-self-contained-runtime-lazy-compile--auto-mcp) — Plugin self-contained runtime: lazy-compile binary + auto-MCP registration — superseded by FR-E78
+ - [FR-E77](requirements-engine/04-runtime-and-hooks.md#377-fr-e77-acp-as-the-sole-runtime-transport) — ACP as the sole runtime transport (implicit `transport: "acp"`, no config knob) — [x]
+ - [FR-E78](requirements-engine/07-mcp-and-plugin-runtime.md#378-fr-e78-plugin-precondition--release-binary-distribution) — Plugin precondition + release binary distribution (supersedes FR-E74 launcher) — [ ]
+ - [FR-E80](requirements-engine/05-cli-and-observability.md#380-fr-e80-cumulative-wall-clock-retry-cap) — Cumulative wall-clock retry cap per node via AbortSignal pass-through — [x]
++- [FR-E83](requirements-engine/06-distribution-and-housekeeping.md#383-fr-e83-safe-runs-prune-cleanup) — Safe `runs prune` cleanup of old run directories (terminal/unlocked/replayable only) — [ ]
+ - [FR-E9](requirements-engine/01-execution-model.md#39-fr-e9-run-artifacts-folder-structure) — Run artifacts live under the selected workflow run directory — [x]
+diff --git a/documents/requirements-engine.md b/documents/requirements-engine.md
+index 4313a52..6300542 100644
+--- a/documents/requirements-engine.md
++++ b/documents/requirements-engine.md
+@@ -31,7 +31,11 @@ FR-IDs are stable — never renumber them on move.
+   timestamps, repeated-read warning, node result summary, CLI help.
+ - [06-distribution-and-housekeeping.md](requirements-engine/06-distribution-and-housekeeping.md)
+   — Housekeeping, test suite integrity, shared backoff, legacy test task
+-  removal, standalone binary, auto-update, IDE CLI wrapper split.
++  removal, standalone binary, auto-update, IDE CLI wrapper split, decision-task
++  process, and safe `runs prune` cleanup (FR-E83).
++- [06b-plugin-distribution.md](requirements-engine/06b-plugin-distribution.md)
++  — Claude Code / Codex plugin distribution (FR-E70), Codex install path
++  (FR-E71), cross-repo plugin payload sync (FR-E72).
+ - [07-mcp-and-plugin-runtime.md](requirements-engine/07-mcp-and-plugin-runtime.md)
+   — Embedded MCP server (FR-E73), the plugin's self-contained runtime
+   with lazy binary compile + auto-MCP registration (FR-E74, superseded
+@@ -105,9 +109,9 @@ FR-IDs are stable — never renumber them on move.
+ - FR-E67 (Git Repository State Validation) → 03-config-and-validation
+ - FR-E68 (Node Lifecycle Callback)      → 05-cli-and-observability
+ - FR-E69 (Durable Run Journal Replay)   → 05-cli-and-observability
+-- FR-E70 (Claude Code Plugin Distribution) → 06-distribution-and-housekeeping
+-- FR-E71 (Codex Plugin Install Path)      → 06-distribution-and-housekeeping
+-- FR-E72 (Cross-Repo Plugin Payload Sync) → 06-distribution-and-housekeeping
++- FR-E70 (Claude Code Plugin Distribution) → 06b-plugin-distribution
++- FR-E71 (Codex Plugin Install Path)      → 06b-plugin-distribution
++- FR-E72 (Cross-Repo Plugin Payload Sync) → 06b-plugin-distribution
+ - FR-E73 (Embedded MCP Server Over Engine) → 07-mcp-and-plugin-runtime
+ - FR-E74 (Plugin Self-Contained Runtime)   → 07-mcp-and-plugin-runtime
+ - FR-E75 (Local HITL Answer + Command Layer) → 04-runtime-and-hooks
+@@ -118,3 +122,4 @@ FR-IDs are stable — never renumber them on move.
+ - FR-E80 (Cumulative Wall-Clock Retry Cap) → 05-cli-and-observability
+ - FR-E81 (Claude CLI Version Probe Gated on Runtime) → 04-runtime-and-hooks
+ - FR-E82 (Fail-Fast on Runtime `is_error`)            → 04-runtime-and-hooks
++- FR-E83 (Safe `runs prune` Cleanup)                  → 06-distribution-and-housekeeping
+diff --git a/documents/requirements-engine/06-distribution-and-housekeeping.md b/documents/requirements-engine/06-distribution-and-housekeeping.md
+index bac9550..8f80c29 100644
+--- a/documents/requirements-engine/06-distribution-and-housekeeping.md
++++ b/documents/requirements-engine/06-distribution-and-housekeeping.md
+@@ -246,265 +246,30 @@
+ 
+ 
+ 
+-### 3.70 FR-E70: Claude Code / Codex Plugin Distribution
+-
+-- **Description:** The Claude Code / Codex plugin is the primary
+-  distribution channel for `flowai-workflow`. The downstream marketplace
+-  lives in a dedicated public repo `korchasa/flowai-workflow-plugins`
+-  (see FR-E72 for the cross-repo sync mechanism) and is consumed via:
+-
+-  ```
+-  /plugin marketplace add korchasa/flowai-workflow-plugins --sparse claude
+-  /plugin install flowai-workflow@korchasa
+-  ```
+-
+-  The engine source repo holds the plugin source tree at `plugin-src/`.
+-  Shared runtime files (`skills/`, `agents/`, plugin-root `README.md`)
+-  live under `plugin-src/shared/`. Claude marketplace wiring lives
+-  under `plugin-src/claude/`; Codex wiring lives under
+-  `plugin-src/codex/` with a Codex-native
+-  `.agents/plugins/marketplace.json`. Skills shell out to
+-  `flowai-workflow` directly (engine binary precondition — FR-E78);
+-  no plugin-bundled launcher.
+-
+-  The build-time payload (committed to `flowai-workflow-plugins`) is
+-  assembled by `scripts/build-plugin-payload.ts` from the engine repo
+-  into two marketplace roots: `claude/` and `codex/`. Each root gets
+-  the shared skills/agents, bundled `.flowai-workflow/<name>/`
+-  workflows, host-specific plugin manifests, and host-specific MCP
+-  config (`.mcp.json` invoking `flowai-workflow mcp`).
+-  `marketplace.json#plugins[0].version` and `plugin.json#version` are
+-  pinned to the engine's `deno.json#version` on every build, so
+-  plugin version is byte-equal to the engine version that produced it
+-  (version-lockstep contract). Per-run dirt
+-  (`.flowai-workflow/*/runs/`, `memory/agent-*.md`, `.template.json`),
+-  the retired launcher (`bin/launch.ts`), and engine TS sources are
+-  excluded by `classifyPayloadFile` (FR-E78).
+-
+-  The original auto-MCP / lazy-compile contract (FR-E74) shipped the
+-  engine TS tree and a `bin/launch.ts` launcher inside the payload;
+-  FR-E78 replaced it with a plain precondition model (operator
+-  installs `flowai-workflow` once on PATH) so the payload no longer
+-  carries either piece.
+-
+-  **Predecessor design (historical).** Before the plugin-first
+-  migration the marketplace was named `flowai-workflow-local` and
+-  installed via `deno task sync-claude-plugin`
+-  (`scripts/sync-claude-plugin.ts`) which re-pointed the local
+-  marketplace at the checkout and ran `claude plugin install`/`update`
+-  at user scope. That dogfood UX is replaced by
+-  `deno task sync-plugins-local` (FR-E72) and the
+-  CI-driven downstream-repo push for public consumption.
+-- **Tasks:** [plugin-first-distribution](../tasks/2026/05/plugin-first-distribution.md)
+-- **Motivation:** Lower install friction to two slash-commands inside
+-  the AI IDE: no separate `deno install`, no per-IDE binary download,
+-  no manual `~/.codex/config.toml` patch. Mirrors the foxcode reference
+-  pattern but ships the engine itself rather than only skill files.
+-- **Acceptance criteria:**
+-  - **Tests:** `scripts/build-plugin-payload_test.ts`,
+-    `init/mod_test.ts` (FR-E70; regression-locked; covers payload
+-    shape, version lockstep, per-run-dirt exclusion, `--bundle-dir`
+-    flag).
+-  - [x] Marketplace renamed to `flowai-workflow` (was
+-    `flowai-workflow-local`); plugin manifest version pinned to
+-    engine `deno.json#version`.
+-    Evidence: `plugin-src/claude/.claude-plugin/marketplace.json`,
+-    `plugin-src/codex/.agents/plugins/marketplace.json`,
+-    `plugin-src/claude/plugins/flowai-workflow/.claude-plugin/plugin.json`,
+-    `plugin-src/codex/plugins/flowai-workflow/.codex-plugin/plugin.json`.
+-  - [x] Skills `run/` and `init/` exist with `flowai-workflow` PATH
+-    preflight (FR-E78 precondition check; replaces FR-E74's
+-    `deno --version` preflight). Evidence:
+-    `plugin-src/shared/skills/run/SKILL.md`,
+-    `plugin-src/shared/skills/init/SKILL.md`.
+-  - [x] `cli.ts init` accepts `--bundle-dir <path>` to override the
+-    package-relative bundled-workflows lookup.
+-    Evidence: `init/mod.ts`.
+-  - [x] Full plugin install acceptance: in a fresh Claude Code session,
+-    `/plugin marketplace add korchasa/flowai-workflow-plugins --sparse claude` and
+-    `/plugin install flowai-workflow@korchasa` succeed; `/flowai-workflow:run
+-    --help` returns the engine help text. Manual — korchasa; Evidence:
+-    downstream tag `korchasa/flowai-workflow-plugins@v0.7.16` carries the
+-    synced payload (`gh release list --repo korchasa/flowai-workflow-plugins`)
+-    and CI install acceptance covers the same install command shape against
+-    a real `claude` CLI in `scripts/plugin-install-acceptance_test.ts`.
+-  - [x] Full plugin install acceptance on Codex: `codex plugin marketplace
+-    add korchasa/flowai-workflow-plugins --sparse codex` + `codex plugin add
+-    flowai-workflow@flowai-workflow` succeed; invoking the run skill returns
+-    engine help. Manual — korchasa; Evidence: CI install acceptance against
+-    a real `codex` CLI in
+-    `scripts/plugin-install-acceptance_test.ts::install acceptance — codex openrouter uses provider config without login`
+-    plus downstream tag v0.7.16.
+-
+-
+-
+-### 3.71 FR-E71: Codex Plugin Install Path
+-
+-- **Description:** Codex installs the `flowai-workflow` plugin via its
+-  native plugin manager — no `[mcp_servers.*]` block in
+-  `~/.codex/config.toml` is required. Install path:
+-
+-  ```
+-  codex plugin marketplace add korchasa/flowai-workflow-plugins --sparse codex
+-  codex plugin add flowai-workflow@flowai-workflow
+-  ```
+-
+-  After install, Codex's native plugin manager loads launcher skills
+-  (`run`, `init`, `scaffold`, `supervise`, `orchestrate`) and the
+-  plugin-shipped MCP config from
+-  `plugins/flowai-workflow/.mcp.json`. The MCP server name remains
+-  `flowai-workflow`; users should not enable official and
+-  local installs simultaneously during MCP smoke tests.
+-
+-  Exact Codex skill-invocation syntax (`$flowai-workflow:run` vs
+-  `$flowai-workflow-run` vs other) is verified at release time against
+-  the actual Codex build and documented in README; this FR commits to
+-  the contract that the launcher skills are callable from inside Codex
+-  after `codex plugin add`, not to a specific prefix shape.
+-- **Tasks:** [plugin-first-distribution](../tasks/2026/05/plugin-first-distribution.md), [plugin-ci-mcp-hooks-smoke](../tasks/2026/05/plugin-ci-mcp-hooks-smoke.md)
+-- **Motivation:** Match the foxcode reference UX while clarifying
+-  where plugin-owned auto-MCP config lives. Eliminates the "do I need
+-  a config.toml block?" question for every new user.
+-- **Dep:** FR-E70, FR-E72
+-- **Acceptance criteria:**
+-  - [x] Full Codex install acceptance per FR-E70 (manual — korchasa);
+-    see FR-E70 acceptance.
+-  - [x] CI install acceptance runs per IDE on every push. Each job
+-    builds the official publish-shape payload, installs
+-    `flowai-workflow@flowai-workflow` into an isolated temp host home,
+-    probes the installed MCP config, then starts the real host agent
+-    and verifies a `get_workflow` tool call from the installed plugin.
+-    Claude Code uses subscription auth via `CLAUDE_CODE_OAUTH_TOKEN`
+-    and must not pass `--bare`, because that mode does not read the
+-    OAuth token.
+-    Evidence:
+-    `scripts/plugin-install-acceptance_test.ts::install acceptance — claude installs plugin and invokes get_workflow`;
+-    `scripts/plugin-install-acceptance_test.ts::install acceptance — codex openrouter uses provider config without login`;
+-    `.github/workflows/ci.yml`.
+-  - [x] Install runner builds the official publish-shape payload
+-    from the source repo, registers it as marketplace
+-    `flowai-workflow` inside an isolated temp host home, installs
+-    `flowai-workflow@flowai-workflow`, and verifies the installed
+-    plugin cache rather than the source tree. Evidence:
+-    `scripts/plugin-install-acceptance_test.ts::install acceptance — install probe installs official marketplace into isolated host home`.
+-  - [x] Codex hook payload validation is automated when hooks are
+-    bundled, but Codex hook trust remains a user review step and is
+-    not claimed as auto-enabled by CI. Evidence:
+-    `scripts/plugin-install-acceptance_test.ts::install acceptance — hook commands are validated and executed`.
+-  - [x] README's Codex install section documents the two commands
+-    AND explicitly states no `config.toml` patch is required because
+-    the Codex plugin payload ships MCP config. Manual — korchasa;
+-    Evidence: `README.md` "### Codex" section ships
+-    `codex plugin marketplace add korchasa/flowai-workflow-plugins
+-    --sparse codex` + `codex plugin add flowai-workflow@flowai-workflow`
+-    plus the explicit "No `~/.codex/config.toml` `[mcp_servers.*]` block
+-    is required" sentence.
+-
+-
+-
+-### 3.72 FR-E72: Cross-Repo Plugin Payload Sync
+-
+-- **Description:** On every engine version tag (`v*` push to the source
+-  repo), the GH Actions workflow `.github/workflows/sync-plugins.yml`
+-  builds the plugin payload (via FR-E70's
+-  `scripts/build-plugin-payload.ts`) and pushes it into the public
+-  downstream repo `korchasa/flowai-workflow-plugins` via
+-  `scripts/sync-plugins-repo.ts`. The downstream repo is autogenerated
+-  — manual edits are overwritten by the next sync.
+-
+-  **Sync contract:**
+-
+-  1. Clone `korchasa/flowai-workflow-plugins` (depth=1) using a PAT
+-     stored as the engine-repo secret `PLUGINS_REPO_TOKEN`
+-     (required `contents:write` scope on the target repo).
+-  2. Build the new payload into a staging tempdir (or directly into
+-     the clone after wiping its contents except `.git/`).
+-  3. `git status --porcelain` — if empty, exit clean without commit,
+-     tag, or push (idempotency: byte-equal payload is a no-op).
+-  4. Otherwise commit with message
+-     `release: vX.Y.Z (synced from engine@<short-sha>)`, tag `vX.Y.Z`,
+-     push `HEAD:main` + tag.
+-
+-  **Modes** (`--mode publish | dry-run`):
+-
+-  - `publish` (CI default): full clone → build → commit → push.
+-  - `dry-run`: build into `--out-dir dist/plugin-payload` (or any
+-    `--out-dir <path>`), no git ops. Replaces `deno task sync-claude-plugin`
+-    for local payload inspection.
+-
+-  Local-dev install lives in `scripts/sync-plugins-local.ts`
+-  (`deno task sync-plugins-local`) — see this FR's acceptance criteria
+-  for its contract (Codex reconcile, `enabled=false` preservation,
+-  `AUTO_INSTALL_PLUGINS` gate).
+-
+-  Prerequisites (one-time, manual): downstream repo must exist; PAT
+-  must be issued and stored as `PLUGINS_REPO_TOKEN`; both surfaced in
+-  the workflow file's top-of-file comment.
+-- **Tasks:** [plugin-first-distribution](../tasks/2026/05/plugin-first-distribution.md), [local-plugin-install-script](../tasks/2026/05/local-plugin-install-script.md), [plugin-ci-mcp-hooks-smoke](../tasks/2026/05/plugin-ci-mcp-hooks-smoke.md)
+-- **Motivation:** Single source of truth (engine repo) with isolated
+-  release cadence for the plugin payload. Atomic per-tag publish:
+-  same CI run that tags the engine pushes the matching plugin
+-  version. No two-repo divergence; no manual sync step in the
+-  release checklist.
+-- **Dep:** FR-E70
++### 3.83 FR-E83: Safe `runs prune` Cleanup
++
++- **Description:** `flowai-workflow runs prune [--workflow <dir>] --keep <N>
++  [--dry-run]` deletes the OLDEST run dirs under `<workflow>/runs/` so at most
++  `N` most-recent SAFE-to-delete runs remain. Status + start time come ONLY
++  from replaying each run's `journal.jsonl` (`replayRunJournal`); paths/lock
++  reuse `getRunDir` + `defaultLockPath`/`readLockInfo` (`src/state/prune.ts`).
++  Hard safety rules, all overriding `--keep`: never delete a non-terminal
++  (`running`) run; never delete the run named by `runs/.lock`; a missing or
++  unreplayable journal = unknown state → NOT terminal (kept), reported skipped
++  with reason. `--keep` must be a non-negative integer (else clear error +
++  non-zero exit). The keep window is the eligible set only (terminal, unlocked,
++  replayable) — N newest kept, older deleted; protected runs retained
++  additionally, not counting against `N`. `--dry-run` prints what WOULD be
++  deleted, deletes nothing, exits 0. Summary reports deleted/kept/skipped counts
++  with per-run skip reason; subcommand shows in `--help`. Local FS only; no
++  listing beyond the summary; flags only.
++- **Tasks:** [runs-prune](../tasks/2026/06/runs-prune.md)
++- **Motivation:** Run dirs accumulate per execution; operators need a bounded,
++  safe way to reclaim disk without risking in-flight/locked/indeterminate runs.
+ - **Acceptance criteria:**
+-  - **Tests:** `scripts/sync-plugins-repo_test.ts`, `scripts/sync-plugins-local_test.ts`
+-    (FR-E72; regression-locked; covers idempotent no-op, commit + tag
+-    + push on diff, dry-run produces tree without push, `enabled=false`
+-    preserved through reinstall, Codex `config.toml` reconcile + idempotency,
+-    `AUTO_INSTALL_PLUGINS` literal-true gate, fail-fast arg parsing,
+-    removed `install-local` mode rejected).
+-  - [x] `.github/workflows/sync-plugins.yml` triggers on
+-    `push: tags: ['v*']` and on `workflow_dispatch`; runs the sync
+-    script with `--mode publish`. Untrusted inputs routed via `env:`
+-    block (no `${{ inputs.* }}` interpolation inside `run:` shell
+-    bodies). Evidence: `.github/workflows/sync-plugins.yml`.
+-  - [x] `deno task sync-plugins` wired in `deno.json#tasks` and
+-    forwards CLI args. Evidence: `deno.json#tasks.sync-plugins`.
+-  - [x] `deno task sync-plugins-local` wired in `deno.json#tasks` for
+-    the local dogfood loop (rebuild payload + reinstall into Claude
+-    Code + reconcile Codex). Evidence: `deno.json#tasks.sync-plugins-local`.
+-  - [x] Local-install AC (moved from `sync-plugins-repo.ts`, not
+-    deleted): missing `claude` CLI is a soft skip, marketplace is
+-    re-registered against a fresh build, and `claude plugin install`
+-    is invoked at user scope for every emitted plugin. Evidence:
+-    `scripts/sync-plugins-local.ts:syncClaude`.
+-  - [x] Codex soft-skip: missing `codex` binary OR Codex CLI without
+-    the `plugin marketplace` subcommand (<0.130) logs a precise skip
+-    message and exits the Codex path cleanly; the Claude path still
+-    runs. Evidence: `scripts/sync-plugins-local.ts:syncCodex`.
+-  - [x] Codex local install runs `codex plugin add
+-    flowai-workflow@flowai-workflow-local` after marketplace
+-    registration so the payload cache exists and `codex plugin list`
+-    reports the plugin as installed. Evidence:
+-    `scripts/sync-plugins-local.ts:planCodexPluginAdds`.
+-  - [x] User-scope `enabled = false` is preserved through
+-    install/reinstall: `claude plugin list --json` is captured BEFORE
+-    `marketplace remove`, then disabled plugins route to a `skipped`
+-    bucket on reinstall. Evidence:
+-    `scripts/sync-plugins-local.ts:planClaudeActions`.
+-  - [x] `AUTO_INSTALL_PLUGINS` opt-in gate accepts only literal `true`
+-    (env var OR `.env`) and is wired into `deno task check`; absence
+-    is a no-op. Evidence:
+-    `scripts/sync-plugins-local.ts:shouldAutoInstall`,
+-    `scripts/check.ts` (`runIfAutoInstallEnabled` invocation).
+-  - [x] Publish workflow validates the official split payload roots
+-    from the source repo before push and re-validates a downstream
+-    clone after push; acceptance paths target `claude/` and `codex/`
+-    roots, not the retired pre-split `plugins/flowai-workflow` root.
+-    Evidence:
+-    `scripts/sync-plugins-repo_test.ts::FR-E72 publish acceptance command targets host-specific payload roots`.
+-  - [x] Public repo `korchasa/flowai-workflow-plugins` created
+-    (public, `main`). Manual — korchasa; Evidence:
+-    `gh repo view korchasa/flowai-workflow-plugins --json
+-    visibility,licenseInfo` → `{"visibility":"PUBLIC"}`.
+-  - [x] `PLUGINS_REPO_TOKEN` secret configured in engine-repo
+-    Actions with `contents:write` on target repo. Manual — korchasa;
+-    Evidence: `gh secret list --repo korchasa/flowai-workflow` lists
+-    `PLUGINS_REPO_TOKEN` (configured 2026-05-24).
+-  - [x] First end-to-end sync produces a tag and a commit in the
+-    downstream repo. Manual — korchasa; Evidence:
+-    `git clone --depth=1 korchasa/flowai-workflow-plugins` shows
+-    `release: v0.7.16 (synced from engine@d565ebba8ccc)` on `main`
+-    plus the matching `v0.7.16` tag and the `claude/` + `codex/`
+-    payload roots at root level.
++  - **Tests:** `src/state/prune_test.ts`, `src/cli_test.ts` (regression-locked;
++    keeps N newest, skips non-terminal, skips locked, missing/unreplayable
++    journal counts as non-terminal, `--keep 0` deletes all terminal unlocked,
++    dry-run deletes nothing, bad `--keep` rejected, `runs prune` in `--help`).
++  - [x] `runs prune` selection + execution in `src/state/prune.ts`; CLI wiring
++    in `src/cli.ts`. Evidence: `deno task check` green.
+diff --git a/documents/requirements-engine/06b-plugin-distribution.md b/documents/requirements-engine/06b-plugin-distribution.md
+new file mode 100644
+index 0000000..7f911c3
+--- /dev/null
++++ b/documents/requirements-engine/06b-plugin-distribution.md
+@@ -0,0 +1,266 @@
++<!-- section file — index: [documents/requirements-engine.md](../requirements-engine.md) -->
++
++# SRS Engine — Plugin Distribution
++
++### 3.70 FR-E70: Claude Code / Codex Plugin Distribution
++
++- **Description:** The Claude Code / Codex plugin is the primary
++  distribution channel for `flowai-workflow`. The downstream marketplace
++  lives in a dedicated public repo `korchasa/flowai-workflow-plugins`
++  (see FR-E72 for the cross-repo sync mechanism) and is consumed via:
++
++  ```
++  /plugin marketplace add korchasa/flowai-workflow-plugins --sparse claude
++  /plugin install flowai-workflow@korchasa
++  ```
++
++  The engine source repo holds the plugin source tree at `plugin-src/`.
++  Shared runtime files (`skills/`, `agents/`, plugin-root `README.md`)
++  live under `plugin-src/shared/`. Claude marketplace wiring lives
++  under `plugin-src/claude/`; Codex wiring lives under
++  `plugin-src/codex/` with a Codex-native
++  `.agents/plugins/marketplace.json`. Skills shell out to
++  `flowai-workflow` directly (engine binary precondition — FR-E78);
++  no plugin-bundled launcher.
++
++  The build-time payload (committed to `flowai-workflow-plugins`) is
++  assembled by `scripts/build-plugin-payload.ts` from the engine repo
++  into two marketplace roots: `claude/` and `codex/`. Each root gets
++  the shared skills/agents, bundled `.flowai-workflow/<name>/`
++  workflows, host-specific plugin manifests, and host-specific MCP
++  config (`.mcp.json` invoking `flowai-workflow mcp`).
++  `marketplace.json#plugins[0].version` and `plugin.json#version` are
++  pinned to the engine's `deno.json#version` on every build, so
++  plugin version is byte-equal to the engine version that produced it
++  (version-lockstep contract). Per-run dirt
++  (`.flowai-workflow/*/runs/`, `memory/agent-*.md`, `.template.json`),
++  the retired launcher (`bin/launch.ts`), and engine TS sources are
++  excluded by `classifyPayloadFile` (FR-E78).
++
++  The original auto-MCP / lazy-compile contract (FR-E74) shipped the
++  engine TS tree and a `bin/launch.ts` launcher inside the payload;
++  FR-E78 replaced it with a plain precondition model (operator
++  installs `flowai-workflow` once on PATH) so the payload no longer
++  carries either piece.
++
++  **Predecessor design (historical).** Before the plugin-first
++  migration the marketplace was named `flowai-workflow-local` and
++  installed via `deno task sync-claude-plugin`
++  (`scripts/sync-claude-plugin.ts`) which re-pointed the local
++  marketplace at the checkout and ran `claude plugin install`/`update`
++  at user scope. That dogfood UX is replaced by
++  `deno task sync-plugins-local` (FR-E72) and the
++  CI-driven downstream-repo push for public consumption.
++- **Tasks:** [plugin-first-distribution](../tasks/2026/05/plugin-first-distribution.md)
++- **Motivation:** Lower install friction to two slash-commands inside
++  the AI IDE: no separate `deno install`, no per-IDE binary download,
++  no manual `~/.codex/config.toml` patch. Mirrors the foxcode reference
++  pattern but ships the engine itself rather than only skill files.
++- **Acceptance criteria:**
++  - **Tests:** `scripts/build-plugin-payload_test.ts`,
++    `init/mod_test.ts` (FR-E70; regression-locked; covers payload
++    shape, version lockstep, per-run-dirt exclusion, `--bundle-dir`
++    flag).
++  - [x] Marketplace renamed to `flowai-workflow` (was
++    `flowai-workflow-local`); plugin manifest version pinned to
++    engine `deno.json#version`.
++    Evidence: `plugin-src/claude/.claude-plugin/marketplace.json`,
++    `plugin-src/codex/.agents/plugins/marketplace.json`,
++    `plugin-src/claude/plugins/flowai-workflow/.claude-plugin/plugin.json`,
++    `plugin-src/codex/plugins/flowai-workflow/.codex-plugin/plugin.json`.
++  - [x] Skills `run/` and `init/` exist with `flowai-workflow` PATH
++    preflight (FR-E78 precondition check; replaces FR-E74's
++    `deno --version` preflight). Evidence:
++    `plugin-src/shared/skills/run/SKILL.md`,
++    `plugin-src/shared/skills/init/SKILL.md`.
++  - [x] `cli.ts init` accepts `--bundle-dir <path>` to override the
++    package-relative bundled-workflows lookup.
++    Evidence: `init/mod.ts`.
++  - [x] Full plugin install acceptance: in a fresh Claude Code session,
++    `/plugin marketplace add korchasa/flowai-workflow-plugins --sparse claude` and
++    `/plugin install flowai-workflow@korchasa` succeed; `/flowai-workflow:run
++    --help` returns the engine help text. Manual — korchasa; Evidence:
++    downstream tag `korchasa/flowai-workflow-plugins@v0.7.16` carries the
++    synced payload (`gh release list --repo korchasa/flowai-workflow-plugins`)
++    and CI install acceptance covers the same install command shape against
++    a real `claude` CLI in `scripts/plugin-install-acceptance_test.ts`.
++  - [x] Full plugin install acceptance on Codex: `codex plugin marketplace
++    add korchasa/flowai-workflow-plugins --sparse codex` + `codex plugin add
++    flowai-workflow@flowai-workflow` succeed; invoking the run skill returns
++    engine help. Manual — korchasa; Evidence: CI install acceptance against
++    a real `codex` CLI in
++    `scripts/plugin-install-acceptance_test.ts::install acceptance — codex openrouter uses provider config without login`
++    plus downstream tag v0.7.16.
++
++
++
++### 3.71 FR-E71: Codex Plugin Install Path
++
++- **Description:** Codex installs the `flowai-workflow` plugin via its
++  native plugin manager — no `[mcp_servers.*]` block in
++  `~/.codex/config.toml` is required. Install path:
++
++  ```
++  codex plugin marketplace add korchasa/flowai-workflow-plugins --sparse codex
++  codex plugin add flowai-workflow@flowai-workflow
++  ```
++
++  After install, Codex's native plugin manager loads launcher skills
++  (`run`, `init`, `scaffold`, `supervise`, `orchestrate`) and the
++  plugin-shipped MCP config from
++  `plugins/flowai-workflow/.mcp.json`. The MCP server name remains
++  `flowai-workflow`; users should not enable official and
++  local installs simultaneously during MCP smoke tests.
++
++  Exact Codex skill-invocation syntax (`$flowai-workflow:run` vs
++  `$flowai-workflow-run` vs other) is verified at release time against
++  the actual Codex build and documented in README; this FR commits to
++  the contract that the launcher skills are callable from inside Codex
++  after `codex plugin add`, not to a specific prefix shape.
++- **Tasks:** [plugin-first-distribution](../tasks/2026/05/plugin-first-distribution.md), [plugin-ci-mcp-hooks-smoke](../tasks/2026/05/plugin-ci-mcp-hooks-smoke.md)
++- **Motivation:** Match the foxcode reference UX while clarifying
++  where plugin-owned auto-MCP config lives. Eliminates the "do I need
++  a config.toml block?" question for every new user.
++- **Dep:** FR-E70, FR-E72
++- **Acceptance criteria:**
++  - [x] Full Codex install acceptance per FR-E70 (manual — korchasa);
++    see FR-E70 acceptance.
++  - [x] CI install acceptance runs per IDE on every push. Each job
++    builds the official publish-shape payload, installs
++    `flowai-workflow@flowai-workflow` into an isolated temp host home,
++    probes the installed MCP config, then starts the real host agent
++    and verifies a `get_workflow` tool call from the installed plugin.
++    Claude Code uses subscription auth via `CLAUDE_CODE_OAUTH_TOKEN`
++    and must not pass `--bare`, because that mode does not read the
++    OAuth token.
++    Evidence:
++    `scripts/plugin-install-acceptance_test.ts::install acceptance — claude installs plugin and invokes get_workflow`;
++    `scripts/plugin-install-acceptance_test.ts::install acceptance — codex openrouter uses provider config without login`;
++    `.github/workflows/ci.yml`.
++  - [x] Install runner builds the official publish-shape payload
++    from the source repo, registers it as marketplace
++    `flowai-workflow` inside an isolated temp host home, installs
++    `flowai-workflow@flowai-workflow`, and verifies the installed
++    plugin cache rather than the source tree. Evidence:
++    `scripts/plugin-install-acceptance_test.ts::install acceptance — install probe installs official marketplace into isolated host home`.
++  - [x] Codex hook payload validation is automated when hooks are
++    bundled, but Codex hook trust remains a user review step and is
++    not claimed as auto-enabled by CI. Evidence:
++    `scripts/plugin-install-acceptance_test.ts::install acceptance — hook commands are validated and executed`.
++  - [x] README's Codex install section documents the two commands
++    AND explicitly states no `config.toml` patch is required because
++    the Codex plugin payload ships MCP config. Manual — korchasa;
++    Evidence: `README.md` "### Codex" section ships
++    `codex plugin marketplace add korchasa/flowai-workflow-plugins
++    --sparse codex` + `codex plugin add flowai-workflow@flowai-workflow`
++    plus the explicit "No `~/.codex/config.toml` `[mcp_servers.*]` block
++    is required" sentence.
++
++
++
++### 3.72 FR-E72: Cross-Repo Plugin Payload Sync
++
++- **Description:** On every engine version tag (`v*` push to the source
++  repo), the GH Actions workflow `.github/workflows/sync-plugins.yml`
++  builds the plugin payload (via FR-E70's
++  `scripts/build-plugin-payload.ts`) and pushes it into the public
++  downstream repo `korchasa/flowai-workflow-plugins` via
++  `scripts/sync-plugins-repo.ts`. The downstream repo is autogenerated
++  — manual edits are overwritten by the next sync.
++
++  **Sync contract:**
++
++  1. Clone `korchasa/flowai-workflow-plugins` (depth=1) using a PAT
++     stored as the engine-repo secret `PLUGINS_REPO_TOKEN`
++     (required `contents:write` scope on the target repo).
++  2. Build the new payload into a staging tempdir (or directly into
++     the clone after wiping its contents except `.git/`).
++  3. `git status --porcelain` — if empty, exit clean without commit,
++     tag, or push (idempotency: byte-equal payload is a no-op).
++  4. Otherwise commit with message
++     `release: vX.Y.Z (synced from engine@<short-sha>)`, tag `vX.Y.Z`,
++     push `HEAD:main` + tag.
++
++  **Modes** (`--mode publish | dry-run`):
++
++  - `publish` (CI default): full clone → build → commit → push.
++  - `dry-run`: build into `--out-dir dist/plugin-payload` (or any
++    `--out-dir <path>`), no git ops. Replaces `deno task sync-claude-plugin`
++    for local payload inspection.
++
++  Local-dev install lives in `scripts/sync-plugins-local.ts`
++  (`deno task sync-plugins-local`) — see this FR's acceptance criteria
++  for its contract (Codex reconcile, `enabled=false` preservation,
++  `AUTO_INSTALL_PLUGINS` gate).
++
++  Prerequisites (one-time, manual): downstream repo must exist; PAT
++  must be issued and stored as `PLUGINS_REPO_TOKEN`; both surfaced in
++  the workflow file's top-of-file comment.
++- **Tasks:** [plugin-first-distribution](../tasks/2026/05/plugin-first-distribution.md), [local-plugin-install-script](../tasks/2026/05/local-plugin-install-script.md), [plugin-ci-mcp-hooks-smoke](../tasks/2026/05/plugin-ci-mcp-hooks-smoke.md)
++- **Motivation:** Single source of truth (engine repo) with isolated
++  release cadence for the plugin payload. Atomic per-tag publish:
++  same CI run that tags the engine pushes the matching plugin
++  version. No two-repo divergence; no manual sync step in the
++  release checklist.
++- **Dep:** FR-E70
++- **Acceptance criteria:**
++  - **Tests:** `scripts/sync-plugins-repo_test.ts`, `scripts/sync-plugins-local_test.ts`
++    (FR-E72; regression-locked; covers idempotent no-op, commit + tag
++    + push on diff, dry-run produces tree without push, `enabled=false`
++    preserved through reinstall, Codex `config.toml` reconcile + idempotency,
++    `AUTO_INSTALL_PLUGINS` literal-true gate, fail-fast arg parsing,
++    removed `install-local` mode rejected).
++  - [x] `.github/workflows/sync-plugins.yml` triggers on
++    `push: tags: ['v*']` and on `workflow_dispatch`; runs the sync
++    script with `--mode publish`. Untrusted inputs routed via `env:`
++    block (no `${{ inputs.* }}` interpolation inside `run:` shell
++    bodies). Evidence: `.github/workflows/sync-plugins.yml`.
++  - [x] `deno task sync-plugins` wired in `deno.json#tasks` and
++    forwards CLI args. Evidence: `deno.json#tasks.sync-plugins`.
++  - [x] `deno task sync-plugins-local` wired in `deno.json#tasks` for
++    the local dogfood loop (rebuild payload + reinstall into Claude
++    Code + reconcile Codex). Evidence: `deno.json#tasks.sync-plugins-local`.
++  - [x] Local-install AC (moved from `sync-plugins-repo.ts`, not
++    deleted): missing `claude` CLI is a soft skip, marketplace is
++    re-registered against a fresh build, and `claude plugin install`
++    is invoked at user scope for every emitted plugin. Evidence:
++    `scripts/sync-plugins-local.ts:syncClaude`.
++  - [x] Codex soft-skip: missing `codex` binary OR Codex CLI without
++    the `plugin marketplace` subcommand (<0.130) logs a precise skip
++    message and exits the Codex path cleanly; the Claude path still
++    runs. Evidence: `scripts/sync-plugins-local.ts:syncCodex`.
++  - [x] Codex local install runs `codex plugin add
++    flowai-workflow@flowai-workflow-local` after marketplace
++    registration so the payload cache exists and `codex plugin list`
++    reports the plugin as installed. Evidence:
++    `scripts/sync-plugins-local.ts:planCodexPluginAdds`.
++  - [x] User-scope `enabled = false` is preserved through
++    install/reinstall: `claude plugin list --json` is captured BEFORE
++    `marketplace remove`, then disabled plugins route to a `skipped`
++    bucket on reinstall. Evidence:
++    `scripts/sync-plugins-local.ts:planClaudeActions`.
++  - [x] `AUTO_INSTALL_PLUGINS` opt-in gate accepts only literal `true`
++    (env var OR `.env`) and is wired into `deno task check`; absence
++    is a no-op. Evidence:
++    `scripts/sync-plugins-local.ts:shouldAutoInstall`,
++    `scripts/check.ts` (`runIfAutoInstallEnabled` invocation).
++  - [x] Publish workflow validates the official split payload roots
++    from the source repo before push and re-validates a downstream
++    clone after push; acceptance paths target `claude/` and `codex/`
++    roots, not the retired pre-split `plugins/flowai-workflow` root.
++    Evidence:
++    `scripts/sync-plugins-repo_test.ts::FR-E72 publish acceptance command targets host-specific payload roots`.
++  - [x] Public repo `korchasa/flowai-workflow-plugins` created
++    (public, `main`). Manual — korchasa; Evidence:
++    `gh repo view korchasa/flowai-workflow-plugins --json
++    visibility,licenseInfo` → `{"visibility":"PUBLIC"}`.
++  - [x] `PLUGINS_REPO_TOKEN` secret configured in engine-repo
++    Actions with `contents:write` on target repo. Manual — korchasa;
++    Evidence: `gh secret list --repo korchasa/flowai-workflow` lists
++    `PLUGINS_REPO_TOKEN` (configured 2026-05-24).
++  - [x] First end-to-end sync produces a tag and a commit in the
++    downstream repo. Manual — korchasa; Evidence:
++    `git clone --depth=1 korchasa/flowai-workflow-plugins` shows
++    `release: v0.7.16 (synced from engine@d565ebba8ccc)` on `main`
++    plus the matching `v0.7.16` tag and the `claude/` + `codex/`
++    payload roots at root level.
+diff --git a/documents/tasks/2026/06/runs-prune.md b/documents/tasks/2026/06/runs-prune.md
+new file mode 100644
+index 0000000..611b13d
+--- /dev/null
++++ b/documents/tasks/2026/06/runs-prune.md
+@@ -0,0 +1,187 @@
++---
++date: "2026-06-11"
++status: done
++implements: [FR-E83]
++tags: [engine, cli, state, runs, housekeeping]
++related_tasks:
++  - 2026/05/per-workflow-run-lock.md
++  - 2026/05/per-run-worktree-co-location.md
++---
++# `runs prune` — safe cleanup of old run directories
++
++## Goal
++
++Add a `flowai-workflow runs prune --workflow <dir> --keep <N>` subcommand that
++deletes the OLDEST run directories under `<workflow-dir>/runs/` so that at most
++`N` most-recent SAFE-to-delete runs remain, while never touching runs that are
++non-terminal, locked, or whose state cannot be determined. Run state is read
++exclusively by replaying each run's `journal.jsonl` with the existing replayer.
++
++## Overview
++
++### Context
++
++- A run's only durable record is `runs/<run-id>/journal.jsonl` (append-only).
++  Status + start time come from replaying it via `replayRunJournal` /
++  `loadStateFromJournal` in `src/state/run-journal.ts`. No other state source
++  exists — a run dir without a replayable journal has unknown state.
++- Existing reusable `src/state/` helpers:
++  - `getRunDir(runId, workflowDir)` → `<workflowDir>/runs/<runId>` (path).
++  - `defaultLockPath(workflowDir)` → `<workflowDir>/runs/.lock`;
++    `readLockInfo(lockPath)` → `{ run_id, pid, ... }`.
++  - `replayRunJournal(runDir)` → `{ state }`; `state.status` ∈
++    `running|completed|failed|aborted`; `state.started_at` ISO string.
++- Terminal statuses: `completed | failed | aborted`. `running` is non-terminal.
++
++### Current State
++
++- `src/cli.ts` dispatches `run | answer | init | mcp` subcommands via a
++  hand-rolled `switch`/positional parser; no `runs` group exists.
++- No module enumerates or classifies run directories; nothing deletes runs.
++- `--help` (`printUsage`) lists the four existing subcommands only.
++
++### Constraints
++
++- Follow the existing argument-parsing style in `src/cli.ts`; no new deps.
++- Run-folder knowledge (run dir path, journal replay, lock location/format)
++  MUST reuse existing `src/state/` helpers — no duplicated path/replay logic.
++- `--keep` must be a non-negative integer; reject anything else with a clear
++  error and non-zero exit.
++- Safety (hard): never delete a non-terminal run; never delete the run named by
++  `runs/.lock`; missing/unreplayable journal ⇒ treated as non-terminal (keep)
++  and reported as skipped with reason.
++- `--dry-run` deletes nothing, prints what WOULD be deleted, exits 0.
++- Local filesystem only; no listing/inspection output beyond the summary; no
++  interactive prompts (flags only).
++- `deno task check` stays green; register requirement as FR-E83 in
++  `documents/requirements-engine/06-distribution-and-housekeeping.md`.
++
++### Keep-window semantics (resolved ambiguity)
++
++"At most N most-recent runs remain" is bounded by the safety rules (a
++non-terminal/locked/unreplayable run can never be deleted regardless of `--keep`).
++This plan resolves the tension conservatively ("when in doubt, keep"): the
++`--keep N` window is computed over the **eligible** set only — runs that are
++terminal, unlocked, and replayable — keeping the N newest of those and deleting
++the older eligible ones. Protected runs (non-terminal, locked, unreplayable)
++are always retained additionally and do NOT consume keep slots. This satisfies
++every required test (keeps N newest; `--keep 0` deletes all terminal unlocked;
++skips non-terminal/locked/unreplayable) and avoids the surprising deletion of a
++recent terminal run merely because a newer run is still in flight.
++
++## Definition of Done
++
++- [x] (FR-E83) `selectRunsForPrune` keeps the N newest eligible runs and marks
++  older eligible runs for deletion. Test: `src/state/prune_test.ts::keeps N
++  newest, deletes older eligible`. Evidence: `deno task check`.
++- [x] (FR-E83) Non-terminal (`running`) runs are skipped with reason regardless
++  of `--keep`. Test: `src/state/prune_test.ts::skips non-terminal`. Evidence:
++  `deno task check`.
++- [x] (FR-E83) The run named by `runs/.lock` is skipped with reason. Test:
++  `src/state/prune_test.ts::skips locked`. Evidence: `deno task check`.
++- [x] (FR-E83) Missing/unreplayable journal ⇒ skipped as non-terminal with
++  reason. Test: `src/state/prune_test.ts::missing/unreplayable journal kept`.
++  Evidence: `deno task check`.
++- [x] (FR-E83) `--keep 0` deletes all terminal unlocked runs. Test:
++  `src/state/prune_test.ts::keep 0 deletes all terminal unlocked`. Evidence:
++  `deno task check`.
++- [x] (FR-E83) `--dry-run` deletes nothing. Test:
++  `src/state/prune_test.ts::dry-run deletes nothing`. Evidence: `deno task check`.
++- [x] (FR-E83) Invalid `--keep` (negative / non-integer / missing) rejected with
++  clear error + non-zero exit. Test: `src/state/prune_test.ts::parseKeep rejects
++  invalid`. Evidence: `deno task check`.
++- [x] (FR-E83) `runs prune` appears in `--help`. Test:
++  `src/cli_test.ts::help lists runs prune` (or inline assert on `printUsage`).
++  Evidence: `deno task check`.
++- [x] (FR-E83) Summary prints deleted / kept / skipped counts with per-run skip
++  reason. Test: covered by `prune_test.ts` summary assertions. Evidence:
++  `deno task check`.
++- [x] add FR-E83 section to SRS
++  (`documents/requirements-engine/06-distribution-and-housekeeping.md`) with
++  `**Acceptance:**` field filled; register row in `documents/index.md`.
++
++## Solution
++
++### Files
++
++- NEW `src/state/prune.ts` — selection policy + execution + arg parsing.
++- NEW `src/state/prune_test.ts` — unit tests on temp-dir fixtures.
++- EDIT `src/cli.ts` — `runs` subcommand dispatch + `--help` entry.
++- EDIT `documents/requirements-engine/06-distribution-and-housekeeping.md` —
++  FR-E83 section.
++- EDIT `documents/requirements-engine.md` (index FR map) + `documents/index.md`.
++
++### `src/state/prune.ts`
++
++- `parseKeep(raw: string | undefined): number` — require a non-negative integer
++  string; throw `Error("Invalid --keep value: ... Expected a non-negative
++  integer.")` otherwise. (Mirrors the `--budget` / `--cycles` validators in
++  `cli.ts`.)
++- `interface PrunePlan { toDelete: PrunedRun[]; toKeep: PrunedRun[];
++  skipped: SkippedRun[] }` where `PrunedRun = { runId; runDir; startedAt }` and
++  `SkippedRun = { runId; runDir; reason }`.
++- `async selectRunsForPrune(workflowDir, keep): Promise<PrunePlan>`:
++  1. `runsDir = dirname(defaultLockPath(workflowDir))` (reuse lock helper for
++     the `runs/` root — no `/runs` literal duplication).
++  2. `lockedRunId` = `readLockInfo(defaultLockPath(workflowDir)).run_id`,
++     swallowing NotFound/parse errors (no lock ⇒ none protected).
++  3. Enumerate directory entries under `runsDir` (skip files like `.lock`).
++     If `runsDir` itself is missing ⇒ empty plan.
++  4. For each `runId` (entry name), `runDir = getRunDir(runId, workflowDir)`:
++     - `runId === lockedRunId` ⇒ skipped, reason `"locked by runs/.lock"`.
++     - else `try { state = (await replayRunJournal(runDir)).state }` —
++       on throw ⇒ skipped, reason `"journal missing or unreplayable — unknown
++       state (kept)"`.
++     - else if `state.status` not in `{completed,failed,aborted}` ⇒ skipped,
++       reason `"status '<status>' not terminal"`.
++     - else eligible `{ runId, runDir, startedAt: state.started_at }`.
++  5. Sort eligible by `startedAt` descending (tie-break `runId` desc for
++     determinism). `toKeep = eligible.slice(0, keep)`; `toDelete =
++     eligible.slice(keep)`.
++- `interface PruneSummary { deleted; kept; skipped; plan }`.
++- `async executePrune(workflowDir, keep, dryRun): Promise<PruneSummary>` —
++  builds plan; when `!dryRun`, `Deno.remove(runDir, { recursive: true })` for
++  each `toDelete`; returns counts + plan.
++- `formatPruneSummary(summary, dryRun): string` — human summary lines:
++  header (`Dry run — nothing deleted.` when dryRun), `Deleted: K`, `Kept: K`,
++  `Skipped: K`, then one line per skipped run `- <runId>: <reason>` and per
++  deleted run `- <runId>` (would-delete under dry-run).
++
++### `src/cli.ts`
++
++- Add `parsePruneArgs(args): { workflowDir?: string; keepRaw?: string;
++  dryRun: boolean }` near `parseAnswerArgs` (accept `--workflow`/`--workflow=`,
++  `--keep`/`--keep=`, `--dry-run`).
++- Add `runRuns(args)` dispatcher: first positional must be `prune` (else error
++  + usage). Resolve workflow: explicit `--workflow` else `resolveActiveWorkflow`
++  (mirrors `answer`). `keep = parseKeep(keepRaw)`. `summary = await
++  executePrune(workflowDir, keep, dryRun)`. Print `formatPruneSummary`. Exit 0.
++  Wrap in try/catch printing `Error: <msg>` + `Deno.exit(1)` (mirrors
++  `runAnswer`).
++- Dispatch `if (subcommand === "runs") await runRuns(Deno.args.slice(1));`.
++- Extend `printUsage`: add `runs prune` to the Usage + Subcommands blocks and a
++  short `runs prune` options section (`--workflow`, `--keep <N>`, `--dry-run`).
++
++### Error handling
++
++- All failure modes surface fast with a clear `Error: ...` and non-zero exit
++  (bad `--keep`, unresolved workflow, unknown `runs` subcommand). Deletion uses
++  `recursive: true`; a mid-loop FS error propagates (fail fast) rather than
++  leaving a silent partial state.
++
++### Verification
++
++- `deno task check` (fmt + lint + full test suite, incl. JSR slow-types).
++- Manual smoke optional: build a temp `runs/` tree and run
++  `deno run -A src/cli.ts runs prune --workflow <tmp> --keep 1 --dry-run`.
++
++## Follow-ups
++
++- A `runs list` / inspection subcommand (explicitly out of scope here) could
++  share `selectRunsForPrune`'s enumeration+classification — deferred.
++- Per-run git worktrees (FR-E57) under `runs/<run-id>/worktree/` are removed by
++  the recursive directory delete but the git worktree registration is not
++  `git worktree prune`d. Out of scope ("local filesystem only"); revisit if
++  dangling worktree refs become a problem.
++</content>
++</invoke>
+diff --git a/src/cli.ts b/src/cli.ts
+index 43c95a1..f2534d9 100644
+--- a/src/cli.ts
++++ b/src/cli.ts
+@@ -50,6 +50,7 @@ import {
+ import { installSignalHandlers } from "./process-registry.ts";
+ import { checkForUpdate, VERSION } from "./version.ts";
+ import { runMcpServer } from "./mcp/mcp-server.ts";
++import { executePrune, formatPruneSummary, parseKeep } from "./state/prune.ts";
+ 
+ /** Re-exported for back-compat: VERSION lives in `version.ts` (leaf module)
+  * so the library graph never imports this CLI entry point. */
+@@ -235,6 +236,64 @@ export function parseAnswerArgs(args: string[]): AnswerArgs {
+   };
+ }
+ 
++/** Parsed flags for the `runs prune` subcommand (FR-E83). */
++export interface PruneArgs {
++  /** Workflow folder (trailing slashes stripped). `undefined` when
++   * `--workflow` is omitted; the caller falls back to `resolveActiveWorkflow`
++   * (FR-E78). */
++  workflowDir: string | undefined;
++  /** Raw `--keep` value, validated later by {@link parseKeep}. `undefined`
++   * when the flag was omitted (rejected at run time). */
++  keepRaw: string | undefined;
++  /** `--dry-run` flag: print what would be deleted, delete nothing. */
++  dryRun: boolean;
++}
++
++/**
++ * Parse `runs prune [--workflow <path>] --keep <N> [--dry-run]` (FR-E83),
++ * following the existing hand-rolled flag style. `--workflow`/`--workflow=`
++ * and `--keep`/`--keep=` are both accepted. The leading `prune` positional is
++ * NOT consumed here — the dispatcher strips it before calling this.
++ */
++export function parsePruneArgs(args: string[]): PruneArgs {
++  let workflow: string | undefined;
++  let keepRaw: string | undefined;
++  let dryRun = false;
++  for (let i = 0; i < args.length; i++) {
++    const a = args[i];
++    if (a === "--workflow") {
++      workflow = args[++i];
++      continue;
++    }
++    if (a.startsWith("--workflow=")) {
++      workflow = a.slice("--workflow=".length);
++      continue;
++    }
++    if (a === "--keep") {
++      keepRaw = args[++i];
++      continue;
++    }
++    if (a.startsWith("--keep=")) {
++      keepRaw = a.slice("--keep=".length);
++      continue;
++    }
++    if (a === "--dry-run") {
++      dryRun = true;
++      continue;
++    }
++    throw new Error(
++      `runs prune: unexpected argument: ${a}. ` +
++        "Usage: flowai-workflow runs prune [--workflow <path>] --keep <N> " +
++        "[--dry-run]",
++    );
++  }
++  return {
++    workflowDir: workflow ? normalizeWorkflowDir(workflow) : undefined,
++    keepRaw,
++    dryRun,
++  };
++}
++
+ /**
+  * Parse CLI arguments into EngineOptions.
+  *
+@@ -366,7 +425,13 @@ function handleVersion(): never {
+ }
+ 
+ function printUsage(): void {
+-  console.log(`
++  console.log(buildUsage());
++}
++
++/** Build the CLI usage/help text. Pure (returns a string) so it is unit
++ * testable and so `printUsage` stays a thin console wrapper. */
++export function buildUsage(): string {
++  return `
+ Workflow Engine — Configurable multi-agent workflow runner
+ 
+ Usage:
+@@ -374,6 +439,8 @@ Usage:
+   flowai-workflow init [options]             Scaffold .flowai-workflow/ directory
+   flowai-workflow answer [--workflow <path>] <run-id> --node <id> "<text>"
+                                              Deliver a local HITL reply (FR-E75)
++  flowai-workflow runs prune [--workflow <path>] --keep <N> [--dry-run]
++                                             Delete old run dirs, keeping N newest (FR-E83)
+   flowai-workflow mcp [<workflow>]           Start embedded MCP server (FR-E73)
+ 
+ Subcommands:
+@@ -383,6 +450,10 @@ Subcommands:
+                         local inbox file (transport-independent). Prints
+                         {inboxPath, live}; when live is false, resume the run to
+                         consume the queued answer.
++  runs prune            Delete the oldest run directories under <workflow>/runs/
++                        so at most --keep N most-recent SAFE-to-delete runs
++                        remain. Never deletes non-terminal, locked, or
++                        unreplayable runs (FR-E83).
+   mcp                   Start embedded MCP server exposing 8 engine-control tools over stdio.
+ 
+ Workflow resolution (run / answer / mcp; FR-E78):
+@@ -415,6 +486,13 @@ Run options:
+                         with --resume)
+   --skip-update-check   Do not check JSR for a newer version on startup
+ 
++runs prune options (FR-E83):
++  --workflow <path>     Workflow folder (optional; falls back to the workflow
++                        -resolution rule above)
++  --keep <N>            Non-negative integer; retain the N most-recent
++                        SAFE-to-delete runs (required)
++  --dry-run             Print what WOULD be deleted, delete nothing, exit 0
++
+ Global options:
+   -V, --version         Print version and exit
+   -h, --help            Show this help
+@@ -426,8 +504,10 @@ Examples:
+   flowai-workflow run .flowai-workflow/github-inbox --dry-run
+   flowai-workflow answer 20260529T094727 --node specification "monetization"
+   flowai-workflow answer --workflow .flowai-workflow/autonomous-sdlc 20260529T094727 --node specification "monetization"
++  flowai-workflow runs prune --workflow .flowai-workflow/github-inbox --keep 5
++  flowai-workflow runs prune --workflow .flowai-workflow/github-inbox --keep 0 --dry-run
+   flowai-workflow mcp .flowai-workflow/github-inbox
+-`);
++`;
+ }
+ 
+ // --- Main ---
+@@ -587,6 +667,48 @@ async function runAnswer(args: string[]): Promise<never> {
+   }
+ }
+ 
++/**
++ * Run the `runs` subcommand group (FR-E83). Currently the only action is
++ * `prune`: delete the oldest run directories under `<workflow>/runs/` so at
++ * most `--keep N` most-recent SAFE-to-delete runs remain. Never deletes
++ * non-terminal, locked, or unreplayable runs. `--dry-run` deletes nothing.
++ */
++async function runRuns(args: string[]): Promise<never> {
++  try {
++    const action = args[0];
++    if (action !== "prune") {
++      throw new Error(
++        `runs: unknown action: ${action ?? "(none)"}. ` +
++          "Only `runs prune` is supported.",
++      );
++    }
++    const parsed = parsePruneArgs(args.slice(1));
++    const keep = parseKeep(parsed.keepRaw);
++
++    let workflowDir = parsed.workflowDir;
++    if (!workflowDir) {
++      const resolved = await resolveActiveWorkflow({
++        env: Deno.env.toObject(),
++      });
++      if (resolved === null) {
++        throw new Error(
++          "Could not resolve active workflow. Pass it via " +
++            "`--workflow <path>`, set FLOWAI_WORKFLOW, or place a " +
++            "workflow under `<cwd>/.flowai-workflow/`.",
++        );
++      }
++      workflowDir = normalizeWorkflowDir(resolved);
++    }
++
++    const summary = await executePrune(workflowDir, keep, parsed.dryRun);
++    console.log(formatPruneSummary(summary));
++    Deno.exit(0);
++  } catch (err) {
++    console.error(`Error: ${(err as Error).message}`);
++    Deno.exit(1);
++  }
++}
++
+ /**
+  * Print a one-line deprecation banner for users who installed the engine
+  * via JSR or a prebuilt binary (FR-E70 plugin-first distribution). The
+@@ -652,6 +774,11 @@ if (import.meta.main) {
+     await runAnswer(Deno.args.slice(1));
+   }
+ 
++  // Subcommand: `runs prune [...]` (FR-E83) → safe cleanup of old run dirs.
++  if (subcommand === "runs") {
++    await runRuns(Deno.args.slice(1));
++  }
++
+   // Subcommand: `init` → verbatim copy of a bundled workflow folder.
+   if (subcommand === "init") {
+     const { runInit } = await import("./init/mod.ts");
+diff --git a/src/cli_test.ts b/src/cli_test.ts
+index 4f8abbe..65f9b2a 100644
+--- a/src/cli_test.ts
++++ b/src/cli_test.ts
+@@ -3,11 +3,13 @@
+ // and budget-related assertions.
+ import { assertEquals, assertThrows } from "@std/assert";
+ import {
++  buildUsage,
+   extractCliFlags,
+   getVersionString,
+   normalizeWorkflowDir,
+   parseAnswerArgs,
+   parseArgs,
++  parsePruneArgs,
+   resolveActiveWorkflow,
+   VERSION,
+ } from "./cli.ts";
+@@ -149,6 +151,37 @@ Deno.test("VERSION — is a non-empty string", () => {
+   assertEquals(VERSION.length > 0, true);
+ });
+ 
++Deno.test("buildUsage — lists the runs prune subcommand (FR-E83)", () => {
++  const usage = buildUsage();
++  assertEquals(usage.includes("runs prune"), true);
++  assertEquals(usage.includes("--keep <N>"), true);
++});
++
++Deno.test("parsePruneArgs — parses --workflow, --keep, --dry-run (FR-E83)", () => {
++  const a = parsePruneArgs([
++    "--workflow",
++    ".flowai-workflow/github-inbox/",
++    "--keep",
++    "3",
++    "--dry-run",
++  ]);
++  assertEquals(a.workflowDir, ".flowai-workflow/github-inbox");
++  assertEquals(a.keepRaw, "3");
++  assertEquals(a.dryRun, true);
++});
++
++Deno.test("parsePruneArgs — --workflow=/--keep= forms and default dryRun", () => {
++  const a = parsePruneArgs(["--workflow=wf", "--keep=0"]);
++  assertEquals(a.workflowDir, "wf");
++  assertEquals(a.keepRaw, "0");
++  assertEquals(a.dryRun, false);
++});
++
++Deno.test("parsePruneArgs — rejects unexpected arguments (FR-E83)", () => {
++  assertThrows(() => parsePruneArgs(["--bogus"]));
++  assertThrows(() => parsePruneArgs(["extra-positional"]));
++});
++
+ Deno.test("getVersionString — format is 'flowai-workflow v<version>'", () => {
+   assertEquals(getVersionString(), `flowai-workflow v${VERSION}`);
+ });
+diff --git a/src/state/prune.ts b/src/state/prune.ts
+new file mode 100644
+index 0000000..14de086
+--- /dev/null
++++ b/src/state/prune.ts
+@@ -0,0 +1,230 @@
++/**
++ * @module
++ * Safe `runs prune` cleanup (FR-E83). Deletes the OLDEST run directories under
++ * `<workflowDir>/runs/` so that at most `N` most-recent SAFE-to-delete runs
++ * remain. Run status + start time come ONLY from replaying each run's durable
++ * `journal.jsonl` ({@link replayRunJournal}). All run-folder knowledge (run-dir
++ * path, lock location/format) reuses the existing `state/` helpers — this
++ * module adds no parallel path or replay logic.
++ *
++ * Safety rules (each overrides `--keep`):
++ *  - A run whose replayed status is not terminal (`running`) is never deleted.
++ *  - The run named by `runs/.lock` is never deleted.
++ *  - A run whose journal is missing or unreplayable has unknown state by
++ *    definition → treated as NOT terminal (kept), reported as skipped.
++ *
++ * The `--keep N` window is computed over the ELIGIBLE set (terminal, unlocked,
++ * replayable): the N newest eligible runs are kept, older eligible runs are
++ * deleted. Protected runs (skipped) are retained additionally and do not
++ * consume keep slots — "when in doubt, keep".
++ */
++
++import { dirname } from "@std/path";
++import { replayRunJournal } from "./run-journal.ts";
++import { defaultLockPath, readLockInfo } from "./lock.ts";
++import { getRunDir } from "./state.ts";
++import type { RunState } from "../types.ts";
++
++/** A run selected for keeping or deletion (terminal, unlocked, replayable). */
++export interface EligibleRun {
++  /** Run id (directory name under `runs/`). */
++  runId: string;
++  /** Absolute-or-relative run directory path (`getRunDir`). */
++  runDir: string;
++  /** Replayed run start timestamp (ISO 8601), used as the recency key. */
++  startedAt: string;
++}
++
++/** A run that was NOT eligible for deletion, with the reason it was kept. */
++export interface SkippedRun {
++  /** Run id (directory name under `runs/`). */
++  runId: string;
++  /** Run directory path. */
++  runDir: string;
++  /** Human-readable reason the run was skipped (kept). */
++  reason: string;
++}
++
++/** Outcome of {@link selectRunsForPrune}: nothing is deleted yet. */
++export interface PrunePlan {
++  /** Eligible runs marked for deletion (older than the keep window). */
++  toDelete: EligibleRun[];
++  /** Eligible runs retained by the `--keep` window (the N newest). */
++  toKeep: EligibleRun[];
++  /** Protected runs skipped by a safety rule, each with its reason. */
++  skipped: SkippedRun[];
++}
++
++/** Summary of an {@link executePrune} invocation. */
++export interface PruneSummary {
++  /** Whether this was a dry run (nothing removed). */
++  dryRun: boolean;
++  /** The selection plan that drove the run. */
++  plan: PrunePlan;
++  /** Run ids actually removed from disk (empty on a dry run). */
++  removed: string[];
++}
++
++const TERMINAL_STATUSES: ReadonlySet<RunState["status"]> = new Set([
++  "completed",
++  "failed",
++  "aborted",
++]);
++
++/**
++ * Parse and validate a `--keep <N>` value. Accepts a non-negative integer
++ * string only; rejects missing, negative, fractional, or non-numeric input
++ * with a clear error (mirrors the `--budget` / `--cycles` validators in
++ * `cli.ts`).
++ */
++export function parseKeep(raw: string | undefined): number {
++  if (raw === undefined || raw.trim() === "") {
++    throw new Error(
++      "Missing --keep <N>. Expected a non-negative integer (runs to retain).",
++    );
++  }
++  // Reject anything that is not a run of ASCII digits (excludes "-1", "1.5",
++  // "3x", "1e2", whitespace-padded values, etc.).
++  if (!/^\d+$/.test(raw.trim())) {
++    throw new Error(
++      `Invalid --keep value: ${raw}. Expected a non-negative integer.`,
++    );
++  }
++  return Number(raw.trim());
++}
++
++/**
++ * Classify every run directory under `<workflowDir>/runs/` and select which
++ * eligible runs to delete to retain at most `keep` of the newest. Reads the
++ * filesystem and replays journals; deletes nothing.
++ */
++export async function selectRunsForPrune(
++  workflowDir: string,
++  keep: number,
++): Promise<PrunePlan> {
++  // Reuse the lock helper for the `runs/` root — no duplicated `/runs` literal.
++  const runsDir = dirname(defaultLockPath(workflowDir));
++
++  const lockedRunId = await readLockedRunId(workflowDir);
++
++  const eligible: EligibleRun[] = [];
++  const skipped: SkippedRun[] = [];
++
++  let entries: Deno.DirEntry[];
++  try {
++    entries = [];
++    for await (const entry of Deno.readDir(runsDir)) entries.push(entry);
++  } catch (err) {
++    if (err instanceof Deno.errors.NotFound) {
++      // No runs/ directory yet → nothing to prune.
++      return { toDelete: [], toKeep: [], skipped: [] };
++    }
++    throw err;
++  }
++
++  for (const entry of entries) {
++    if (!entry.isDirectory) continue; // skip `.lock` and any stray files
++    const runId = entry.name;
++    const runDir = getRunDir(runId, workflowDir);
++
++    if (lockedRunId !== undefined && runId === lockedRunId) {
++      skipped.push({ runId, runDir, reason: "referenced by runs/.lock" });
++      continue;
++    }
++
++    let state: RunState;
++    try {
++      state = (await replayRunJournal(runDir)).state;
++    } catch {
++      // Missing or unreplayable journal → unknown state, keep (when in doubt).
++      skipped.push({
++        runId,
++        runDir,
++        reason: "journal missing or unreplayable — unknown state (kept)",
++      });
++      continue;
++    }
++
++    if (!TERMINAL_STATUSES.has(state.status)) {
++      skipped.push({
++        runId,
++        runDir,
++        reason: `status '${state.status}' not terminal (kept)`,
++      });
++      continue;
++    }
++
++    eligible.push({ runId, runDir, startedAt: state.started_at });
++  }
++
++  // Newest first; deterministic tie-break on run id so equal timestamps order
++  // stably across filesystems.
++  eligible.sort((a, b) => {
++    if (a.startedAt !== b.startedAt) return a.startedAt < b.startedAt ? 1 : -1;
++    return a.runId < b.runId ? 1 : -1;
++  });
++
++  return {
++    toKeep: eligible.slice(0, keep),
++    toDelete: eligible.slice(keep),
++    skipped,
++  };
++}
++
++/**
++ * Build the prune plan and, unless `dryRun`, recursively delete each run
++ * directory marked for deletion. Returns a {@link PruneSummary}.
++ */
++export async function executePrune(
++  workflowDir: string,
++  keep: number,
++  dryRun: boolean,
++): Promise<PruneSummary> {
++  const plan = await selectRunsForPrune(workflowDir, keep);
++  const removed: string[] = [];
++  if (!dryRun) {
++    for (const run of plan.toDelete) {
++      await Deno.remove(run.runDir, { recursive: true });
++      removed.push(run.runId);
++    }
++  }
++  return { dryRun, plan, removed };
++}
++
++/** Render a human-readable summary of a prune run for CLI output. */
++export function formatPruneSummary(summary: PruneSummary): string {
++  const { plan, dryRun } = summary;
++  const lines: string[] = [];
++  lines.push(
++    dryRun
++      ? "Dry run — nothing deleted. The following WOULD be deleted:"
++      : "Prune complete.",
++  );
++  lines.push(
++    `Deleted: ${dryRun ? plan.toDelete.length : summary.removed.length}  ` +
++      `Kept: ${plan.toKeep.length}  Skipped: ${plan.skipped.length}`,
++  );
++  if (plan.toDelete.length > 0) {
++    lines.push(dryRun ? "Would delete:" : "Deleted:");
++    for (const run of plan.toDelete) lines.push(`  - ${run.runId}`);
++  }
++  if (plan.skipped.length > 0) {
++    lines.push("Skipped:");
++    for (const run of plan.skipped) {
++      lines.push(`  - ${run.runId}: ${run.reason}`);
++    }
++  }
++  return lines.join("\n");
++}
++
++/** Read the `run_id` held by `runs/.lock`, or undefined when absent/corrupt. */
++async function readLockedRunId(
++  workflowDir: string,
++): Promise<string | undefined> {
++  try {
++    return (await readLockInfo(defaultLockPath(workflowDir))).run_id;
++  } catch {
++    // No lock file, or unreadable/corrupt lock → no protected run.
++    return undefined;
++  }
++}
+diff --git a/src/state/prune_test.ts b/src/state/prune_test.ts
+new file mode 100644
+index 0000000..2dbf423
+--- /dev/null
++++ b/src/state/prune_test.ts
+@@ -0,0 +1,237 @@
++// FR-E83: safe `runs prune` cleanup — selection policy + execution tests on
++// temp-dir fixtures with engine-shaped journals (built via RunJournalWriter so
++// replay uses the real journal contract).
++import { assertEquals, assertThrows } from "@std/assert";
++import {
++  executePrune,
++  formatPruneSummary,
++  parseKeep,
++  selectRunsForPrune,
++} from "./prune.ts";
++import { RunJournalWriter } from "./run-journal.ts";
++import { defaultLockPath } from "./lock.ts";
++import { getRunDir } from "./state.ts";
++import type { LockInfo } from "./lock.ts";
++
++/** Build a run directory with an engine-shaped journal. Omitting `terminal`
++ * leaves the run in the non-terminal `running` state. */
++async function writeRun(
++  workflowDir: string,
++  runId: string,
++  opts: { startedAt: string; terminal?: "completed" | "failed" | "aborted" },
++): Promise<void> {
++  const runDir = getRunDir(runId, workflowDir);
++  const writer = await RunJournalWriter.open(runDir, runId);
++  await writer.append({
++    kind: "run_started",
++    config_path: `${workflowDir}/workflow.yaml`,
++    started_at: opts.startedAt,
++    args: {},
++    env: {},
++  });
++  if (opts.terminal) {
++    await writer.append({
++      kind: `run_${opts.terminal}` as
++        | "run_completed"
++        | "run_failed"
++        | "run_aborted",
++      status: opts.terminal,
++      completed_at: opts.startedAt,
++    });
++  }
++}
++
++/** Create a run directory with no/garbled journal (unknown state). */
++async function writeBrokenRun(
++  workflowDir: string,
++  runId: string,
++  mode: "missing" | "garbled",
++): Promise<void> {
++  const runDir = getRunDir(runId, workflowDir);
++  await Deno.mkdir(runDir, { recursive: true });
++  if (mode === "garbled") {
++    // First line is unparseable and NOT a partial tail (file ends with "\n"),
++    // so replayRunJournal throws "Malformed journal record".
++    await Deno.writeTextFile(`${runDir}/journal.jsonl`, "not-json\n");
++  }
++}
++
++async function writeLock(workflowDir: string, runId: string): Promise<void> {
++  const info: LockInfo = {
++    pid: 999999,
++    hostname: "test-host",
++    run_id: runId,
++    started_at: "2026-06-11T00:00:00.000Z",
++  };
++  const lockPath = defaultLockPath(workflowDir);
++  await Deno.mkdir(lockPath.slice(0, lockPath.lastIndexOf("/")), {
++    recursive: true,
++  });
++  await Deno.writeTextFile(lockPath, JSON.stringify(info));
++}
++
++Deno.test("selectRunsForPrune — keeps N newest eligible, deletes older", async () => {
++  const wf = await Deno.makeTempDir();
++  await writeRun(wf, "r1", {
++    startedAt: "2026-06-01T00:00:00.000Z",
++    terminal: "completed",
++  });
++  await writeRun(wf, "r2", {
++    startedAt: "2026-06-02T00:00:00.000Z",
++    terminal: "failed",
++  });
++  await writeRun(wf, "r3", {
++    startedAt: "2026-06-03T00:00:00.000Z",
++    terminal: "aborted",
++  });
++  await writeRun(wf, "r4", {
++    startedAt: "2026-06-04T00:00:00.000Z",
++    terminal: "completed",
++  });
++
++  const plan = await selectRunsForPrune(wf, 2);
++
++  assertEquals(plan.toKeep.map((r) => r.runId), ["r4", "r3"]);
++  assertEquals(plan.toDelete.map((r) => r.runId), ["r2", "r1"]);
++  assertEquals(plan.skipped, []);
++
++  await Deno.remove(wf, { recursive: true });
++});
++
++Deno.test("selectRunsForPrune — skips non-terminal regardless of keep", async () => {
++  const wf = await Deno.makeTempDir();
++  await writeRun(wf, "running", { startedAt: "2026-06-05T00:00:00.000Z" });
++  await writeRun(wf, "done", {
++    startedAt: "2026-06-04T00:00:00.000Z",
++    terminal: "completed",
++  });
++
++  const plan = await selectRunsForPrune(wf, 0);
++
++  assertEquals(plan.toDelete.map((r) => r.runId), ["done"]);
++  assertEquals(plan.skipped.length, 1);
++  assertEquals(plan.skipped[0].runId, "running");
++  assertEquals(plan.skipped[0].reason.includes("not terminal"), true);
++
++  await Deno.remove(wf, { recursive: true });
++});
++
++Deno.test("selectRunsForPrune — skips the run named by runs/.lock", async () => {
++  const wf = await Deno.makeTempDir();
++  await writeRun(wf, "locked", {
++    startedAt: "2026-06-01T00:00:00.000Z",
++    terminal: "completed",
++  });
++  await writeRun(wf, "free", {
++    startedAt: "2026-06-02T00:00:00.000Z",
++    terminal: "completed",
++  });
++  await writeLock(wf, "locked");
++
++  const plan = await selectRunsForPrune(wf, 0);
++
++  assertEquals(plan.toDelete.map((r) => r.runId), ["free"]);
++  assertEquals(plan.skipped.length, 1);
++  assertEquals(plan.skipped[0].runId, "locked");
++  assertEquals(plan.skipped[0].reason.includes("lock"), true);
++
++  await Deno.remove(wf, { recursive: true });
++});
++
++Deno.test("selectRunsForPrune — missing/unreplayable journal counts as non-terminal", async () => {
++  const wf = await Deno.makeTempDir();
++  await writeBrokenRun(wf, "no-journal", "missing");
++  await writeBrokenRun(wf, "garbled", "garbled");
++  await writeRun(wf, "done", {
++    startedAt: "2026-06-02T00:00:00.000Z",
++    terminal: "completed",
++  });
++
++  const plan = await selectRunsForPrune(wf, 0);
++
++  assertEquals(plan.toDelete.map((r) => r.runId), ["done"]);
++  const skippedIds = plan.skipped.map((s) => s.runId).sort();
++  assertEquals(skippedIds, ["garbled", "no-journal"]);
++  for (const s of plan.skipped) {
++    assertEquals(s.reason.toLowerCase().includes("unknown"), true);
++  }
++
++  await Deno.remove(wf, { recursive: true });
++});
++
++Deno.test("executePrune — keep 0 deletes all terminal unlocked runs", async () => {
++  const wf = await Deno.makeTempDir();
++  for (const [id, day] of [["a", "01"], ["b", "02"], ["c", "03"]]) {
++    await writeRun(wf, id, {
++      startedAt: `2026-06-${day}T00:00:00.000Z`,
++      terminal: "completed",
++    });
++  }
++
++  const summary = await executePrune(wf, 0, false);
++
++  assertEquals(summary.removed.sort(), ["a", "b", "c"]);
++  assertEquals(summary.plan.toDelete.length, 3);
++  for (const id of ["a", "b", "c"]) {
++    let exists = true;
++    try {
++      await Deno.stat(getRunDir(id, wf));
++    } catch {
++      exists = false;
++    }
++    assertEquals(exists, false);
++  }
++
++  await Deno.remove(wf, { recursive: true });
++});
++
++Deno.test("executePrune — dry-run deletes nothing", async () => {
++  const wf = await Deno.makeTempDir();
++  await writeRun(wf, "a", {
++    startedAt: "2026-06-01T00:00:00.000Z",
++    terminal: "completed",
++  });
++  await writeRun(wf, "b", {
++    startedAt: "2026-06-02T00:00:00.000Z",
++    terminal: "completed",
++  });
++
++  const summary = await executePrune(wf, 0, true);
++
++  assertEquals(summary.dryRun, true);
++  assertEquals(summary.removed, []);
++  assertEquals(summary.plan.toDelete.length, 2);
++  // Both dirs survive on disk.
++  await Deno.stat(getRunDir("a", wf));
++  await Deno.stat(getRunDir("b", wf));
++
++  const text = formatPruneSummary(summary);
++  assertEquals(text.includes("Dry run"), true);
++
++  await Deno.remove(wf, { recursive: true });
++});
++
++Deno.test("executePrune — empty/missing runs dir yields empty plan", async () => {
++  const wf = await Deno.makeTempDir();
++  const summary = await executePrune(wf, 3, false);
++  assertEquals(summary.plan.toDelete.length, 0);
++  assertEquals(summary.plan.toKeep.length, 0);
++  assertEquals(summary.plan.skipped.length, 0);
++  assertEquals(summary.removed.length, 0);
++  await Deno.remove(wf, { recursive: true });
++});
++
++Deno.test("parseKeep — accepts non-negative integers", () => {
++  assertEquals(parseKeep("0"), 0);
++  assertEquals(parseKeep("5"), 5);
++  assertEquals(parseKeep("42"), 42);
++});
++
++Deno.test("parseKeep — rejects invalid values", () => {
++  assertThrows(() => parseKeep(undefined));
++  assertThrows(() => parseKeep(""));
++  assertThrows(() => parseKeep("-1"));
++  assertThrows(() => parseKeep("1.5"));
++  assertThrows(() => parseKeep("abc"));
++  assertThrows(() => parseKeep("3x"));
++});
+-- 
+2.54.0
+

@@ -1,0 +1,14 @@
+Push verified — `origin/bench` matches HEAD. CI await skipped per benchmark adaptation (remote has no CI). **TOTAL STOP.**
+
+## Final Combined Report
+
+- **Plan**: `documents/tasks/2026/06/journal-snapshot-compaction.md` (status: done, implements FR-E83). Variant **V2 — extend the existing replayer/writer in `run-journal.ts` as the single compaction authority**, selected autonomously; rationale recorded in the plan (V1 risked a second replayer + seq collisions, V3 exceeded the explicit out-of-scope list).
+- **Implement**: all 15 hard requirements covered —
+  - `state_snapshot` event (`snapshot_version: 1`, full replayed run model, `events_covered`); replay seeds from the latest valid snapshot, snapshotless journals unchanged, unsupported versions fail naming path + version;
+  - crash-safe compaction (replay → tmp → fsync → one `journal.jsonl.bak` generation → atomic rename), crash-injected at all 4 intermediate points; refuses active runs and unclean journals;
+  - engine auto-compaction at node-completion boundaries via `defaults.journal_compaction_threshold_events` (default 500, `0` off, strict `>`), one status line per compaction;
+  - `flowai-workflow runs compact --workflow <dir> --run <id> [--dry-run]` with the exact summary line and one-line non-zero errors, listed in `--help`.
+  - 29 new tests colocated with their subsystems; `deno task check` exit 0.
+- **Review**: **Approve**. 15/15 requirements mapped; 1 nit (file size, within budget); review synthesized a mutant-killing strict-threshold test (verified to kill the `>=` flip) and promoted it into the suite.
+- **Commit**: single commit `928362b` — `feat(engine): journal state snapshots with crash-safe compaction (FR-E83)` — 18 files, +1690/−26; task status auto-flipped to `done`; reflect skipped (skill unavailable here; rationale logged).
+- **Push**: `bench` → `origin/bench` (upstream set), pushed SHA `928362b5f51000a31a94171b45c9e4aaefa26ce5`, post-push verification passed (`@{u} == HEAD`). CI await: skipped (benchmark remote).

@@ -1,0 +1,108 @@
+{
+  "task": "runs prune — safe cleanup of old runs (flowai-workflow CLI)",
+  "base_commit": "c7305ca",
+  "branch_pushed": "bench",
+  "judged_at": "2026-06-11",
+  "method": {
+    "gate": "deno task check in repo/",
+    "functional": "fabricated /tmp/wf-<cell> with engine-shaped journals via repo's own RunJournalWriter; runs: 7 run dirs (3 terminal unlocked at 01-01/03-01/05-01, 1 terminal locked at 04-01, 1 non-terminal running, 1 missing-journal, 1 malformed-journal); exercised keep 2 / keep 0 / dry-run / bad --keep / --help",
+    "push": "git --git-dir=remote.git: branch 'bench' tip differs from base c7305ca by exactly one commit per cell"
+  },
+  "cells": {
+    "opus-medium": {
+      "requirementsMet": 1.0,
+      "gatePass": true,
+      "pushOk": true,
+      "workflowFidelity": 4,
+      "fidelityNote": "Explicit 'Chosen semantics' section resolves keep-window ambiguity conservatively; cleanest reuse (exports isTerminalStatus from run-journal); focused diff, zero scope creep; GODS+DoD tuples.",
+      "commit": "c140ccb feat(engine): add `runs prune` subcommand for safe run-dir cleanup (FR-E83)",
+      "defects": [],
+      "rank": 1
+    },
+    "gpt-5.5-xhigh": {
+      "requirementsMet": 0.96,
+      "gatePass": true,
+      "pushOk": true,
+      "workflowFidelity": 4,
+      "fidelityNote": "Full variant analysis with archetype; thorough tests (190 lines); focused diff, no scope creep.",
+      "commit": "ddc7f91 feat(cli): add safe run pruning",
+      "defects": [
+        {"severity": "low", "desc": "Re-implements private isTerminalStatus locally in run-prune.ts instead of reusing run-journal helper — mild duplication vs 'reuse src/state helpers' constraint.", "evidence": "src/state/run-prune.ts local isTerminalStatus"}
+      ],
+      "rank": 2
+    },
+    "gpt-5.5-medium": {
+      "requirementsMet": 0.96,
+      "gatePass": true,
+      "pushOk": true,
+      "workflowFidelity": 4,
+      "fidelityNote": "Variant analysis present; clean focused diff; correct semantics (keep over prunable set).",
+      "commit": "a6f88a4 feat(cli): add safe runs prune command",
+      "defects": [
+        {"severity": "low", "desc": "Local isTerminalStatus re-implementation (runs-prune.ts:~162) instead of reusing existing helper.", "evidence": "src/state/runs-prune.ts:162"}
+      ],
+      "rank": 3
+    },
+    "gpt-5.5-high": {
+      "requirementsMet": 0.96,
+      "gatePass": true,
+      "pushOk": true,
+      "workflowFidelity": 3,
+      "fidelityNote": "Single-variant plan (weaker for a safety-sensitive task, though rationale given); clean focused diff; correct.",
+      "commit": "62548f2 feat(cli): add safe runs prune command",
+      "defects": [
+        {"severity": "low", "desc": "Local isTerminalStatus re-implementation (runs-prune.ts:~196) instead of reusing existing helper.", "evidence": "src/state/runs-prune.ts:196"}
+      ],
+      "rank": 4
+    },
+    "opus-high": {
+      "requirementsMet": 1.0,
+      "gatePass": true,
+      "pushOk": true,
+      "workflowFidelity": 3,
+      "fidelityNote": "Best ambiguity analysis ('Keep-window semantics (resolved ambiguity)') and clean code reuse, BUT bundled unrelated doc refactor — workflow scope gate should have reverted it.",
+      "commit": "5e348bb feat(engine): add `runs prune` for safe run-dir cleanup (FR-E83)",
+      "defects": [
+        {"severity": "medium", "desc": "Scope creep: splits unrelated plugin-distribution FRs (FR-E70..) out of 06-distribution-and-housekeeping.md into a new 06b-plugin-distribution.md (~287-line churn), unrelated to runs prune. Violates Implement->Review scope gate (revert out-of-scope edits).", "evidence": "documents/requirements-engine/06b-plugin-distribution.md (+266); 06-*.md -287"}
+      ],
+      "rank": 5
+    },
+    "fable-high": {
+      "requirementsMet": 1.0,
+      "gatePass": true,
+      "pushOk": true,
+      "workflowFidelity": 3,
+      "fidelityNote": "Variant analysis + good reuse (getRunsRoot/isTerminalRunStatus exports), but largest churn and same unrelated doc split.",
+      "commit": "a8affed feat(cli): add runs prune subcommand for safe cleanup of old runs (FR-E83)",
+      "defects": [
+        {"severity": "medium", "desc": "Scope creep: same 06->06b plugin-distribution doc split (~291-line churn) unrelated to the feature; also README + index churn beyond prune.", "evidence": "documents/requirements-engine/06b-plugin-distribution.md (+267); 06-*.md -291"}
+      ],
+      "rank": 6
+    },
+    "fable-medium": {
+      "requirementsMet": 1.0,
+      "gatePass": true,
+      "pushOk": true,
+      "workflowFidelity": 3,
+      "fidelityNote": "Variant analysis with archetype; correct semantics; but same unrelated doc split (scope creep).",
+      "commit": "d6968bc feat(engine): add runs prune subcommand for safe run cleanup (FR-E83)",
+      "defects": [
+        {"severity": "medium", "desc": "Scope creep: 06->06b plugin-distribution doc split (~302-line churn) unrelated to runs prune.", "evidence": "documents/requirements-engine/06b-plugin-distribution.md (+273); 06-*.md -302"}
+      ],
+      "rank": 7
+    },
+    "opus-xhigh": {
+      "requirementsMet": 0.85,
+      "gatePass": true,
+      "pushOk": true,
+      "workflowFidelity": 3,
+      "fidelityNote": "Full variant analysis and GODS, but the implementation diverges from its own plan ('oldest terminal, unlocked ... N newest remain') and its own tests miss the failing case.",
+      "commit": "c5f320e feat(engine): add `runs prune` subcommand for safe cleanup of old runs (FR-E83)",
+      "defects": [
+        {"severity": "high", "desc": "Over-deletion: planPrune ranks ALL replayable runs (including locked and non-terminal) for the keep-N retention window; protected runs consume keep slots. With --keep 2 and a locked run as 2nd-newest, it deleted r_mid_done (a terminal, unlocked run) that all 7 other cells retain. Contradicts its own plan and the spec intent of keeping N recent prunable runs.", "evidence": "src/state/prune.ts:78-95 (ranked includes locked/non-terminal; index<keep => keep); harness keep-2: 'runs prune: deleted 2 ... deleted: r_mid_done, r_old_done; kept: r_new_done, r_locked_done'"},
+        {"severity": "medium", "desc": "Reporting gap: a locked or non-terminal run that lands inside the keep window is reported as plain 'kept' (reason 'within --keep window') instead of 'skipped' with its protective reason. Spec requires per-run skip reason for locked/non-terminal. Skip count flips: keep-2 'skipped 3' vs keep-0 'skipped 4'.", "evidence": "src/state/prune.ts:88-93; harness keep-2 vs keep-0 output"}
+      ],
+      "rank": 8
+    }
+  }
+}

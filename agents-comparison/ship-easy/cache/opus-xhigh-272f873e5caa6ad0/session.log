@@ -1,0 +1,15 @@
+## Final Combined Report
+
+**Plan** — `documents/tasks/2026/06/runs-prune.md` (GODS, frontmatter `implements: [FR-E83]`, `status: done`). Selected **Variant B** (pure `planPrune` policy + `collectRuns`/`pruneRuns` I/O in `src/state/prune.ts`, thin CLI) — only option giving clean selection unit-tests + full `src/state/` helper reuse without out-of-scope generality.
+
+**Implement** — TDD (RED: test failed on lazy `Deno.readDir` NotFound → fixed; GREEN; REFACTOR; CHECK). New `src/state/prune.ts` (`planPrune`/`collectRuns`/`pruneRuns`/`formatPruneSummary`) + `prune_test.ts` (12 tests); `cli.ts` `runs` dispatcher + `parseRunsPruneArgs` + `--help`; `cli_test.ts` (8 tests); `run-journal.ts` exports `isTerminalStatus`. `deno task check` — **green** (fmt, lint, type-check, CLI smoke, gitleaks, full suite, doc-lint, publish dry-run, docs token budget, FR field-set, comment scan).
+
+**Review** — Verdict **Approve**. Requirements 8/8 covered; 0 critical / 0 warning / 2 nits; no catching tests (mutants verified killed analytically).
+
+**Commit** — `c5f320e` `feat(engine): add \`runs prune\` subcommand for safe cleanup of old runs (FR-E83)`. Docs synced: SRS FR-E83 (`06-distribution-and-housekeeping.md` + index map + `documents/index.md`), SDS §3.8 (`design-engine/03-subsystems.md`). README intentionally not touched (consistent with the undocumented `answer` subcommand). 10 files, +1036/−2. Task status auto-flipped to `done`.
+
+**Push** — `origin/bench` ← `c5f320e`; upstream set; post-push verification `@{u} == HEAD` ✓. CI-await skipped (benchmark remote has no CI).
+
+**Goal met:** plan file exists, every Requested-behavior + Constraints item satisfied (keeps N newest; skips non-terminal/locked/unreplayable; `--keep` validated; `--dry-run`; summary; `--help` listing; reuses helpers; no new deps; FR-E83 registered), `deno task check` passes, review verdict recorded (Approve), committed with Conventional Commits, branch pushed to origin.
+
+Key decision logged for review: "at most N remain" interpreted as a recency window over **replayable** runs (safety rules override the count) — both plausible readings pass the required tests; rationale in the plan file.

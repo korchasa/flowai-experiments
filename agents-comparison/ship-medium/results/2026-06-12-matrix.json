@@ -1,0 +1,137 @@
+{
+  "task": "runs doctor — journal health checker with mechanical repair (FR-E83)",
+  "base_commit": "c7305ca",
+  "branch": "bench",
+  "judged_at": "2026-06-12",
+  "method": {
+    "gate": "deno task check (includes fmt/lint/type-check/tests/doc-lint) run by judge in each repo/",
+    "functional": "13-scenario matrix per cell on fabricated run dirs (clean/torn/mid-garbage/unknown-kind/after-terminal/cost-divergence/orphan/missing-dir/stale-lock/repair-roundtrip/repair-refusal-live-lock/repair-refusal-garbage/json-shape) exercised against the real CLI",
+    "push": "remote.git bench tip compared to local repo HEAD"
+  },
+  "cells": [
+    {
+      "cell": "opus-xhigh",
+      "requirementsMet": 1.0,
+      "gatePass": true,
+      "pushOk": true,
+      "pushTip": "3ecf4e1",
+      "workflowFidelity": 5,
+      "workflowFidelityNote": "Largest plan (314 lines, 5 variants), 21 doctor tests + cli tests, FR-E83 in SRS + index, minimal core-file surface (no types.ts edit), genuine cost cross-check.",
+      "functionalScenariosPassed": "13/13",
+      "doctorTestBlocks": 21,
+      "defects": [],
+      "notes": "Cost divergence is a real independent cross-check (top-level event.cost_usd mirror vs nested node.cost_usd). Reuses replayer + lock/path helpers. Atomic repair (tmp+rename), byte-identical .bak."
+    },
+    {
+      "cell": "fable-high",
+      "requirementsMet": 1.0,
+      "gatePass": true,
+      "pushOk": true,
+      "pushTip": "75377fc",
+      "workflowFidelity": 5,
+      "workflowFidelityNote": "Richest plan (6 variant mentions, explicit review note), 23 doctor tests + substantial cli_test additions, FR-E83 in SRS+index. Slightly larger file surface (types.ts +46, README, design docs).",
+      "functionalScenariosPassed": "13/13",
+      "doctorTestBlocks": 23,
+      "defects": [],
+      "notes": "Genuine cost cross-check; REPAIR_BLOCKING_CODES gate; atomic repair; byte-identical .bak; --json findings have severity/code/message/path."
+    },
+    {
+      "cell": "fable-medium",
+      "requirementsMet": 1.0,
+      "gatePass": true,
+      "pushOk": true,
+      "pushTip": "8612743",
+      "workflowFidelity": 4,
+      "workflowFidelityNote": "Most doctor tests (25), 5 variants, strong TDD narrative, FR-E83 in SRS+index. Added isKnownJournalEventKind helper to run-journal.ts (canonical reuse, not a second replayer).",
+      "functionalScenariosPassed": "13/13",
+      "doctorTestBlocks": 25,
+      "defects": [],
+      "notes": "Cost divergence constructible via attempt_completed.cost_usd vs node snapshot. Atomic repair, byte-identical .bak, refusals correct. Graceful run_dir_missing handling."
+    },
+    {
+      "cell": "opus-medium",
+      "requirementsMet": 1.0,
+      "gatePass": true,
+      "pushOk": true,
+      "pushTip": "be3ecca",
+      "workflowFidelity": 4,
+      "workflowFidelityNote": "16 doctor tests, 4 variants, FR-E83 in SRS+index, focused diff. Per-node attempt-vs-snapshot cost reconciliation (live, demonstrated).",
+      "functionalScenariosPassed": "13/13",
+      "doctorTestBlocks": 16,
+      "defects": [],
+      "notes": "Reuses replayRunJournal; replay failure deduped against parse error to avoid double-report; phase-aware orphan detection; reserved dirs excluded."
+    },
+    {
+      "cell": "gpt-5.5-xhigh",
+      "requirementsMet": 1.0,
+      "gatePass": true,
+      "pushOk": true,
+      "pushTip": "bab968c",
+      "workflowFidelity": 4,
+      "workflowFidelityNote": "17 doctor tests, FR-E83 in SRS+index (SALP REF), focused diff. Only 2 variant mentions in task file but Solution/DoD complete.",
+      "functionalScenariosPassed": "13/13",
+      "doctorTestBlocks": 17,
+      "defects": [
+        {"severity": "cosmetic", "desc": "Cost message renders float as 0.30000000000000004 (display only; values correct)."}
+      ],
+      "notes": "Cost divergence constructible via event-level cost_usd vs node.cost_usd; the run-level total-vs-sum branch is structurally dead (replayer derives total from node sum) but the event-cost branch covers the intent. --json is findings-only (no repairs/exitCode), field name evidence_path."
+    },
+    {
+      "cell": "opus-high",
+      "requirementsMet": 1.0,
+      "gatePass": true,
+      "pushOk": true,
+      "pushTip": "daa8ee1",
+      "workflowFidelity": 4,
+      "workflowFidelityNote": "13 doctor tests, FR-E83 in SRS+index, focused diff, added canonical RUN_JOURNAL_EVENT_KINDS export to run-journal.ts (good single-source reuse for unknown-kind check).",
+      "functionalScenariosPassed": "13/13",
+      "doctorTestBlocks": 13,
+      "defects": [
+        {"severity": "cosmetic", "desc": "Human report prints 'RESULT: ... — exit 0' on a live-lock repair refusal of a torn-only journal while the process correctly exits 1; the printed hint is derived from hasErrors() and ignores refusal. Exit code itself is correct."}
+      ],
+      "notes": "Genuine cost cross-check (replayer total vs top-level event.cost_usd sum). Atomic repair; byte-identical .bak; refusals modify nothing."
+    },
+    {
+      "cell": "gpt-5.5-high",
+      "requirementsMet": 0.97,
+      "gatePass": true,
+      "pushOk": true,
+      "pushTip": "31e050b",
+      "workflowFidelity": 4,
+      "workflowFidelityNote": "12 doctor tests, 4 variants, FR-E83 in SRS+index, focused diff.",
+      "functionalScenariosPassed": "13/13",
+      "doctorTestBlocks": 12,
+      "defects": [
+        {"severity": "minor", "desc": "Run-level total_cost_usd-vs-node-sum check is dead code (replayer derives total as exactly that sum). Cost divergence is detected only via the attempt_completed.cost_usd-vs-node.cost_usd path, which works and satisfies the requirement intent."}
+      ],
+      "notes": "--json uses evidence_path field; atomic repair; byte-identical .bak; refusals correct. Stale lock auto-removed by --repair."
+    },
+    {
+      "cell": "gpt-5.5-medium",
+      "requirementsMet": 0.88,
+      "gatePass": true,
+      "pushOk": true,
+      "pushTip": "16d4f13",
+      "workflowFidelity": 3,
+      "workflowFidelityNote": "Fewest doctor tests (7, consolidated), only 2 variants, FR-E83 in SRS+index. Lower TDD depth.",
+      "functionalScenariosPassed": "12/13 (cost-divergence only via artificial trigger)",
+      "doctorTestBlocks": 7,
+      "defects": [
+        {"severity": "real", "desc": "COST_DIVERGENCE check is dead code for valid numeric journals: it compares state.total_cost_usd to its own sum of nodes[*].cost_usd, but the replayer derives total_cost_usd as exactly that sum, so they are always equal. Their own test only fires it by injecting a STRING cost_usd:\"2\" (type corruption), not the genuine divergence the spec describes. Requirement 1b cost-sum check provides no real coverage."},
+        {"severity": "minor", "desc": "--json mode emits only findings[]; the repairs[] array and hasErrors are omitted, so `--repair --json` does not machine-report what was repaired."},
+        {"severity": "hygiene", "desc": "Unrelated churn: rewrote/compressed the existing FR-E47 budget-enforcement section in documents/design-engine/04-data-and-logic.md (-50/+15 lines) which has nothing to do with runs doctor — scope creep in the diff."}
+      ],
+      "notes": "All other 12 scenarios pass with correct exit codes; atomic repair, byte-identical .bak, refusals correct. FS path check trusts stored node_dir prefix (works for in-place runs)."
+    }
+  ],
+  "ranking": [
+    "opus-xhigh",
+    "fable-high",
+    "fable-medium",
+    "opus-medium",
+    "gpt-5.5-xhigh",
+    "opus-high",
+    "gpt-5.5-high",
+    "gpt-5.5-medium"
+  ]
+}

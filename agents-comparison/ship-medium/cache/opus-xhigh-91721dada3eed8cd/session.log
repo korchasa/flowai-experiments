@@ -1,0 +1,15 @@
+All five phases complete. Final combined report:
+
+## Ship complete — `runs doctor` (FR-E83)
+
+**Plan** — `documents/tasks/2026/06/runs-doctor-journal-health.md` (GODS, committed). Variant **B** (dedicated `src/state/doctor.ts` core + thin CLI) selected autonomously over A (CLI-inline, untestable) and C (command-layer, YAGNI); rationale recorded in the plan.
+
+**Implement** — TDD. `src/state/doctor.ts` (diagnostics + repair core), `src/state/doctor_test.ts` (21 tests), `src/cli.ts` (`parseDoctorArgs` + `runs` dispatch + help), `src/cli_test.ts` (5 tests), `src/state/lock.ts` (exported `isProcessAlive`). Reuses the existing replayer + state/lock helpers; no new deps. `deno task check` exit 0 (fmt, lint, type-check, CLI smoke, gitleaks, full suite, doc-lint, publish dry-run, FR field-set, docs budget, comment scan).
+
+**Review** — Verdict **Approve**. Requirements 4/4 + all constraints covered; 0 critical, 0 warning, 2 nits (intentional type casts / FS-error tolerance matching codebase pattern); 2 low-risk uncovered mutation edges noted.
+
+**Commit** — `3ecf4e1 feat(engine): add 'runs doctor' journal health checker with mechanical repair (FR-E83)` — 10 files, +1928/−2. Doc-sync: SRS FR-E83, index row, SDS component, README section; task status auto-flipped to `done`.
+
+**Push** — `origin/bench` (new branch, upstream set). Post-push verified: `@{u}` = `HEAD` = `3ecf4e1`. CI await skipped (benchmark local remote).
+
+Every Requested-behavior item (3 diagnostic phases, severity-grouped output + exit 0/1, `--repair` with refusals, `--json`, `--help` registration) and every Constraint (existing replayer as sole replay truth, reused `src/state/` helpers, no new deps, full test matrix, `deno task check` green, FR registered) is satisfied.

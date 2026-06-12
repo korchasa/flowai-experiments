@@ -1,0 +1,9 @@
+Done.
+
+- Plan: `documents/tasks/2026/06/runs-doctor-journal-health-checker.md`
+- Review verdict: `Approve`, recorded in the plan file
+- Gate: `deno task check` passed, `1035 passed | 0 failed`
+- Commit: `bab968c feat: add runs doctor durability checker`
+- Push: `bench -> origin/bench`
+
+CI wait skipped per benchmark instructions.

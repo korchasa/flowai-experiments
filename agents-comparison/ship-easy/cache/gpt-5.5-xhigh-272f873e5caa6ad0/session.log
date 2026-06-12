@@ -1,0 +1,9 @@
+Done.
+
+- Plan: `documents/tasks/2026/06/runs-prune-safe-cleanup.md`
+- Review verdict: recorded as `Review: Approve`
+- Gate: `deno task check` passed, 1024 tests passed
+- Commit: `ddc7f91 feat(cli): add safe run pruning`
+- Push: `bench` pushed to `origin/bench`
+
+Skipped CI await/status as requested.

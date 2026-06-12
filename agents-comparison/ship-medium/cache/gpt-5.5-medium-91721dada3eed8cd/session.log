@@ -1,0 +1,9 @@
+Completed and pushed.
+
+Plan: `documents/tasks/2026/06/runs-doctor-journal-health.md`  
+Variant: focused `src/state/run-doctor.ts` service plus thin CLI routing  
+Review: Approve, no findings  
+Check: `deno task check` passed  
+Commit: `16d4f13 feat: add runs doctor journal health checker`  
+Push: `bench -> origin/bench`, upstream verified at `16d4f13ca78e9c863bcc87a0e4427d441f6c4825`  
+CI wait: skipped per benchmark instructions.

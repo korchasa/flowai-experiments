@@ -1,0 +1,7 @@
+Done.
+
+- Plan: `documents/tasks/2026/06/journal-snapshots-compaction.md`
+- Review: APPROVE, no findings, recorded in plan file
+- Gate: `deno task check` passed, 1030 tests passed
+- Commit: `abed00c` `feat(engine): add journal snapshots and compaction`
+- Push: `origin/bench` updated; CI wait skipped per benchmark rule

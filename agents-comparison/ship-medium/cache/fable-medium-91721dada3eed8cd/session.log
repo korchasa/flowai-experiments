@@ -1,0 +1,9 @@
+Push verified: `@{u}` == `HEAD`. CI await skipped per benchmark rules. Workflow complete.
+
+## Final Combined Report
+
+- **Plan** — `documents/tasks/2026/06/runs-doctor.md` (FR-E83, GODS format). Selected variant 2 (autonomous per benchmark rule): dedicated `src/state/doctor.ts` core + thin CLI wiring, over inline-in-`cli.ts` (untestable) and a pluggable fsck framework (over-engineering).
+- **Implement** — TDD (RED: 24 tests against missing module → GREEN → review-driven 25th regression test). New `src/state/doctor.ts` (`runDoctor` returning report/output/exit-code, pure of stdout), `isKnownJournalEventKind` in `run-journal.ts` (exhaustive kind mirror), `runs doctor` parsing/dispatch/help in `cli.ts`, `src/state/doctor_test.ts` (25 tests on fabricated run dirs). Replay stays delegated to the existing `replayRunJournal`; paths/lock via existing `state.ts`/`lock.ts` helpers. `deno task check` green.
+- **Review** — **Approve**. One critical found and fixed during review: cost-divergence false-positive on failed runs (only `success: true` attempt costs now feed the expectation; regression test added). One accepted nit (intentional line-lexer overlap with `parseJournal`).
+- **Commit** — single Conventional Commit `8612743` `feat(engine): add runs doctor — journal health check with mechanical repair (FR-E83)`, 10 files: code + tests + task file (status auto-flipped to `done`) + SRS section/index, SDS §3.8, `documents/index.md`.
+- **Push** — `bench` → `origin/bench` (upstream set, new branch). Post-push verification passed: remote ref = local HEAD `8612743094e9e53a2804bca6e4f7f8ce2407a7c1`. CI await: skipped (benchmark remote has no CI).

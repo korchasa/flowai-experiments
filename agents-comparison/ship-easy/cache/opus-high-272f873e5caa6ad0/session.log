@@ -1,0 +1,9 @@
+## Final Report
+
+- **Plan:** `documents/tasks/2026/06/runs-prune.md` (FR-E83). Variant **B — Architecturally-correct** (new `src/state/prune.ts` + thin CLI wiring); chosen for testability + helper reuse. Keep-window ambiguity resolved conservatively (eligible-set only), rationale recorded.
+- **Implement:** TDD (RED→GREEN→REFACTOR→CHECK). New `src/state/prune.ts` (`parseKeep`, `selectRunsForPrune`, `executePrune`, `formatPruneSummary`) reusing `getRunDir` / `replayRunJournal` / `defaultLockPath`+`readLockInfo`; `src/cli.ts` gains `runs` dispatcher, `parsePruneArgs`, `buildUsage`. 13 new tests + live smoke. `deno task check` exit 0.
+- **Review:** **Approve** — 9/9 requirements covered, 0 critical/warning, 0 catching tests.
+- **Commit:** `5e348bb feat(engine): add \`runs prune\` for safe run-dir cleanup (FR-E83)` — 9 files (code, tests, SRS FR-E83, 06→06b doc split, index, task file with `status: done`).
+- **Push:** `origin/bench` (new upstream), SHA `5e348bb`, post-push verification **MATCH**. CI await skipped (no CI on benchmark remote).
+
+Goal met: plan filed, every Requested-behavior + Constraint satisfied, project gate green, verdict recorded, committed with Conventional Commits, branch pushed to origin.

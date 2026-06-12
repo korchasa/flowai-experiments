@@ -1,0 +1,1413 @@
+From 31e050b759b735899be9a868a24478b639742d41 Mon Sep 17 00:00:00 2001
+From: korchasa <korchasa@icloud.com>
+Date: Thu, 11 Jun 2026 20:42:34 +0300
+Subject: [PATCH] feat(engine): add runs doctor
+
+---
+ .../design-engine/02-engine-modules-flow.md   |   3 +
+ documents/index.md                            |   1 +
+ documents/requirements-engine.md              |   1 +
+ .../requirements-engine/01-execution-model.md |  23 +
+ documents/tasks/2026/06/runs-doctor.md        | 158 +++++
+ src/cli.ts                                    |  98 +++
+ src/cli_test.ts                               |  15 +
+ src/state/run-doctor.ts                       | 618 ++++++++++++++++++
+ src/state/run-doctor_test.ts                  | 341 ++++++++++
+ 9 files changed, 1258 insertions(+)
+ create mode 100644 documents/tasks/2026/06/runs-doctor.md
+ create mode 100644 src/state/run-doctor.ts
+ create mode 100644 src/state/run-doctor_test.ts
+
+diff --git a/documents/design-engine/02-engine-modules-flow.md b/documents/design-engine/02-engine-modules-flow.md
+index e18840e..290c4c4 100644
+--- a/documents/design-engine/02-engine-modules-flow.md
++++ b/documents/design-engine/02-engine-modules-flow.md
+@@ -211,6 +211,9 @@
+     `--internal-hitl-mcp` → engine's HITL MCP server (hitl-via-engine-mcp),
+     `run` → `runEngine(args)` (DAG workflow),
+     `init` → `runInit(args)` (project scaffolder),
++    `answer` → local HITL inbox writer (FR-E75),
++    `runs doctor` → journal health report/repair via `state/run-doctor.ts`
++    (FR-E83),
+     `mcp <workflow>` → `runMcpServer(workflowDir)` (FR-E73: embedded
+     MCP server over stdio, eight tools for workflow inspection and
+     control; statically imported — a dynamic `await import()` of
+diff --git a/documents/index.md b/documents/index.md
+index 7b5f797..81321ff 100644
+--- a/documents/index.md
++++ b/documents/index.md
+@@ -15,4 +15,5 @@
+ - [FR-E77](requirements-engine/04-runtime-and-hooks.md#377-fr-e77-acp-as-the-sole-runtime-transport) — ACP as the sole runtime transport (implicit `transport: "acp"`, no config knob) — [x]
+ - [FR-E78](requirements-engine/07-mcp-and-plugin-runtime.md#378-fr-e78-plugin-precondition--release-binary-distribution) — Plugin precondition + release binary distribution (supersedes FR-E74 launcher) — [ ]
+ - [FR-E80](requirements-engine/05-cli-and-observability.md#380-fr-e80-cumulative-wall-clock-retry-cap) — Cumulative wall-clock retry cap per node via AbortSignal pass-through — [x]
++- [FR-E83](requirements-engine/01-execution-model.md#383-fr-e83-runs-doctor-journal-health-checker) — Diagnose run journal health and apply safe mechanical repairs — [x]
+ - [FR-E9](requirements-engine/01-execution-model.md#39-fr-e9-run-artifacts-folder-structure) — Run artifacts live under the selected workflow run directory — [x]
+diff --git a/documents/requirements-engine.md b/documents/requirements-engine.md
+index 4313a52..4e2f4f4 100644
+--- a/documents/requirements-engine.md
++++ b/documents/requirements-engine.md
+@@ -118,3 +118,4 @@ FR-IDs are stable — never renumber them on move.
+ - FR-E80 (Cumulative Wall-Clock Retry Cap) → 05-cli-and-observability
+ - FR-E81 (Claude CLI Version Probe Gated on Runtime) → 04-runtime-and-hooks
+ - FR-E82 (Fail-Fast on Runtime `is_error`)            → 04-runtime-and-hooks
++- FR-E83 (`runs doctor` Journal Health Checker)       → 01-execution-model
+diff --git a/documents/requirements-engine/01-execution-model.md b/documents/requirements-engine/01-execution-model.md
+index adade0a..b694c6b 100644
+--- a/documents/requirements-engine/01-execution-model.md
++++ b/documents/requirements-engine/01-execution-model.md
+@@ -169,3 +169,26 @@
+   - **Tests:** `engine_test.ts` (FR-E34; regression-locked; 5 cases
+     cover the 4 interaction rules + log-message format).
+ 
++
++
++### 3.83 FR-E83: `runs doctor` Journal Health Checker
++
++- **Description:** The CLI exposes
++  `flowai-workflow runs doctor --workflow <dir> --run <run-id>` to diagnose one
++  run's durable recovery artifacts. It checks journal file integrity, replay
++  invariants via the existing `replayRunJournal()` source of truth, node
++  directory consistency, and stale workflow locks. Human output is grouped by
++  severity; `--json` emits machine-readable findings. `--repair` applies only
++  safe mechanical fixes: remove a torn final journal line after creating
++  `journal.jsonl.bak`, and remove a stale `runs/.lock` for the same run.
++- **Motivation:** `journal.jsonl` is the only durable recovery contract
++  (FR-E69). Operators need a fail-fast diagnostic that distinguishes expected
++  crash tails and stale locks from semantic journal corruption without adding a
++  second replayer or guessing repairs.
++- **Acceptance criteria:**
++  - **Tests:** `run-doctor_test.ts`, `cli_test.ts` (FR-E83;
++    regression-locked; clean run, torn final line, mid-file garbage, unknown
++    kind, sequence and duplicate event IDs, replay invariants, filesystem
++    cross-check, stale/live lock behavior, repair round-trip/refusals, JSON
++    output shape, and CLI help).
++  - [x] Full project verification passes. Evidence: `deno task check`.
+diff --git a/documents/tasks/2026/06/runs-doctor.md b/documents/tasks/2026/06/runs-doctor.md
+new file mode 100644
+index 0000000..a7786fb
+--- /dev/null
++++ b/documents/tasks/2026/06/runs-doctor.md
+@@ -0,0 +1,158 @@
++---
++date: "2026-06-11"
++status: done
++implements: [FR-E83]
++tags: [engine, recovery, cli, journal]
++related_tasks:
++  - 2026/05/durable-run-lifecycle-replay.md
++---
++# engine: `runs doctor` journal health checker
++
++## Goal
++
++Add `flowai-workflow runs doctor` so operators can diagnose one run's durable
++recovery artifacts, report every detected problem, and apply only safe
++mechanical repairs for crash-torn journal tails and stale run locks.
++
++## Overview
++
++### Context
++
++FR-E69 made `<workflow>/runs/<run-id>/journal.jsonl` the durable recovery
++contract. The replayer tolerates duplicate event IDs and a malformed partial
++tail, but operators do not yet have a CLI health checker that separates safe
++crash artifacts from semantic corruption.
++
++### Current State
++
++- `src/state/run-journal.ts` owns `getJournalPath()` and
++  `replayRunJournal()`.
++- `src/state/state.ts` owns `getRunDir()` and node path helpers.
++- `src/state/lock.ts` owns `defaultLockPath()` and lock parsing.
++- `src/cli.ts` has direct subcommand dispatch for `run`, `answer`, `init`,
++  and `mcp`; there is no `runs` command group.
++
++### Constraints
++
++- Reuse `replayRunJournal()` as the single replay source of truth.
++- Reuse existing state and lock helpers for paths and lock parsing.
++- Add no dependencies.
++- Report all findings before choosing the exit code.
++- `--repair` may only remove a torn final journal line and a stale lock for
++  this run; semantic corruption is a refusal.
++- The benchmark is non-interactive. Variant gate decision: selected
++  "dedicated doctor module plus CLI dispatcher" because it keeps CLI parsing
++  local while isolating diagnosis and repair logic for direct unit tests.
++
++## Definition of Done
++
++- [x] FR-E83: `runs doctor` clean-run diagnosis exits 0 and reports OK.
++      Test: `src/state/run-doctor_test.ts::FR-E83 clean run exits ok`.
++      Evidence command: `deno task check`.
++- [x] FR-E83: journal integrity diagnostics cover torn final line warning,
++      mid-file garbage error, unknown event kind error, non-monotonic sequence,
++      and duplicate event ID warning. Tests:
++      `src/state/run-doctor_test.ts::FR-E83 torn final line is warning`,
++      `FR-E83 mid-file garbage is error`, `FR-E83 unknown event kind is error`,
++      `FR-E83 sequence and duplicate ids are reported`. Evidence command:
++      `deno task check`.
++- [x] FR-E83: replay invariant diagnostics cover events after terminal run
++      events, undeclared node lifecycle events, attempt completion without a
++      matching start, and total-cost divergence. Tests:
++      `src/state/run-doctor_test.ts::FR-E83 replay invariants report semantic problems`.
++      Evidence command: `deno task check`.
++- [x] FR-E83: filesystem cross-check diagnostics cover orphan node dirs,
++      missing declared dirs, and stale locks. Tests:
++      `src/state/run-doctor_test.ts::FR-E83 filesystem cross-check reports orphan missing and stale lock`.
++      Evidence command: `deno task check`.
++- [x] FR-E83: `--repair` removes only a torn final journal line with
++      `journal.jsonl.bak` preserved and removes stale lock; it refuses live
++      locks and semantic journal errors without modifying files. Tests:
++      `src/state/run-doctor_test.ts::FR-E83 repair torn tail preserves backup and replays cleanly`,
++      `FR-E83 repair refuses live lock`, `FR-E83 repair refuses mid-file garbage`.
++      Evidence command: `deno task check`.
++- [x] FR-E83: `--json` emits machine-readable findings with severity, code,
++      message, and evidence path; CLI help mentions `runs doctor`. Tests:
++      `src/state/run-doctor_test.ts::FR-E83 json output shape`,
++      `src/cli_test.ts::FR-E83 help mentions runs doctor`. Evidence command:
++      `deno task check`.
++- [x] FR-E83: SRS registers `runs doctor` in
++      `documents/requirements-engine/01-execution-model.md`,
++      `documents/requirements-engine.md`, and `documents/index.md`, with
++      acceptance references filled. Evidence command: `deno task check`.
++- [x] FR-E83: full project verification passes. Test:
++      `scripts/check.ts::full check pipeline`. Evidence command:
++      `deno task check`.
++
++## Solution
++
++1. Add `src/state/run-doctor.ts`.
++   - Define `DoctorFinding` and `DoctorReport` with severities `ERROR`,
++     `WARNING`, and `OK`.
++   - Parse `journal.jsonl` line-by-line for integrity findings and record line
++     numbers, valid byte length, torn-tail status, declared nodes, declared
++     node directories, mentioned nodes, event IDs, and sequence order.
++   - Validate known `RunJournalEventKind` values locally from a static set that
++     mirrors the public union, while replay state still comes exclusively from
++     `replayRunJournal()`.
++   - Invoke `replayRunJournal(runDir)` once for replay-derived state and
++     duplicate-tail behavior; catch replay errors as findings rather than
++     aborting the scan.
++   - Inspect replay invariants from parsed events: post-terminal events,
++     undeclared lifecycle nodes, unmatched attempt completions, and total cost
++     mismatch between replayed total and per-node sum.
++   - Cross-check the run directory: direct child node dirs plus phase child
++     node dirs are compared with `node_directory_declared` event paths; `logs`,
++     `worktree`, and dot-prefixed engine metadata are ignored. Use
++     `defaultLockPath()` and `readLockInfo()` for lock checks.
++   - Implement `repairRun()` guardrails: refuse active live lock, refuse any
++     journal error besides a torn final line, then back up and atomically
++     rewrite the journal without the torn tail and remove stale lock.
++
++2. Add tests in `src/state/run-doctor_test.ts`.
++   - Fabricate isolated workflow and run dirs with minimal journal events.
++   - Cover every requested diagnostic and repair case.
++   - Assert repair round-trip with `replayRunJournal()` after the rewrite.
++
++3. Wire the CLI in `src/cli.ts`.
++   - Parse `flowai-workflow runs doctor --workflow <dir> --run <runId>
++     [--repair] [--json]`.
++   - Render grouped human output by severity or JSON findings.
++   - Exit 0 when no `ERROR` findings remain, exit 1 otherwise, and mention the
++     subcommand in global help.
++
++4. Update documentation.
++   - Add FR-E83 to `documents/requirements-engine.md`.
++   - Add FR-E83 to `documents/requirements-engine/01-execution-model.md` with
++     `**Acceptance criteria:**` pointing at the new tests and `deno task check`.
++   - Keep `documents/index.md` row in sync.
++   - Update SDS only where the CLI and recovery subsystem description would be
++     stale after the new command.
++
++5. Verify.
++   - RED: add failing focused tests first.
++   - GREEN/REFACTOR: implement until focused tests pass.
++   - CHECK: run `deno task check`.
++
++## Critique
++
++1. Direct child directory scanning could misclassify phased node dirs if it
++   only checks one level.
++2. A static known-kind set can drift from `RunJournalEventKind` if future
++   journal events are added.
++3. Repair ordering could remove a stale lock before discovering a semantic
++   journal error.
++
++## Refinements
++
++- Applied: scan both flat and one-level phased node directories, while ignoring
++  known runtime metadata directories.
++- Applied: add a code comment near the known-kind set instructing updates when
++  the journal union changes; avoid exporting type-runtime metadata only for
++  doctor.
++- Applied: compute the full report before any repair and refuse repairs when
++  semantic journal errors exist.
++
++## Follow-ups
++
++- Multi-run batch diagnosis is explicitly out of scope.
+diff --git a/src/cli.ts b/src/cli.ts
+index 43c95a1..df19b51 100644
+--- a/src/cli.ts
++++ b/src/cli.ts
+@@ -50,6 +50,12 @@ import {
+ import { installSignalHandlers } from "./process-registry.ts";
+ import { checkForUpdate, VERSION } from "./version.ts";
+ import { runMcpServer } from "./mcp/mcp-server.ts";
++import {
++  doctorRun,
++  formatDoctorJson,
++  formatDoctorReport,
++  repairRun,
++} from "./state/run-doctor.ts";
+ 
+ /** Re-exported for back-compat: VERSION lives in `version.ts` (leaf module)
+  * so the library graph never imports this CLI entry point. */
+@@ -179,6 +185,14 @@ export interface AnswerArgs {
+   text: string;
+ }
+ 
++/** Parsed arguments for `runs doctor` (FR-E83). */
++export interface RunsDoctorArgs {
++  workflowDir: string;
++  runId: string;
++  repair: boolean;
++  json: boolean;
++}
++
+ /**
+  * Parse `answer [--workflow <path>] <run-id> --node <id> "<text>"` (FR-E75).
+  * Workflow is optional: when `--workflow <path>` is omitted the caller
+@@ -235,6 +249,54 @@ export function parseAnswerArgs(args: string[]): AnswerArgs {
+   };
+ }
+ 
++/** Parse `runs doctor --workflow <dir> --run <run-id> [--repair] [--json]`. */
++export function parseRunsDoctorArgs(args: string[]): RunsDoctorArgs {
++  let workflowDir: string | undefined;
++  let runId: string | undefined;
++  let repair = false;
++  let json = false;
++  for (let i = 0; i < args.length; i++) {
++    const arg = args[i];
++    if (arg === "--workflow") {
++      workflowDir = args[++i];
++      continue;
++    }
++    if (arg.startsWith("--workflow=")) {
++      workflowDir = arg.slice("--workflow=".length);
++      continue;
++    }
++    if (arg === "--run") {
++      runId = args[++i];
++      continue;
++    }
++    if (arg.startsWith("--run=")) {
++      runId = arg.slice("--run=".length);
++      continue;
++    }
++    if (arg === "--repair") {
++      repair = true;
++      continue;
++    }
++    if (arg === "--json") {
++      json = true;
++      continue;
++    }
++    throw new Error(`runs doctor: unknown argument '${arg}'.`);
++  }
++  if (!workflowDir) {
++    throw new Error("runs doctor: missing --workflow <dir>.");
++  }
++  if (!runId) {
++    throw new Error("runs doctor: missing --run <run-id>.");
++  }
++  return {
++    workflowDir: normalizeWorkflowDir(workflowDir),
++    runId,
++    repair,
++    json,
++  };
++}
++
+ /**
+  * Parse CLI arguments into EngineOptions.
+  *
+@@ -375,6 +437,8 @@ Usage:
+   flowai-workflow answer [--workflow <path>] <run-id> --node <id> "<text>"
+                                              Deliver a local HITL reply (FR-E75)
+   flowai-workflow mcp [<workflow>]           Start embedded MCP server (FR-E73)
++  flowai-workflow runs doctor --workflow <dir> --run <run-id>
++                                             Diagnose run journal health (FR-E83)
+ 
+ Subcommands:
+   run                   Execute DAG workflow engine
+@@ -384,6 +448,9 @@ Subcommands:
+                         {inboxPath, live}; when live is false, resume the run to
+                         consume the queued answer.
+   mcp                   Start embedded MCP server exposing 8 engine-control tools over stdio.
++  runs doctor           Check one run's journal, replay invariants, node
++                        directories, and workflow lock. With --repair, removes
++                        only a torn final journal line and stale lock.
+ 
+ Workflow resolution (run / answer / mcp; FR-E78):
+   Every subcommand that accepts a workflow shares one rule when the
+@@ -427,6 +494,7 @@ Examples:
+   flowai-workflow answer 20260529T094727 --node specification "monetization"
+   flowai-workflow answer --workflow .flowai-workflow/autonomous-sdlc 20260529T094727 --node specification "monetization"
+   flowai-workflow mcp .flowai-workflow/github-inbox
++  flowai-workflow runs doctor --workflow .flowai-workflow/github-inbox --run 20260529T094727
+ `);
+ }
+ 
+@@ -587,6 +655,32 @@ async function runAnswer(args: string[]): Promise<never> {
+   }
+ }
+ 
++async function runRuns(args: string[]): Promise<never> {
++  try {
++    const [subcommand, ...rest] = args;
++    if (subcommand !== "doctor") {
++      throw new Error("runs: expected subcommand 'doctor'.");
++    }
++    const parsed = parseRunsDoctorArgs(rest);
++    const report = parsed.repair
++      ? await repairRun({
++        workflowDir: parsed.workflowDir,
++        runId: parsed.runId,
++      })
++      : await doctorRun({
++        workflowDir: parsed.workflowDir,
++        runId: parsed.runId,
++      });
++    console.log(
++      parsed.json ? formatDoctorJson(report) : formatDoctorReport(report),
++    );
++    Deno.exit(report.hasErrors ? 1 : 0);
++  } catch (err) {
++    console.error(`Error: ${(err as Error).message}`);
++    Deno.exit(1);
++  }
++}
++
+ /**
+  * Print a one-line deprecation banner for users who installed the engine
+  * via JSR or a prebuilt binary (FR-E70 plugin-first distribution). The
+@@ -652,6 +746,10 @@ if (import.meta.main) {
+     await runAnswer(Deno.args.slice(1));
+   }
+ 
++  if (subcommand === "runs") {
++    await runRuns(Deno.args.slice(1));
++  }
++
+   // Subcommand: `init` → verbatim copy of a bundled workflow folder.
+   if (subcommand === "init") {
+     const { runInit } = await import("./init/mod.ts");
+diff --git a/src/cli_test.ts b/src/cli_test.ts
+index 4f8abbe..7aae98a 100644
+--- a/src/cli_test.ts
++++ b/src/cli_test.ts
+@@ -2,6 +2,7 @@
+ // per-node and workflow-level enforcement. Covered below by parseArgs
+ // and budget-related assertions.
+ import { assertEquals, assertThrows } from "@std/assert";
++import { assertStringIncludes } from "@std/assert/string-includes";
+ import {
+   extractCliFlags,
+   getVersionString,
+@@ -153,6 +154,20 @@ Deno.test("getVersionString — format is 'flowai-workflow v<version>'", () => {
+   assertEquals(getVersionString(), `flowai-workflow v${VERSION}`);
+ });
+ 
++Deno.test("FR-E83 help mentions runs doctor", async () => {
++  const command = new Deno.Command(Deno.execPath(), {
++    args: ["run", "-A", "src/cli.ts", "--help"],
++    stdout: "piped",
++    stderr: "piped",
++  });
++  const output = await command.output();
++  assertEquals(output.code, 0);
++  assertStringIncludes(
++    new TextDecoder().decode(output.stdout),
++    "flowai-workflow runs doctor --workflow <dir> --run <run-id>",
++  );
++});
++
+ Deno.test("extractCliFlags — absent flag keeps args intact", () => {
+   const { skipUpdateCheck, remaining } = extractCliFlags([
+     "--prompt",
+diff --git a/src/state/run-doctor.ts b/src/state/run-doctor.ts
+new file mode 100644
+index 0000000..b8c78bc
+--- /dev/null
++++ b/src/state/run-doctor.ts
+@@ -0,0 +1,618 @@
++/**
++ * @module
++ * Run journal health checker and safe mechanical repair utility (FR-E83).
++ */
++
++import { basename, isAbsolute, join, normalize } from "@std/path";
++import type { RunJournalEvent, RunJournalEventKind } from "../types.ts";
++import { defaultLockPath, readLockInfo } from "./lock.ts";
++import { getJournalPath, replayRunJournal } from "./run-journal.ts";
++import { getRunDir } from "./state.ts";
++
++export type DoctorSeverity = "ERROR" | "WARNING" | "OK";
++
++export interface DoctorFinding {
++  severity: DoctorSeverity;
++  code: string;
++  message: string;
++  evidence_path: string;
++}
++
++export interface DoctorReport {
++  workflowDir: string;
++  runId: string;
++  runDir: string;
++  findings: DoctorFinding[];
++  hasErrors: boolean;
++}
++
++export interface DoctorOptions {
++  workflowDir: string;
++  runId: string;
++}
++
++interface ParsedJournal {
++  events: RunJournalEvent[];
++  findings: DoctorFinding[];
++  ignoredPartialTail: boolean;
++  validContent: string;
++  tornTailContent: string;
++}
++
++const TERMINAL_KINDS = new Set<RunJournalEventKind>([
++  "run_completed",
++  "run_failed",
++  "run_aborted",
++]);
++
++const NODE_LIFECYCLE_KINDS = new Set<RunJournalEventKind>([
++  "node_started",
++  "node_completed",
++  "node_failed",
++  "node_waiting",
++  "node_skipped",
++]);
++
++// Keep this set aligned with RunJournalEventKind in ../types.ts.
++const KNOWN_EVENT_KINDS = new Set<string>([
++  "run_started",
++  "run_metadata_updated",
++  "workflow_loaded",
++  "node_declared",
++  "node_directory_declared",
++  "node_started",
++  "node_completed",
++  "node_failed",
++  "node_waiting",
++  "node_skipped",
++  "attempt_started",
++  "attempt_completed",
++  "continuation_exhausted",
++  "loop_iteration_started",
++  "loop_iteration_completed",
++  "loop_iteration_failed",
++  "run_completed",
++  "run_failed",
++  "run_aborted",
++]);
++
++const IGNORED_RUN_DIRS = new Set(["logs", "worktree"]);
++
++export async function doctorRun(options: DoctorOptions): Promise<DoctorReport> {
++  const runDir = getRunDir(options.runId, options.workflowDir);
++  const parsed = await parseJournalForDoctor(runDir);
++  const findings = [...parsed.findings];
++
++  if (!findings.some((finding) => finding.code === "JOURNAL_MISSING")) {
++    findings.push(...await inspectReplay(runDir, parsed.events));
++    findings.push(
++      ...await inspectFilesystem(options.workflowDir, runDir, parsed.events),
++    );
++  }
++
++  if (!findings.some((finding) => finding.severity !== "OK")) {
++    findings.push({
++      severity: "OK",
++      code: "OK",
++      message: "Run durability artifacts look healthy.",
++      evidence_path: runDir,
++    });
++  }
++
++  return buildReport(options.workflowDir, options.runId, runDir, findings);
++}
++
++export async function repairRun(options: DoctorOptions): Promise<DoctorReport> {
++  const runDir = getRunDir(options.runId, options.workflowDir);
++  const liveLockFinding = await inspectLiveLock(options.workflowDir, runDir);
++  if (liveLockFinding) {
++    throw new Error(
++      `Refusing repair: run is currently active (${liveLockFinding.message}).`,
++    );
++  }
++
++  const parsed = await parseJournalForDoctor(runDir);
++  const initialFindings = [
++    ...parsed.findings,
++    ...await inspectReplay(runDir, parsed.events),
++    ...await inspectFilesystem(options.workflowDir, runDir, parsed.events),
++  ];
++
++  const disallowedJournalError = initialFindings.find((finding) =>
++    finding.severity === "ERROR" && isJournalRepairBlocker(finding.code)
++  );
++  if (disallowedJournalError) {
++    throw new Error(
++      "Refusing repair: journal has errors beyond a torn final line.",
++    );
++  }
++
++  const repairFindings: DoctorFinding[] = [];
++  if (parsed.ignoredPartialTail) {
++    await rewriteJournalWithoutTail(runDir, parsed.validContent);
++    repairFindings.push({
++      severity: "OK",
++      code: "REPAIR_TORN_FINAL_LINE",
++      message: "Backed up journal.jsonl and removed torn final line.",
++      evidence_path: getJournalPath(runDir),
++    });
++  }
++
++  const staleLock = initialFindings.find((finding) =>
++    finding.code === "STALE_LOCK"
++  );
++  if (staleLock) {
++    await Deno.remove(defaultLockPath(options.workflowDir));
++    repairFindings.push({
++      severity: "OK",
++      code: "REPAIR_STALE_LOCK",
++      message: "Removed stale workflow lock for this run.",
++      evidence_path: defaultLockPath(options.workflowDir),
++    });
++  }
++
++  return buildReport(options.workflowDir, options.runId, runDir, [
++    ...initialFindings,
++    ...repairFindings,
++  ]);
++}
++
++export function formatDoctorJson(report: DoctorReport): string {
++  return JSON.stringify({ findings: report.findings }, null, 2);
++}
++
++export function formatDoctorReport(report: DoctorReport): string {
++  const lines = [
++    `Run doctor: ${report.runId}`,
++    `Run dir: ${report.runDir}`,
++  ];
++  for (const severity of ["ERROR", "WARNING", "OK"] as const) {
++    const group = report.findings.filter((finding) =>
++      finding.severity === severity
++    );
++    if (group.length === 0) continue;
++    lines.push("", severity);
++    for (const finding of group) {
++      lines.push(
++        `- ${finding.code}: ${finding.message} (${finding.evidence_path})`,
++      );
++    }
++  }
++  return `${lines.join("\n")}\n`;
++}
++
++async function parseJournalForDoctor(runDir: string): Promise<ParsedJournal> {
++  const journalPath = getJournalPath(runDir);
++  let content: string;
++  try {
++    content = await Deno.readTextFile(journalPath);
++  } catch (error) {
++    if (error instanceof Deno.errors.NotFound) {
++      return {
++        events: [],
++        findings: [{
++          severity: "ERROR",
++          code: "JOURNAL_MISSING",
++          message: "journal.jsonl is missing.",
++          evidence_path: journalPath,
++        }],
++        ignoredPartialTail: false,
++        validContent: "",
++        tornTailContent: "",
++      };
++    }
++    throw error;
++  }
++
++  const lines = content.split("\n");
++  const endedWithNewline = content.endsWith("\n");
++  if (endedWithNewline) lines.pop();
++
++  const events: RunJournalEvent[] = [];
++  const findings: DoctorFinding[] = [];
++  let validContent = content;
++  let tornTailContent = "";
++  let lineStart = 0;
++  let previousSeq: number | undefined;
++  const seenEventIds = new Set<string>();
++
++  for (let i = 0; i < lines.length; i++) {
++    const line = lines[i];
++    const nextLineStart = lineStart + line.length + 1;
++    if (line.trim() === "") {
++      lineStart = nextLineStart;
++      continue;
++    }
++    let raw: unknown;
++    try {
++      raw = JSON.parse(line);
++    } catch (error) {
++      const isTail = i === lines.length - 1 && !endedWithNewline;
++      if (isTail) {
++        validContent = content.slice(0, lineStart);
++        tornTailContent = content.slice(lineStart);
++        findings.push({
++          severity: "WARNING",
++          code: "TORN_FINAL_LINE",
++          message:
++            "Final journal line is truncated or garbage and will be ignored by replay.",
++          evidence_path: `${journalPath}:${i + 1}`,
++        });
++      } else {
++        findings.push({
++          severity: "ERROR",
++          code: "JOURNAL_PARSE_ERROR",
++          message: `Journal line is not valid JSON: ${
++            error instanceof Error ? error.message : String(error)
++          }`,
++          evidence_path: `${journalPath}:${i + 1}`,
++        });
++      }
++      lineStart = nextLineStart;
++      continue;
++    }
++
++    const event = raw as RunJournalEvent;
++    events.push(event);
++    if (!KNOWN_EVENT_KINDS.has(String(event.kind))) {
++      findings.push({
++        severity: "ERROR",
++        code: "UNKNOWN_EVENT_KIND",
++        message: `Unknown journal event kind '${String(event.kind)}'.`,
++        evidence_path: `${journalPath}:${i + 1}`,
++      });
++    }
++    if (previousSeq !== undefined && event.seq <= previousSeq) {
++      findings.push({
++        severity: "ERROR",
++        code: "NON_MONOTONIC_SEQ",
++        message:
++          `Sequence ${event.seq} is not greater than previous sequence ${previousSeq}.`,
++        evidence_path: `${journalPath}:${i + 1}`,
++      });
++    }
++    previousSeq = typeof event.seq === "number" ? event.seq : previousSeq;
++    if (seenEventIds.has(event.event_id)) {
++      findings.push({
++        severity: "WARNING",
++        code: "DUPLICATE_EVENT_ID",
++        message:
++          `Duplicate event_id '${event.event_id}' will be deduplicated by replay.`,
++        evidence_path: `${journalPath}:${i + 1}`,
++      });
++    } else {
++      seenEventIds.add(event.event_id);
++    }
++    lineStart = nextLineStart;
++  }
++
++  return {
++    events,
++    findings,
++    ignoredPartialTail: tornTailContent !== "",
++    validContent,
++    tornTailContent,
++  };
++}
++
++async function inspectReplay(
++  runDir: string,
++  events: readonly RunJournalEvent[],
++): Promise<DoctorFinding[]> {
++  const findings: DoctorFinding[] = [];
++  try {
++    const replay = await replayRunJournal(runDir);
++    findings.push(...inspectReplayState(runDir, replay.state, events));
++  } catch (error) {
++    findings.push({
++      severity: "ERROR",
++      code: "REPLAY_FAILED",
++      message: `Journal replay failed: ${
++        error instanceof Error ? error.message : String(error)
++      }`,
++      evidence_path: getJournalPath(runDir),
++    });
++  }
++
++  const declaredNodes = new Set(
++    events
++      .filter((
++        event,
++      ): event is Extract<RunJournalEvent, { kind: "node_declared" }> =>
++        event.kind === "node_declared"
++      )
++      .map((event) => event.node_id),
++  );
++  const attemptsStarted = new Set<string>();
++  let terminalSeen: RunJournalEvent | undefined;
++
++  for (const event of events) {
++    if (terminalSeen) {
++      findings.push({
++        severity: "ERROR",
++        code: "EVENT_AFTER_TERMINAL",
++        message:
++          `Event '${event.kind}' appears after terminal event '${terminalSeen.kind}'.`,
++        evidence_path: getJournalPath(runDir),
++      });
++    }
++    if (TERMINAL_KINDS.has(event.kind)) terminalSeen = event;
++
++    if (NODE_LIFECYCLE_KINDS.has(event.kind)) {
++      const nodeId =
++        (event as Extract<RunJournalEvent, { node_id: string }>).node_id;
++      if (!declaredNodes.has(nodeId)) {
++        findings.push({
++          severity: "ERROR",
++          code: "UNDECLARED_NODE_EVENT",
++          message:
++            `Node lifecycle event '${event.kind}' references undeclared node '${nodeId}'.`,
++          evidence_path: getJournalPath(runDir),
++        });
++      }
++    }
++
++    if (event.kind === "attempt_started") {
++      attemptsStarted.add(attemptKey(event.node_id, event.iteration));
++    }
++    if (
++      event.kind === "attempt_completed" ||
++      event.kind === "continuation_exhausted"
++    ) {
++      if (!attemptsStarted.has(attemptKey(event.node_id, event.iteration))) {
++        findings.push({
++          severity: "ERROR",
++          code: "ATTEMPT_WITHOUT_START",
++          message:
++            `Attempt completion for node '${event.node_id}' has no matching attempt_started event.`,
++          evidence_path: getJournalPath(runDir),
++        });
++      }
++    }
++  }
++
++  return findings;
++}
++
++function inspectReplayState(
++  runDir: string,
++  state: {
++    total_cost_usd?: unknown;
++    nodes: Record<string, { cost_usd?: unknown }>;
++  },
++  events: readonly RunJournalEvent[],
++): DoctorFinding[] {
++  const findings: DoctorFinding[] = [];
++  if (state.total_cost_usd === undefined) return [];
++  const total = Number(state.total_cost_usd);
++  const sum = Object.values(state.nodes).reduce((acc, node) => {
++    return acc + (typeof node.cost_usd === "number" ? node.cost_usd : 0);
++  }, 0);
++  if (Math.abs(total - sum) >= 0.000001) {
++    findings.push({
++      severity: "ERROR",
++      code: "COST_DIVERGENCE",
++      message:
++        `Replayed total_cost_usd ${total} differs from per-node cost sum ${sum}.`,
++      evidence_path: getJournalPath(runDir),
++    });
++  }
++
++  const attemptCosts = new Map<string, number>();
++  for (const event of events) {
++    if (
++      event.kind === "attempt_completed" &&
++      typeof event.cost_usd === "number"
++    ) {
++      attemptCosts.set(event.node_id, event.cost_usd);
++    }
++  }
++  if (attemptCosts.size > 0) {
++    const attemptSum = [...attemptCosts.values()].reduce(
++      (acc, value) => acc + value,
++      0,
++    );
++    if (Math.abs(attemptSum - sum) >= 0.000001) {
++      findings.push({
++        severity: "ERROR",
++        code: "COST_DIVERGENCE",
++        message:
++          `Attempt cost sum ${attemptSum} differs from per-node cost sum ${sum}.`,
++        evidence_path: getJournalPath(runDir),
++      });
++    }
++  }
++
++  return findings;
++}
++
++async function inspectFilesystem(
++  workflowDir: string,
++  runDir: string,
++  events: readonly RunJournalEvent[],
++): Promise<DoctorFinding[]> {
++  const findings: DoctorFinding[] = [];
++  const declaredDirs = new Set(
++    events
++      .filter((
++        event,
++      ): event is Extract<
++        RunJournalEvent,
++        { kind: "node_directory_declared" }
++      > => event.kind === "node_directory_declared")
++      .map((event) => declaredNodeDirPath(runDir, event.node_dir)),
++  );
++  const actualDirs = await collectNodeDirs(runDir, declaredDirs);
++
++  for (const dir of actualDirs) {
++    if (!declaredDirs.has(dir)) {
++      findings.push({
++        severity: "ERROR",
++        code: "ORPHAN_NODE_DIR",
++        message:
++          `Node directory exists on disk but is not declared in the journal: ${dir}`,
++        evidence_path: dir,
++      });
++    }
++  }
++  for (const dir of declaredDirs) {
++    try {
++      const stat = await Deno.stat(dir);
++      if (!stat.isDirectory) throw new Error("not a directory");
++    } catch {
++      findings.push({
++        severity: "ERROR",
++        code: "MISSING_NODE_DIR",
++        message:
++          `Journal declares a node directory that is missing on disk: ${dir}`,
++        evidence_path: dir,
++      });
++    }
++  }
++
++  const lockFinding = await inspectLock(workflowDir, runDir);
++  if (lockFinding) findings.push(lockFinding);
++  return findings;
++}
++
++async function inspectLock(
++  workflowDir: string,
++  runDir: string,
++): Promise<DoctorFinding | undefined> {
++  const lockPath = defaultLockPath(workflowDir);
++  let info;
++  try {
++    info = await readLockInfo(lockPath);
++  } catch (error) {
++    if (error instanceof Deno.errors.NotFound) return undefined;
++    throw error;
++  }
++  if (info.run_id !== basename(runDir)) return undefined;
++  if (isProcessAlive(info.pid)) {
++    return undefined;
++  }
++  return {
++    severity: "WARNING",
++    code: "STALE_LOCK",
++    message: `Lock references dead process ${info.pid}.`,
++    evidence_path: lockPath,
++  };
++}
++
++async function inspectLiveLock(
++  workflowDir: string,
++  runDir: string,
++): Promise<DoctorFinding | undefined> {
++  const lockPath = defaultLockPath(workflowDir);
++  let info;
++  try {
++    info = await readLockInfo(lockPath);
++  } catch (error) {
++    if (error instanceof Deno.errors.NotFound) return undefined;
++    throw error;
++  }
++  if (info.run_id !== basename(runDir) || !isProcessAlive(info.pid)) {
++    return undefined;
++  }
++  return {
++    severity: "ERROR",
++    code: "LIVE_LOCK",
++    message: `Lock is held by live process ${info.pid}.`,
++    evidence_path: lockPath,
++  };
++}
++
++async function collectNodeDirs(
++  runDir: string,
++  declaredDirs: ReadonlySet<string>,
++): Promise<Set<string>> {
++  const dirs = new Set<string>();
++  try {
++    for await (const entry of Deno.readDir(runDir)) {
++      if (
++        !entry.isDirectory || IGNORED_RUN_DIRS.has(entry.name) ||
++        entry.name.startsWith(".")
++      ) {
++        continue;
++      }
++      const top = normalize(join(runDir, entry.name));
++      const isDeclaredParent = [...declaredDirs].some((dir) =>
++        normalize(join(dir, "..")) === top
++      );
++      if (!isDeclaredParent) dirs.add(top);
++      try {
++        for await (const child of Deno.readDir(top)) {
++          if (child.isDirectory) dirs.add(normalize(join(top, child.name)));
++        }
++      } catch {
++        // Permission or race errors are surfaced by later stat checks when relevant.
++      }
++    }
++  } catch (error) {
++    if (!(error instanceof Deno.errors.NotFound)) throw error;
++  }
++  return dirs;
++}
++
++function declaredNodeDirPath(runDir: string, nodeDir: string): string {
++  if (isAbsolute(nodeDir)) return normalize(nodeDir);
++  const marker = `runs/${basename(runDir)}/`;
++  const markerIndex = nodeDir.indexOf(marker);
++  if (markerIndex >= 0) {
++    return normalize(join(runDir, nodeDir.slice(markerIndex + marker.length)));
++  }
++  return normalize(join(runDir, nodeDir));
++}
++
++function attemptKey(nodeId: string, iteration: number | undefined): string {
++  return `${nodeId}:${iteration ?? ""}`;
++}
++
++function buildReport(
++  workflowDir: string,
++  runId: string,
++  runDir: string,
++  findings: DoctorFinding[],
++): DoctorReport {
++  return {
++    workflowDir,
++    runId,
++    runDir,
++    findings,
++    hasErrors: findings.some((finding) => finding.severity === "ERROR"),
++  };
++}
++
++function isProcessAlive(pid: number): boolean {
++  try {
++    Deno.kill(pid, "SIGCONT");
++    return true;
++  } catch {
++    return false;
++  }
++}
++
++function isJournalRepairBlocker(code: string): boolean {
++  return [
++    "JOURNAL_MISSING",
++    "JOURNAL_PARSE_ERROR",
++    "UNKNOWN_EVENT_KIND",
++    "NON_MONOTONIC_SEQ",
++    "REPLAY_FAILED",
++    "EVENT_AFTER_TERMINAL",
++    "UNDECLARED_NODE_EVENT",
++    "ATTEMPT_WITHOUT_START",
++    "COST_DIVERGENCE",
++  ].includes(code);
++}
++
++async function rewriteJournalWithoutTail(
++  runDir: string,
++  validContent: string,
++): Promise<void> {
++  const journalPath = getJournalPath(runDir);
++  await Deno.copyFile(journalPath, `${journalPath}.bak`);
++  const tmpPath = `${journalPath}.tmp`;
++  await Deno.writeTextFile(tmpPath, validContent);
++  await Deno.rename(tmpPath, journalPath);
++}
+diff --git a/src/state/run-doctor_test.ts b/src/state/run-doctor_test.ts
+new file mode 100644
+index 0000000..657384a
+--- /dev/null
++++ b/src/state/run-doctor_test.ts
+@@ -0,0 +1,341 @@
++import {
++  assert,
++  assertEquals,
++  assertRejects,
++  assertStringIncludes,
++} from "@std/assert";
++import { join } from "@std/path";
++import { getJournalPath, replayRunJournal } from "./run-journal.ts";
++import { defaultLockPath } from "./lock.ts";
++import { getRunDir } from "./state.ts";
++import {
++  doctorRun,
++  formatDoctorJson,
++  formatDoctorReport,
++  repairRun,
++} from "./run-doctor.ts";
++import type { RunJournalEvent } from "../types.ts";
++
++function event(
++  runId: string,
++  seq: number,
++  kind: RunJournalEvent["kind"],
++  extra: Record<string, unknown> = {},
++): Record<string, unknown> {
++  return {
++    schema_version: 1,
++    run_id: runId,
++    seq,
++    event_id: `${runId}:${seq}:${kind}:${extra.node_id ?? ""}${
++      extra.loop_node_id ?? ""
++    }`,
++    kind,
++    ts: `2026-06-11T00:00:${String(seq).padStart(2, "0")}.000Z`,
++    ...extra,
++  };
++}
++
++async function writeJournal(
++  runDir: string,
++  events: readonly Record<string, unknown>[],
++  suffix = "",
++): Promise<void> {
++  await Deno.mkdir(runDir, { recursive: true });
++  await Deno.writeTextFile(
++    getJournalPath(runDir),
++    events.map((entry) => JSON.stringify(entry)).join("\n") + "\n" + suffix,
++  );
++}
++
++async function withRun(
++  fn: (ctx: {
++    root: string;
++    workflowDir: string;
++    runId: string;
++    runDir: string;
++  }) => Promise<void>,
++): Promise<void> {
++  const root = await Deno.makeTempDir();
++  try {
++    const workflowDir = join(root, "workflow");
++    const runId = "run-1";
++    const runDir = getRunDir(runId, workflowDir);
++    await fn({ root, workflowDir, runId, runDir });
++  } finally {
++    await Deno.remove(root, { recursive: true });
++  }
++}
++
++function cleanEvents(runId: string): Record<string, unknown>[] {
++  return [
++    event(runId, 1, "run_started", {
++      config_path: "workflow.yaml",
++      started_at: "2026-06-11T00:00:01.000Z",
++      args: {},
++      env: {},
++    }),
++    event(runId, 2, "workflow_loaded", {
++      config_path: "workflow.yaml",
++      name: "wf",
++      version: "1",
++    }),
++    event(runId, 3, "node_declared", {
++      node_id: "build",
++      node_type: "agent",
++      label: "Build",
++    }),
++    event(runId, 4, "node_directory_declared", {
++      node_id: "build",
++      node_dir: "build",
++    }),
++    event(runId, 5, "attempt_started", { node_id: "build" }),
++    event(runId, 6, "attempt_completed", {
++      node_id: "build",
++      success: true,
++      cost_usd: 0.25,
++    }),
++    event(runId, 7, "node_completed", {
++      node_id: "build",
++      status: "completed",
++      timestamp: "2026-06-11T00:00:07.000Z",
++      node: {
++        status: "completed",
++        started_at: "2026-06-11T00:00:05.000Z",
++        completed_at: "2026-06-11T00:00:07.000Z",
++        cost_usd: 0.25,
++      },
++      metadata: {},
++    }),
++    event(runId, 8, "run_completed", {
++      status: "completed",
++      completed_at: "2026-06-11T00:00:08.000Z",
++    }),
++  ];
++}
++
++function codes(report: Awaited<ReturnType<typeof doctorRun>>): string[] {
++  return report.findings.map((finding) => finding.code);
++}
++
++Deno.test("FR-E83 clean run exits ok", async () => {
++  await withRun(async ({ workflowDir, runId, runDir }) => {
++    await writeJournal(runDir, cleanEvents(runId));
++    await Deno.mkdir(join(runDir, "build"), { recursive: true });
++
++    const report = await doctorRun({ workflowDir, runId });
++    assertEquals(report.hasErrors, false);
++    assertEquals(codes(report), ["OK"]);
++    assertStringIncludes(formatDoctorReport(report), "OK");
++  });
++});
++
++Deno.test("FR-E83 torn final line is warning", async () => {
++  await withRun(async ({ workflowDir, runId, runDir }) => {
++    await writeJournal(runDir, cleanEvents(runId), '{"schema_version":1');
++    await Deno.mkdir(join(runDir, "build"), { recursive: true });
++
++    const report = await doctorRun({ workflowDir, runId });
++    assertEquals(report.hasErrors, false);
++    assert(codes(report).includes("TORN_FINAL_LINE"));
++  });
++});
++
++Deno.test("FR-E83 mid-file garbage is error", async () => {
++  await withRun(async ({ workflowDir, runId, runDir }) => {
++    const [first, ...rest] = cleanEvents(runId);
++    await Deno.mkdir(runDir, { recursive: true });
++    await Deno.writeTextFile(
++      getJournalPath(runDir),
++      `${JSON.stringify(first)}\nnot-json\n${
++        rest.map((entry) => JSON.stringify(entry)).join("\n")
++      }\n`,
++    );
++
++    const report = await doctorRun({ workflowDir, runId });
++    assertEquals(report.hasErrors, true);
++    assert(codes(report).includes("JOURNAL_PARSE_ERROR"));
++  });
++});
++
++Deno.test("FR-E83 unknown event kind is error", async () => {
++  await withRun(async ({ workflowDir, runId, runDir }) => {
++    const entries = cleanEvents(runId);
++    entries.splice(
++      2,
++      0,
++      event(runId, 99, "unknown" as RunJournalEvent["kind"]),
++    );
++    await writeJournal(runDir, entries);
++
++    const report = await doctorRun({ workflowDir, runId });
++    assertEquals(report.hasErrors, true);
++    assert(codes(report).includes("UNKNOWN_EVENT_KIND"));
++  });
++});
++
++Deno.test("FR-E83 sequence and duplicate ids are reported", async () => {
++  await withRun(async ({ workflowDir, runId, runDir }) => {
++    const entries = cleanEvents(runId);
++    const duplicate = { ...entries[4], seq: 4 };
++    entries.splice(5, 0, duplicate);
++    await writeJournal(runDir, entries);
++
++    const report = await doctorRun({ workflowDir, runId });
++    assert(codes(report).includes("NON_MONOTONIC_SEQ"));
++    assert(codes(report).includes("DUPLICATE_EVENT_ID"));
++  });
++});
++
++Deno.test("FR-E83 replay invariants report semantic problems", async () => {
++  await withRun(async ({ workflowDir, runId, runDir }) => {
++    const entries = cleanEvents(runId);
++    entries.push(
++      event(runId, 9, "node_started", {
++        node_id: "ghost",
++        status: "running",
++        timestamp: "2026-06-11T00:00:09.000Z",
++        node: { status: "running" },
++        metadata: {},
++      }),
++      event(runId, 10, "attempt_completed", {
++        node_id: "ghost",
++        success: true,
++      }),
++      event(runId, 11, "node_completed", {
++        node_id: "build",
++        status: "completed",
++        timestamp: "2026-06-11T00:00:11.000Z",
++        node: { status: "completed", cost_usd: 0.33 },
++        metadata: {},
++      }),
++    );
++    await writeJournal(runDir, entries);
++
++    const report = await doctorRun({ workflowDir, runId });
++    assert(codes(report).includes("EVENT_AFTER_TERMINAL"));
++    assert(codes(report).includes("UNDECLARED_NODE_EVENT"));
++    assert(codes(report).includes("ATTEMPT_WITHOUT_START"));
++    assert(codes(report).includes("COST_DIVERGENCE"));
++  });
++});
++
++Deno.test("FR-E83 filesystem cross-check reports orphan missing and stale lock", async () => {
++  await withRun(async ({ workflowDir, runId, runDir }) => {
++    await writeJournal(runDir, cleanEvents(runId));
++    await Deno.mkdir(join(runDir, "orphan"), { recursive: true });
++    await Deno.writeTextFile(
++      defaultLockPath(workflowDir),
++      JSON.stringify({
++        pid: 99999999,
++        hostname: Deno.hostname(),
++        run_id: runId,
++        started_at: "2026-06-11T00:00:00.000Z",
++      }) + "\n",
++    );
++
++    const report = await doctorRun({ workflowDir, runId });
++    assert(codes(report).includes("ORPHAN_NODE_DIR"));
++    assert(codes(report).includes("MISSING_NODE_DIR"));
++    assert(codes(report).includes("STALE_LOCK"));
++  });
++});
++
++Deno.test("FR-E83 repair torn tail preserves backup and replays cleanly", async () => {
++  await withRun(async ({ workflowDir, runId, runDir }) => {
++    const events = cleanEvents(runId);
++    await writeJournal(runDir, events, '{"schema_version":1');
++    await Deno.mkdir(join(runDir, "build"), { recursive: true });
++    const original = await Deno.readTextFile(getJournalPath(runDir));
++
++    const report = await repairRun({ workflowDir, runId });
++    assertEquals(report.hasErrors, false);
++    assert(codes(report).includes("REPAIR_TORN_FINAL_LINE"));
++    assertEquals(
++      await Deno.readTextFile(`${getJournalPath(runDir)}.bak`),
++      original,
++    );
++    assertEquals(
++      await Deno.readTextFile(getJournalPath(runDir)),
++      events.map((entry) => JSON.stringify(entry)).join("\n") + "\n",
++    );
++    assertEquals((await replayRunJournal(runDir)).state.status, "completed");
++  });
++});
++
++Deno.test("FR-E83 repair refuses live lock", async () => {
++  await withRun(async ({ workflowDir, runId, runDir }) => {
++    await writeJournal(runDir, cleanEvents(runId), '{"schema_version":1');
++    await Deno.mkdir(join(runDir, "build"), { recursive: true });
++    const original = await Deno.readTextFile(getJournalPath(runDir));
++    await Deno.writeTextFile(
++      defaultLockPath(workflowDir),
++      JSON.stringify({
++        pid: Deno.pid,
++        hostname: Deno.hostname(),
++        run_id: runId,
++        started_at: "2026-06-11T00:00:00.000Z",
++      }) + "\n",
++    );
++
++    await assertRejects(
++      () => repairRun({ workflowDir, runId }),
++      Error,
++      "run is currently active",
++    );
++    assertEquals(await Deno.readTextFile(getJournalPath(runDir)), original);
++  });
++});
++
++Deno.test("FR-E83 active lock is not a doctor error without repair", async () => {
++  await withRun(async ({ workflowDir, runId, runDir }) => {
++    await writeJournal(runDir, cleanEvents(runId));
++    await Deno.mkdir(join(runDir, "build"), { recursive: true });
++    await Deno.writeTextFile(
++      defaultLockPath(workflowDir),
++      JSON.stringify({
++        pid: Deno.pid,
++        hostname: Deno.hostname(),
++        run_id: runId,
++        started_at: "2026-06-11T00:00:00.000Z",
++      }) + "\n",
++    );
++
++    const report = await doctorRun({ workflowDir, runId });
++    assertEquals(report.hasErrors, false);
++    assertEquals(codes(report), ["OK"]);
++  });
++});
++
++Deno.test("FR-E83 repair refuses mid-file garbage", async () => {
++  await withRun(async ({ workflowDir, runId, runDir }) => {
++    const [first, ...rest] = cleanEvents(runId);
++    await Deno.mkdir(runDir, { recursive: true });
++    const original = `${JSON.stringify(first)}\nnot-json\n${
++      rest.map((entry) => JSON.stringify(entry)).join("\n")
++    }\n`;
++    await Deno.writeTextFile(getJournalPath(runDir), original);
++
++    await assertRejects(
++      () => repairRun({ workflowDir, runId }),
++      Error,
++      "journal has errors beyond a torn final line",
++    );
++    assertEquals(await Deno.readTextFile(getJournalPath(runDir)), original);
++  });
++});
++
++Deno.test("FR-E83 json output shape", async () => {
++  await withRun(async ({ workflowDir, runId, runDir }) => {
++    await writeJournal(runDir, cleanEvents(runId), '{"schema_version":1');
++    const report = await doctorRun({ workflowDir, runId });
++    const parsed = JSON.parse(formatDoctorJson(report)) as {
++      findings: Array<Record<string, unknown>>;
++    };
++    assertEquals(Object.keys(parsed.findings[0]).sort(), [
++      "code",
++      "evidence_path",
++      "message",
++      "severity",
++    ]);
++  });
++});
+-- 
+2.54.0
+

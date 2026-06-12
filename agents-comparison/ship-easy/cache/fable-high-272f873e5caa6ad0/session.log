@@ -1,0 +1,9 @@
+Push verified: `@{u}` == `HEAD`. CI await skipped per benchmark (bare remote, no CI). **TOTAL STOP.**
+
+## Final Combined Report
+
+- **Plan**: `documents/tasks/2026/06/runs-prune.md` (GODS, `implements: [FR-E83]`) — variant B selected (dedicated `src/state/prune.ts` module + thin CLI wiring); 3 archetypes analyzed, critique triaged 4 apply / 1 discard / 1 defer.
+- **Implement**: TDD (RED→GREEN→REFACTOR→CHECK). New `pruneRuns()` with all safety rules (non-terminal / lock-referenced / unreplayable runs untouchable, keep-budget counts deletables only); CLI `runs prune --workflow --keep --dry-run` + `--help`; 10 fixture tests + 6 parser tests, all required cases covered. `deno task check` exit 0 (1027 tests). One mid-flight failure (docs token budget) fixed at root cause by splitting FR-E70/71/72 into `06b-plugin-distribution.md` (moved sections byte-identical).
+- **Review**: **Approve** — requirements 13/13, 0 critical / 0 warning / 1 nit; parent baseline (1017 tests) green; JiT mutant subset reduced (new-code diff) with Degradation Notes recorded.
+- **Commit**: `a8affed` — `feat(cli): add runs prune subcommand for safe cleanup of old runs (FR-E83)`, 14 files (code, tests, SRS FR-E83 + index rows, SDS sections 01/02, README), task status auto-flipped to `done`.
+- **Push**: `bench` → `origin/bench` (new branch, upstream set), pushed SHA `a8affed`, post-push verification passed (`@{u}` == `HEAD`), CI await: skipped (benchmark remote has no CI).

@@ -1,0 +1,10 @@
+Done.
+
+- Plan file: `documents/tasks/2026/06/runs-prune.md`
+- Implemented `flowai-workflow runs prune --workflow <dir> --keep <N> [--dry-run]`
+- Added tests and FR-E83 docs
+- Gate passed: `deno task check`
+- Review verdict: `Approve`
+- Commit: `62548f2 feat(cli): add safe runs prune command`
+- Pushed: `bench -> origin/bench`
+- Verified: local `HEAD` equals upstream `62548f2ff2dd919200f5cfc4d91a83103b9ee13b`

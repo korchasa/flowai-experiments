@@ -1,0 +1,9 @@
+Push verified: `@{u}` == `HEAD`. CI await skipped per benchmark (no CI on the bare remote). **TOTAL STOP.**
+
+## Final Combined Report
+
+- **Plan**: `documents/tasks/2026/06/runs-doctor.md` (GODS, frontmatter `implements: [FR-E83]`, status auto-flipped to `done`). Selected variant: **V2 — dedicated `src/state/doctor.ts` command module + thin CLI wiring** (matches the FR-E75 command-layer pattern; rationale and severity decision log recorded in the plan file).
+- **Implement**: 23 new doctor tests + 6 CLI tests, all passing; `deno task check` green (fmt, lint, type-check, full suite, doc lint, FR field-set lint). New: `src/state/doctor.ts`, `src/state/doctor_test.ts`; modified: `src/cli.ts` (`parseDoctorArgs`, `runRunsDoctor`, `runs` dispatch, `--help`), `src/types.ts` (`RUN_JOURNAL_EVENT_KINDS` runtime const), `src/state/lock.ts` (`isProcessAlive` exported), `src/mod.ts` (doctor API barrel). All Requested-behavior items covered: severity-grouped report with exit 0/1, `--repair` with byte-identical `.bak` + atomic rewrite + both refusal paths, `--json`, help listing; existing replayer reused as the single replay truth.
+- **Review**: **Approve**. One fix applied during review (evidence `path` on replay-invariant findings); verified end-to-end against a fabricated degraded run (diagnose → repair → clean JSON). No catching tests (additive diff); JiT mutant pass skipped with degradation note.
+- **Commit**: `75377fc` — `feat(engine): add \`runs doctor\` journal health checker with mechanical repair (FR-E83)`, 13 files, +1742/−24. Doc sync: SRS FR-E83 section in `01-execution-model.md` + both indexes, SDS module description, README "Runs Doctor" section. Reflect skill unavailable in this environment — skipped with note.
+- **Push**: branch `bench` → `origin/bench` (upstream set), SHA `75377fc78f0acd9589a20483f2a53ca34eff405f`, post-push verification passed (`@{u}` == `HEAD`). CI await: skipped (benchmark remote has no CI).

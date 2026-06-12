@@ -16,6 +16,12 @@ anchor-systems/                documentation anchor/link navigation benchmark
 tokenizers/                    tokens/char across models × 40+ UDHR languages (OpenRouter)
 compression-decompression/     compress→decompress fact-retention benchmark (Claude CLI)
 images-hard/                   text-to-image: 12 hard test cases (OpenRouter)
+agents-comparison/             model×effort benchmark family for unattended agent work (claude + codex CLI):
+  app-generation/               autonomous /goal builds of a desktop app (free vs prescriptive brief)
+  maintenance/                  pinned maintenance-skill audits @ fixed commit, pooled-union judged
+  ship-easy/                    delivery via pinned /ship: runs prune (safety rules)
+  ship-medium/                  delivery via pinned /ship: runs doctor (durability + repair)
+  ship-hard/                    delivery via pinned /ship: journal snapshots + crash-safe compaction
 scripts/
   task-experiment.ts            CLI entry (deno task experiment <name> --variant <v> ...)
 config.json                     IDE defaults (agent_model, judge model)
@@ -101,7 +107,12 @@ The root README only tracks retained evidence coverage.
 | tokenizers | [tokenizers/README.md](tokenizers/README.md) | 2 |
 | images-hard | [images-hard/README.md](images-hard/README.md) | 2 |
 | compression-decompression | [compression-decompression/README.md](compression-decompression/README.md) | 2 |
-| **Total** |  | **52** |
+| agents-comparison (app-generation) | [agents-comparison/app-generation/README.md](agents-comparison/app-generation/README.md) | 1 |
+| agents-comparison (maintenance) | [agents-comparison/maintenance/README.md](agents-comparison/maintenance/README.md) | 1 |
+| agents-comparison (ship-easy) | [agents-comparison/ship-easy/README.md](agents-comparison/ship-easy/README.md) | 1 |
+| agents-comparison (ship-medium) | [agents-comparison/ship-medium/README.md](agents-comparison/ship-medium/README.md) | 1 |
+| agents-comparison (ship-hard) | [agents-comparison/ship-hard/README.md](agents-comparison/ship-hard/README.md) | 1 |
+| **Total** |  | **55** |
 
 ## License
 

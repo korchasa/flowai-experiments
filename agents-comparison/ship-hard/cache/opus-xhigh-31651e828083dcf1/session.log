@@ -1,0 +1,29 @@
+All five phases complete. Final report:
+
+## ✅ FR-E83 — Journal snapshots with crash-safe compaction: shipped
+
+**Pushed:** `bench → origin/bench` @ `4bd5fcc` (CI await skipped per benchmark).
+
+### Phases
+| Phase | Outcome |
+|---|---|
+| Plan | `documents/tasks/2026/06/journal-snapshots-compaction.md` (GODS, Variant B, all DoD `[x]`, `status: done`) |
+| Implement | 17 files, +1742/−83; **`deno task check` green** (1048+ tests) |
+| Review | **VERDICT: PASS** ×2 (independent QA correctness audit + lead/architect design review), no blockers |
+| Commit | `feat(engine): journal snapshots with crash-safe compaction (FR-E83)` (Conventional Commits) |
+| Push | landed on `origin/bench` |
+
+### All 15 MUSTs satisfied
+- **A1–A3** snapshot event (version/model/events_covered), backward-compat replay, forward refusal naming path+version.
+- **B4–B8** single extended replayer; backward-scan seeds from latest snapshot; suffix-only (proven by unparseable-prefix fixture); snapshot+tail ≡ full replay (JSON byte-equality); torn-tail tolerated incl. right after snapshot.
+- **C9–C12** exact protocol replay→tmp→fsync→`.bak`(from current journal)→atomic rename; crash injected at every step stays replayable; manual refuse-before-write on active run / unreplayable journal; one `.bak` kept.
+- **D13–D14** validated `journal_compaction_threshold_events` (non-neg int, 0=off, default 1000); engine auto-compacts at node-completion boundaries only, single verbose line.
+- **E15** `runs compact --workflow --run [--dry-run]`, exact success line, non-zero one-line refusals, in `--help`.
+
+### Review polish applied (non-blocking)
+- Restored two FR-E69 design-doc facts a token-budget compression had dropped.
+- Added a comment clarifying the protocol guarantees **process-crash** safety, not power-loss durability.
+
+### Key decisions logged
+- **Doc budget:** `04-data-and-logic.md` was already at the per-file ceiling (29917/29920); the required FR-E83 note forced reclaiming space, so I tightened verbose adjacent notes (FR-E35/E37/E39/E49) preserving every fact — now 29889 bytes (31 headroom).
+- **Engine bypasses the active-lock refusal** legitimately (it is the live lock holder); refusals live only in the manual `compactRun`/CLI path.

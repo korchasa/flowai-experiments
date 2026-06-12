@@ -28,7 +28,8 @@
       ".claude/",
       "compression-decompression/",
       "tokenizers/public/",
-      "images-hard/public/"
+      "images-hard/public/",
+      "**/cache/"
     ]
   },
   "lint": {
@@ -41,7 +42,8 @@
       "tokenizers/bench.ts",
       "tokenizers/merge-results.ts",
       "images-hard/public/",
-      "images-hard/bench.ts"
+      "images-hard/bench.ts",
+      "**/cache/"
     ]
   }
 }

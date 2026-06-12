@@ -1,0 +1,8 @@
+Done.
+
+- Plan: `documents/tasks/2026/06/journal-snapshots-compaction.md`
+- Review verdict: recorded there as `Approve`
+- Gate: `deno task check` passed, 1028 tests
+- Commit: `83ccd22 feat(engine): compact run journals with snapshots`
+- Push: `bench` pushed to `origin/bench`
+- CI wait: skipped per benchmark override

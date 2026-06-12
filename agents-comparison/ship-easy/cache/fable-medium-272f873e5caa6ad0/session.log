@@ -1,0 +1,13 @@
+Push verified (`@{u}` == `HEAD`). CI await skipped per benchmark rules. **TOTAL STOP.**
+
+## Final Combined Report
+
+- **Plan**: `documents/tasks/2026/06/runs-prune.md` (GODS format, `implements: [FR-E83]`, status auto-flipped to `done`). Selected variant: dedicated `src/state/prune.ts` module + thin CLI wiring (rationale recorded in the plan; chosen autonomously per benchmark non-interactive rule).
+- **Implement** (TDD, RED→GREEN observed each step):
+  - `src/state/prune.ts` — `planRunsPrune` / `pruneRuns`, reusing `getRunDir`, `replayRunJournal`, `defaultLockPath`/`readLockInfo`; keep-budget counts only deletable (terminal, unlocked, replayable) runs so safety always wins.
+  - `src/cli.ts` — `parseRunsPruneArgs`, `runRunsPrune`, `runs prune` dispatch, `--help` entry.
+  - Tests: 8 in `src/state/prune_test.ts` (keeps N newest, skips non-terminal/locked/unreplayable, `--keep 0`, dry-run, bad keep) + 5 in `src/cli_test.ts` (flag forms, bad `--keep` rejection, `--help` lists the subcommand). `deno task check` green; live smoke run matched the spec exactly.
+  - Docs: FR-E83 SRS section, SRS index map, `documents/index.md` row, SDS notes; `06b-plugin-distribution.md` split (FR-E70–E72) to satisfy the docs token-budget gate.
+- **Review**: **Approve** — requirements 8/8, 0 critical/warning, 1 nit (verbose-but-fine skip reason); JiT mutant subset n/a for a purely additive diff (risks killed by committed unit tests instead).
+- **Commit**: `d6968bc` — `feat(engine): add runs prune subcommand for safe run cleanup (FR-E83)`, 11 files, single commit, tree clean after.
+- **Push**: `bench` → `origin/bench` (upstream set, new branch), pushed SHA `d6968bc0916d`, post-push verification passed (`@{u}` == `HEAD`); CI await skipped (benchmark remote has no CI).
