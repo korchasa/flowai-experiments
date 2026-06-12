@@ -64,19 +64,7 @@ From session transcripts at official API rates: opus 5/25, fable 10/50, gpt-5.5 
 
 ### 3.1 Ship ladder — quality by difficulty
 
-Requirements-met fraction per cell (judge-scored against the task's hard requirements; series: easy, medium, hard):
-
-```mermaid
-xychart-beta
-  title "Ship ladder: requirements met (1.0 = all; series: easy, medium, hard)"
-  x-axis ["opus-med", "opus-high", "opus-xhigh", "fable-med", "fable-high", "gpt5.5-med", "gpt5.5-high", "gpt5.5-xhigh"]
-  y-axis "requirements met" 0.5 --> 1
-  bar [1.00, 1.00, 0.85, 1.00, 1.00, 0.96, 0.96, 0.96]
-  bar [1.00, 1.00, 1.00, 0.88, 1.00, 0.88, 0.97, 1.00]
-  bar [0.97, 0.97, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00]
-```
-
-The scores compress at the top — **ranks and defects separate the field, not fractions**:
+Judge-scored requirement fractions compress at the top (0.85–1.00 across all 24 cells), so **ranks and defects separate the field, not fractions**:
 
 > **Erratum (2026-06-12).** The table below shows **corrected** ranks and defect labels. An independent re-audit of all 24 judge verdicts (patch-level re-derivation plus live reproduction of every behavioral claim) overturned several of the judge's rank discriminators; raw judge artifacts in each benchmark's `results/` and `cache/` are retained unmodified as the historical record. What changed and why:
 >
@@ -120,8 +108,6 @@ gpt-5.5 held \$7–11 at every difficulty (≈96% cache-read input, 10–30× sm
 - **easy** — the most expensive cell (opus-xhigh) shipped the run's only behavioral outlier: keep-window semantics under which protected runs consume keep slots, pushing a recent run out of the window (a documented-but-divergent reading of an ambiguous retention clause, plus a reporting gap); every cheaper cell stayed with the consensus semantics.
 - **medium** — the separator was a subtly-tautological spec item (the replayer *derives* the total the spec asks to cross-check), which demanded inventing a genuine independent check. opus-xhigh placed first; the only real defect came from gpt-5.5-medium (a dead-code check).
 - **hard** — the premise ("journal grows without bound") had to be *understood*, not just item-matched. Two gpt cells embedded the full event history inside each snapshot, so "compaction" **grows** the file (judge-verified live: 1500→2027 bytes) while nominally meeting all 15 items; gpt-5.5-high also auto-triggered a full replay per node completion (O(n²) — the exact cost the feature must bound). opus-xhigh shipped defect-free: exact 5-step crash-safe protocol, fault hooks at every boundary, dual-review documentation.
-
-The suggestive pattern — expensive depth hurting on the easy task and winning on the hard one — is exactly the kind of single-run shape that needs repeated runs before it deserves the word "finding".
 
 ### 3.4 Maintenance — detection breadth (8 cells)
 
@@ -172,13 +158,13 @@ xychart-beta
 | fable-high | \$30.55 | 27m | 4,287 | 14 | 17 | ✅ | headless-Chrome screenshot verification |
 | opus-xhigh | \$34.42 | 39m | 7,672 | 20 | 17 | ✅ | self-measured feature accuracy, iterated to 100% |
 
-"Features (of 21)" = full implementations among 21 brief features in a static audit of every build (matrix with per-cell evidence: [app-generation/README.md §Gen2 feature audit](app-generation/README.md#gen2-feature-audit-2026-06-12-static)). The audit makes the shapes visible: claude cells cluster at 15–17/21 differing in *shape* (opus-medium breadth, fable-high analytic depth per LOC, opus-xhigh scale and architecture — 2× anyone's LOC, modular core, the run's only hand-rolled virtualizer); gpt forked hard on effort — medium shipped a 4/21 skeleton with a dead command palette, xhigh reached fable-medium's breadth (15/21) at ~1/4 the cost and ~40% of the LOC. Universal gaps across all 8: live watch, conversation-tree visualization, time-series trends.
+"Features (of 21)" = full implementations among 21 brief features in a static audit of every build (matrix with per-cell evidence: [app-generation/README.md §Gen2 feature audit](app-generation/README.md#gen2-feature-audit-2026-06-12-static)). claude cells cluster at 15–17/21 differing in *shape* (opus-medium breadth, fable-high analytic depth per LOC, opus-xhigh scale and architecture — 2× anyone's LOC, modular core, the run's only hand-rolled virtualizer); gpt forked hard on effort — medium shipped a 4/21 skeleton with a dead command palette, xhigh reached fable-medium's breadth (15/21) at ~1/4 the cost and ~40% of the LOC, and behind equal checkmarks the gpt implementations are shallower (per-query corpus re-parse instead of an index, API-only features without UI). Universal gaps across all 8: live watch, conversation-tree visualization, time-series trends.
 
-opus-xhigh built the deepest app (hand-built list virtualization, self-measured subagent-join accuracy, most tests); the gen2 prescriptive brief delivered strictly more than gen1 at the same total cost (claude matrix: gen1 \$120.70, gen2 \$113.55); without a hard DoD requirement, "desktop app" degraded to a browser tab in 4/5 gen1 cells. The gpt-5.5 cells honored the desktop-window requirement at \$1.83–5.83 — but their builds are 1.2–3.2k LOC vs 3.2–7.7k for claude, and behind equal checkmarks the implementations are shallower (per-query corpus re-parse instead of an index, API-only features without UI), so in this matrix the cost advantage bought the checklist, not the depth. Detail: [app-generation/README.md](app-generation/README.md).
+Gen1 vs gen2: the prescriptive gen2 brief delivered strictly more than gen1 at the same total cost (claude matrix: gen1 \$120.70, gen2 \$113.55); without a hard DoD requirement, "desktop app" degraded to a browser tab in 4/5 gen1 cells. Detail: [app-generation/README.md](app-generation/README.md).
 
 ### 3.6 Aggregate workload cost model
 
-A single benchmark cost is not how teams buy agents. The model below prices a *workload mix* per cell — one greenfield feature, a delivery ladder skewed toward small tasks, periodic audits — plus the rework the cell's own defects caused:
+The model prices a *workload mix* per cell — one greenfield feature, a delivery ladder skewed toward small tasks, periodic audits — plus rework caused by the cell's own defects:
 
 ```
 total = gen2 + 3 × hard + 9 × medium + 27 × easy + 5 × maintenance + fixes + feature-completion
