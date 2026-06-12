@@ -4,13 +4,13 @@ An empirical study of how model family and reasoning effort affect **fully auton
 
 > **Disclaimer — read before citing any number.**
 >
-> - **One run per cell.** Every benchmark×cell pair was executed exactly once; run-to-run variance is unmeasured. Ranks within one defect of each other should be read as ties.
+> - **One run per cell.** Every benchmark×cell pair was executed exactly once; run-to-run variance is unmeasured. Ranks within one defect of each other should be read as ties. A single run supports *descriptive* statements only — every interpretive pattern in this document (§3.3, §4) is a hypothesis for repeated runs, not a conclusion.
 > - **flowai instructions in the loop.** All agents worked under the [flowai](https://github.com/korchasa/flowai) framework's skills and project instructions (pinned `/ship` workflow, maintenance skill, `/goal`). Results measure model×effort *inside this harness*, not bare-model capability.
 > - **Very small task set.** Five tasks total (three delivery, one audit, one greenfield), all in one codebase family (Deno/TypeScript, strict SRS/SDS conventions). Generalization to other tasks and stacks is untested.
 > - **Single LLM judge** (opus:high). Mechanical checks anchor the big calls, but qualitative ranks inherit one judge's taste; the spec-ambiguity episode (§4, finding 5) shows how fragile judge calibration is without a mechanical anchor. All ship defect verdicts were subsequently re-audited against the patches and corrected — see the erratum in §3.1.
 > - **Dollar figures are normalized API-rate estimates** over subscription-billed runs; relative comparisons are sound, absolute values are not invoices.
 
-**Headline result (this run):** no single model×effort cell won every benchmark. Quality leadership flipped with the work regime — fable led detection breadth, opus-xhigh hard construction, gpt-5.5 cost — and the gap between "all checklist items met" and "the feature's purpose achieved" was where expensive depth earned its price.
+**Snapshot of this run** (one run per cell — descriptive, not conclusive): no single model×effort cell won every benchmark. The leaders differed by work regime — fable on detection breadth, opus-xhigh on hard construction, gpt-5.5 on cost — and several cells that met every checklist item still missed the feature's purpose (§3.3).
 
 ## 1. Benchmarks
 
@@ -115,11 +115,13 @@ xychart-beta
 
 gpt-5.5 held \$7–11 at every difficulty (≈96% cache-read input, 10–30× smaller output volume) and finished in 13–20 min vs 25–65 min for claude cells. In this ladder, cost scaled with difficulty only for claude cells.
 
-### 3.3 Where depth paid on this ladder
+### 3.3 What happened at each rung (single run — pattern, not proof)
 
-- **easy** — depth was wasted: the most expensive cell (opus-xhigh) shipped the run's only behavioral outlier — keep-window semantics under which protected runs consume keep slots, pushing a recent run out of the window (a documented-but-divergent reading of an ambiguous retention clause, plus a reporting gap); every cheaper cell stayed with the consensus semantics.
-- **medium** — depth started to matter: rank turned on a subtly-tautological spec item (the replayer *derives* the total the spec asks to cross-check) that demanded inventing a genuine independent check. opus-xhigh first; the only real defect came from gpt-5.5-medium (a dead-code check).
-- **hard** — depth was decisive: the premise ("journal grows without bound") had to be *understood*, not just item-matched. Two gpt cells embedded the full event history inside each snapshot, so "compaction" **grows** the file (judge-verified live: 1500→2027 bytes) while nominally meeting all 15 items; gpt-5.5-high also auto-triggered a full replay per node completion (O(n²) — the exact cost the feature must bound). opus-xhigh was flawless: exact 5-step crash-safe protocol, fault hooks at every boundary, dual-review documentation.
+- **easy** — the most expensive cell (opus-xhigh) shipped the run's only behavioral outlier: keep-window semantics under which protected runs consume keep slots, pushing a recent run out of the window (a documented-but-divergent reading of an ambiguous retention clause, plus a reporting gap); every cheaper cell stayed with the consensus semantics.
+- **medium** — the separator was a subtly-tautological spec item (the replayer *derives* the total the spec asks to cross-check), which demanded inventing a genuine independent check. opus-xhigh placed first; the only real defect came from gpt-5.5-medium (a dead-code check).
+- **hard** — the premise ("journal grows without bound") had to be *understood*, not just item-matched. Two gpt cells embedded the full event history inside each snapshot, so "compaction" **grows** the file (judge-verified live: 1500→2027 bytes) while nominally meeting all 15 items; gpt-5.5-high also auto-triggered a full replay per node completion (O(n²) — the exact cost the feature must bound). opus-xhigh shipped defect-free: exact 5-step crash-safe protocol, fault hooks at every boundary, dual-review documentation.
+
+The suggestive pattern — expensive depth hurting on the easy task and winning on the hard one — is exactly the kind of single-run shape that needs repeated runs before it deserves the word "finding".
 
 ### 3.4 Maintenance — detection breadth (8 cells)
 
@@ -207,10 +209,12 @@ xychart-beta
 
 Reading it honestly: the 27×easy term dominates every claude total (small tasks are where per-run cost hurts most); the fix terms barely move totals — defect *rework* is cheap, while defect *risk* (a prune with divergent retention semantics, a compaction that grows files) is the real price and is not in the formula. The feature-completion term is the first place gpt's thinness costs money: gpt-5.5-medium pays \$78.78 to finish its 4/21 skeleton — 41× its build cost — and loses the family lead to gpt-5.5-xhigh, whose richer build makes its completion bill the smallest in the run (\$38.55). The claude order is unchanged (completion adds 6–8% to each total). Remaining caveat: the gpt totals still assume its maintenance breadth (0.08–0.32 completeness) is acceptable for the mix. Quality columns from §3.1–3.5 must be read next to this table.
 
-## 4. Cross-benchmark findings
+## 4. Observations and hypotheses
+
+One run per cell means none of the items below is a conclusion. Items 1–2 and 6 are single-run patterns that repeated runs could overturn; items 3–5 are methodological lessons about the harness itself (those hold regardless of run variance).
 
 1. **Quality leadership flipped with the work regime.** Detection breadth: fable led (0.686 vs ≤0.321 for everyone else). Hard construction: opus-xhigh led. Cost: gpt-5.5 led (\$384–420 for the whole workload mix, feature-completion included, vs \$1236+ for claude). With one run per cell and five tasks this is not a model-tier verdict — but within this matrix, no single cell was the right pick for all three regimes.
-2. **In this run, extra effort paid only on the harder construction tasks.** xhigh was last on ship-easy (with the run's only behavioral divergence), first on medium and hard, and bottom-tier on maintenance breadth in both families (opus-xhigh 0.204, gpt-5.5-xhigh 0.088). The one maintenance exception points at a different lever: gpt-5.5-high led its family by fanning out sub-sessions — parallelism, not effort, bought breadth here.
+2. **Effort level correlated with quality only on the harder construction tasks.** xhigh was last on ship-easy (with the run's only behavioral divergence), first on medium and hard, and bottom-tier on maintenance breadth in both families (opus-xhigh 0.204, gpt-5.5-xhigh 0.088). One contrary data point: gpt-5.5-high led its family on maintenance by fanning out sub-sessions — a parallelism effect, not an effort effect, if it replicates.
 3. **Checklist coverage did not guarantee purpose achievement.** Ship-hard's two "15/15" gpt cells defeated the feature's purpose (compaction that grows the file). Methodological lesson for this harness: the judge has to verify the *premise* mechanically (does the file actually shrink?), not just the items.
 4. **Before reading a repeated failure as a model trait, check whether the harness forces it.** The original run's headline cluster — "three claude cells scope-creeped the same doc split" — dissolved under audit: the split was prescribed by the target repo's own docs size gate. What survives within this run: two gpt cells independently shipped the same design-comprehension defect class on ship-hard (history-embedding snapshots), and no claude cell did — a 2-cell sample, not a family verdict.
 5. **Spec ambiguity measures the judge, not the cells.** A factual error in the original easy task (naming a state file the engine never writes) produced two opposite rankings from the same judge, depending on which side it took as ground truth. After the spec was fixed so exactly one variant is correct, ranking became stable. Verify every factual claim in a task spec against the pinned codebase before benchmarking.
