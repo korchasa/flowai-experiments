@@ -7,7 +7,7 @@ An empirical study of how model family and reasoning effort affect **fully auton
 > - **One run per cell.** Every benchmark×cell pair was executed exactly once; run-to-run variance is unmeasured. Ranks within one defect of each other should be read as ties.
 > - **flowai instructions in the loop.** All agents worked under the [flowai](https://github.com/korchasa/flowai) framework's skills and project instructions (pinned `/ship` workflow, maintenance skill, `/goal`). Results measure model×effort *inside this harness*, not bare-model capability.
 > - **Very small task set.** Five tasks total (three delivery, one audit, one greenfield), all in one codebase family (Deno/TypeScript, strict SRS/SDS conventions). Generalization to other tasks and stacks is untested.
-> - **Single LLM judge** (opus:high). Mechanical checks anchor the big calls, but qualitative ranks inherit one judge's taste; the spec-ambiguity episode (§4, finding 5) shows how fragile judge calibration is without a mechanical anchor.
+> - **Single LLM judge** (opus:high). Mechanical checks anchor the big calls, but qualitative ranks inherit one judge's taste; the spec-ambiguity episode (§4, finding 5) shows how fragile judge calibration is without a mechanical anchor. All ship defect verdicts were subsequently re-audited against the patches and corrected — see the erratum in §3.1.
 > - **Dollar figures are normalized API-rate estimates** over subscription-billed runs; relative comparisons are sound, absolute values are not invoices.
 
 **Headline result:** no single model×effort cell wins everywhere. Quality leadership flips with the work regime — detection breadth belongs to fable, hard construction to opus-xhigh, cost-efficiency to gpt-5.5 — and the gap between "all checklist items met" and "the feature's purpose achieved" is where expensive depth earns its price.
@@ -54,6 +54,8 @@ A fixed strong judge cell (`opus:high`, for cross-run comparability) follows a s
 
 The maintenance benchmark has no ground truth, so it uses **pooled-union scoring**: findings from all reports are normalized, deduplicated, and each pooled finding is verified against the checkout; completeness = valid/(pooled valid), precision = valid/(valid+invalid).
 
+After the first publication of these results, every ship defect verdict was independently **re-audited**: auditor agents re-derived each claim from the cells' patches and reproduced the behavioral bugs live on the pinned base commit. The audit confirmed the factual core but overturned several rank discriminators; the corrected scores carry an erratum note in §3.1.
+
 ### 2.6 Cost accounting
 
 From session transcripts at official API rates: opus 5/25, fable 10/50, gpt-5.5 5/30 per Mtok, plus cache-write/read rates (claude: `~/.claude/projects/` `message.usage`; codex: `~/.codex/sessions/` `total_token_usage`). All runs used subscription auth, so dollar figures are normalized estimates, not bills.
@@ -76,16 +78,26 @@ xychart-beta
 
 The scores compress at the top — **ranks and defects separate the field, not fractions**:
 
+> **Erratum (2026-06-12).** The table below shows **corrected** ranks and defect labels. An independent re-audit of all 24 judge verdicts (patch-level re-derivation plus live reproduction of every behavioral claim) overturned several of the judge's rank discriminators; raw judge artifacts in each benchmark's `results/` and `cache/` are retained unmodified as the historical record. What changed and why:
+>
+> - **"Scope creep" on ship-easy (opus-high, fable-high, fable-medium) — withdrawn.** The 06→06b doc split was forced by the target repo's own docs size gate: the SRS file sat 994 bytes under its 29,920-byte per-file budget while the task-required new FR sections ran 1.8–2.6 KB, and the gate's failure message itself prescribes "split overlarge files by functional area". Executing a gate-prescribed remediation is not scope creep. These three cells move up; the easy mid-field collapses into a tie.
+> - **Helper duplication is not gpt-specific.** The same `isTerminalStatus` duplicate exists in opus-high and fable-medium (5/8 cells total); the judge charged only the gpt trio and mis-credited opus-high with reuse.
+> - **opus-xhigh's easy defect re-characterized.** "Protected runs get over-deleted" is refuted — locked/non-terminal runs are never deleted. The reproduced behavior: protected runs *consume keep slots*, pushing a recent unprotected run out of the window (`--keep 2` deletes 2 runs where 7/8 cells delete 1). Its own plan documents this as a deliberate reading of an ambiguous retention clause; a reporting gap (locked runs shown "kept" without the protective reason) is confirmed. Still the run's only 1-of-8 behavioral outlier on a destructive command → stays last.
+> - **Asymmetric labels equalized on ship-medium.** fable-medium prints the same unrounded float charged to gpt-5.5-xhigh as cosmetic; gpt-5.5-xhigh omits `repairs[]` from `--json` exactly as gpt-5.5-medium does (minor). gpt-5.5-medium's "unrelated doc churn" is withdrawn — its FR-E47 compression was forced by the same docs size gate (the design file had 3 bytes of headroom and the in-scope FR-E83 section had to fit).
+> - **ship-hard additions.** gpt-5.5-xhigh's auto-trigger re-parses the whole journal on every node completion — the same O(n²) class the judge charged only to gpt-5.5-high (lighter constant: one parse, no replay). opus-high's auto-trigger test gap is narrower than the judge's summary stated (Engine.run() tests exist; only the mid-node exclusion and the verbose line are unasserted).
+>
+> All load-bearing defect facts survived the audit and were reproduced live: the two growing compactions, the O(n²) trigger, the dead-code cost check, the keep-window divergence. Aggregate cost totals (§3.6) are unchanged — every charged fix corresponds to a defect that survived.
+
 | Cell | easy: rank (defect) | medium: rank (defect) | hard: rank (defect) |
 | --- | --- | --- | --- |
-| opus-medium | **1** (none) | 4 (none) | 5 (1 low) |
-| opus-high | 5 (scope creep) | 6 (1 cosmetic) | 6 (2 low) |
-| opus-xhigh | 8 (**over-deletion bug**) | **1** (none) | **1** (none) |
-| fable-medium | 7 (scope creep) | 3 (none) | 2 (none, 215 tests) |
-| fable-high | 6 (scope creep) | 2 (none) | 3 (none) |
-| gpt-5.5-medium | 3 (helper dup) | 8 (**dead-code check**) | 4 (3 low) |
-| gpt-5.5-high | 4 (helper dup) | 7 (1 minor) | 8 (**2 major**) |
-| gpt-5.5-xhigh | 2 (helper dup) | 5 (1 cosmetic) | 7 (**1 major**) |
+| opus-medium | **1–2** (none) | 4 (none) | 5 (1 low) |
+| opus-high | 3–7 (helper dup) | 6 (1 cosmetic) | 6 (2 low) |
+| opus-xhigh | 8 (**keep-window semantics + reporting gap**) | **1** (none) | **1** (none) |
+| fable-medium | 3–7 (helper dup) | 3 (1 cosmetic) | 2 (215 tests) |
+| fable-high | **1–2** (none) | 2 (none) | 3 (none) |
+| gpt-5.5-medium | 3–7 (helper dup) | 8 (**dead-code check**) | 4 (3 low) |
+| gpt-5.5-high | 3–7 (helper dup) | 7 (1 minor) | 8 (**2 major**) |
+| gpt-5.5-xhigh | 3–7 (helper dup) | 5 (1 cosmetic + 1 minor) | 7 (**1 major** + O(n²)-class trigger) |
 
 All 24 ship cells cleared the hard bars: green gate (`deno task check`), real push verified in the bare remote, one conventional commit, FR registered per SRS conventions.
 
@@ -105,7 +117,7 @@ gpt-5.5 holds \$7–11 at every difficulty (≈96% cache-read input, 10–30× s
 
 ### 3.3 The ladder's central finding: where depth starts paying
 
-- **easy** — depth is wasted: the most expensive cell (opus-xhigh) shipped the run's only real bug (keep-window applied before the safety filter → over-deletion of a recent terminal run); the cheap conservative cells won.
+- **easy** — depth is wasted: the most expensive cell (opus-xhigh) shipped the run's only behavioral outlier — keep-window semantics under which protected runs consume keep slots, pushing a recent run out of the window (a documented-but-divergent reading of an ambiguous retention clause, plus a reporting gap); every cheaper cell stayed with the consensus semantics.
 - **medium** — depth starts to matter: rank turned on a subtly-tautological spec item (the replayer *derives* the total the spec asks to cross-check) that demanded inventing a genuine independent check. opus-xhigh first; the only real defect came from gpt-5.5-medium (a dead-code check).
 - **hard** — depth is decisive: the premise ("journal grows without bound") had to be *understood*, not just item-matched. Two gpt cells embedded the full event history inside each snapshot, so "compaction" **grows** the file (judge-verified live: 1500→2027 bytes) while nominally meeting all 15 items; gpt-5.5-high also auto-triggered a full replay per node completion (O(n²) — the exact cost the feature must bound). opus-xhigh was flawless: exact 5-step crash-safe protocol, fault hooks at every boundary, dual-review documentation.
 
@@ -168,14 +180,14 @@ xychart-beta
   bar [305.78, 345.55, 365.81, 1153.20, 1391.88, 1573.16, 2007.15, 3033.53]
 ```
 
-Reading it honestly: the 27×easy term dominates every claude total (small tasks are where per-run cost hurts most); the fix terms barely move totals — defect *rework* is cheap, while defect *risk* (a prune that over-deletes, a compaction that grows files) is the real price and is not in the formula; and the gpt totals assume its maintenance breadth (0.08–0.32 completeness) and build depth are acceptable for the mix. Quality columns from §3.1–3.5 must be read next to this table.
+Reading it honestly: the 27×easy term dominates every claude total (small tasks are where per-run cost hurts most); the fix terms barely move totals — defect *rework* is cheap, while defect *risk* (a prune with divergent retention semantics, a compaction that grows files) is the real price and is not in the formula; and the gpt totals assume its maintenance breadth (0.08–0.32 completeness) and build depth are acceptable for the mix. Quality columns from §3.1–3.5 must be read next to this table.
 
 ## 4. Cross-benchmark findings
 
 1. **Regime beats model tier.** Detection breadth: fable dominates (0.686 vs ≤0.321 for everyone else). Hard construction: opus-xhigh dominates. Cost: gpt-5.5 dominates (\$306–366 for the whole workload mix vs \$1153+ for claude). Buying "the best model" without naming the regime is underspecified.
-2. **Effort pays only above a complexity threshold, and only in construction.** xhigh was last on ship-easy (with the run's only bug), first on medium and hard, and bottom-tier on maintenance breadth in both families (opus-xhigh 0.204, gpt-5.5-xhigh 0.088). The one maintenance exception proves a different rule: gpt-5.5-high won its family by fanning out sub-sessions — parallelism, not effort, bought breadth.
+2. **Effort pays only above a complexity threshold, and only in construction.** xhigh was last on ship-easy (with the run's only behavioral divergence), first on medium and hard, and bottom-tier on maintenance breadth in both families (opus-xhigh 0.204, gpt-5.5-xhigh 0.088). The one maintenance exception proves a different rule: gpt-5.5-high won its family by fanning out sub-sessions — parallelism, not effort, bought breadth.
 3. **Checklist coverage ≠ purpose achievement.** Ship-hard's two "15/15" gpt cells defeated the feature's purpose (compaction that grows the file). Judges must verify the *premise* mechanically (does the file actually shrink?), not just the items.
-4. **Failure modes are model-family-stable.** Three claude cells independently produced the same out-of-scope doc refactor on ship-easy; gpt cells never scope-creeped but twice shipped design-comprehension defects. Discipline and depth fail differently.
+4. **Before reading a repeated failure as a model trait, check whether the harness forces it.** The original run's headline cluster — "three claude cells scope-creeped the same doc split" — dissolved under audit: the split was prescribed by the target repo's own docs size gate. What survives as genuinely family-stable: two gpt cells independently shipped the same design-comprehension defect class on ship-hard (history-embedding snapshots), and no claude cell did.
 5. **Spec ambiguity measures the judge, not the cells.** A factual error in the original easy task (naming a state file the engine never writes) produced two opposite rankings from the same judge, depending on which side it took as ground truth. After the spec was fixed so exactly one variant is correct, ranking became stable. Verify every factual claim in a task spec against the pinned codebase before benchmarking.
 6. **Input quality dominates everything.** The gen2 prescriptive brief was worth more than any model upgrade; hard DoD requirements were the only reliable steering.
 

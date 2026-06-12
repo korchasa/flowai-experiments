@@ -15,11 +15,19 @@ Retained evidence: [results/](results/).
 ## Findings (2026-06-11, 8 cells)
 
 - All 8 cells delivered end-to-end on the journal-based spec: green `deno task check`, real push, one conventional commit, FR-E83 registered. Comparison is purely about engineering quality.
-- Ranking: opus-medium 1st (clean, conservative, zero defects) > gpt-5.5 trio 2nd–4th (correct semantics, focused diffs; minor `isTerminalStatus` duplication) > opus-high/fable-high/fable-medium 5th–7th (correct code but identical scope creep: each split unrelated plugin-distribution FRs into a new `06b` doc, which the workflow's review gate should have reverted) > opus-xhigh 8th with the run's only REAL bug: keep-window applied before the safety filter, so protected runs consume keep slots and a recent terminal run gets over-deleted (`--keep 2` deleted 2 runs where 7/8 cells delete 1).
-- The `06 → 06b` doc-split scope creep appeared in 3/8 cells — claude-family only; gpt-5.5 produced no scope creep at any effort and ran fastest (≈13–18 min vs ≈25 min).
+- Ranking (corrected per the erratum below): opus-medium and fable-high tie 1st–2nd (zero defects; both properly exported/reused the base `isTerminalStatus` helper) > five cells tie 3rd–7th — gpt-5.5 trio, opus-high, fable-medium — each duplicating `isTerminalStatus` instead of exporting the existing base helper > opus-xhigh 8th with the run's only behavioral outlier: keep-window semantics under which protected (locked/non-terminal) runs consume keep slots, pushing a recent unprotected terminal run out of the window (`--keep 2` deletes 2 runs where 7/8 cells delete 1). Protected runs themselves are never deleted; the cell's plan documents the semantics as a deliberate reading of an ambiguous retention clause. A reporting gap is also confirmed: locked runs inside the window are shown "kept" without the protective reason.
+- gpt-5.5 ran fastest (≈13–18 min vs ≈25 min) at every effort.
 - Cost (official API rates: opus 5/25, fable 10/50, gpt-5.5 5/30 per Mtok + cache rates): fable-high \$65.19, opus-xhigh \$41.30, opus-high \$32.38, opus-medium \$28.85, fable-medium \$28.41, gpt-5.5-xhigh \$7.64, gpt-5.5-high \$7.63, gpt-5.5-medium \$6.90. The gpt cells are 4–8× cheaper, driven by a ~96% cache-read share at \$0.50/Mtok and 10–30× smaller output volume.
 
 Detail: [results/2026-06-11-matrix-rev2.md](results/2026-06-11-matrix-rev2.md).
+
+## Erratum (2026-06-12): judge verdicts audited and corrected
+
+An independent re-audit of the judge's verdicts (patch-level re-derivation + live reproduction on the pinned base commit) corrected three things; the raw judge artifacts in `results/` and `cache/` are retained unmodified:
+
+- **"Scope creep" (opus-high, fable-high, fable-medium) withdrawn.** The 06→06b doc split was forced by the target repo's own docs size gate (`docsTokenBudget` in `scripts/check.ts`): the SRS file sat 994 bytes under its 29,920-byte budget, the task-required FR sections ran 1,837–2,636 bytes, and the gate's failure message prescribes "split overlarge files by functional area". The "clean" cells fit only by writing terser FRs — opus-medium with 6 bytes to spare.
+- **Helper duplication is 5/8, not gpt-only.** opus-high and fable-medium carry the same `isTerminalStatus` duplicate the judge charged only to the gpt trio; the judge mis-credited opus-high with reuse.
+- **opus-xhigh's defect re-characterized.** "Over-deletion of protected runs" is refuted; the reproduced behavior is keep-slot consumption by protected runs (see Findings), a documented divergent semantics plus a reporting gap — still the only 1-of-8 behavioral outlier on a destructive command, so the last place stands.
 
 ## Methodology note: spec ambiguity poisons single-judge ranking
 
