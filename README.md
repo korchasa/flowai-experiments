@@ -107,12 +107,12 @@ The root README only tracks retained evidence coverage.
 | tokenizers | [tokenizers/README.md](tokenizers/README.md) | 2 |
 | images-hard | [images-hard/README.md](images-hard/README.md) | 2 |
 | compression-decompression | [compression-decompression/README.md](compression-decompression/README.md) | 2 |
-| agents-comparison (app-generation) | [agents-comparison/app-generation/README.md](agents-comparison/app-generation/README.md) | 1 |
-| agents-comparison (maintenance) | [agents-comparison/maintenance/README.md](agents-comparison/maintenance/README.md) | 1 |
+| agents-comparison (app-generation) | [agents-comparison/app-generation/README.md](agents-comparison/app-generation/README.md) | 2 |
+| agents-comparison (maintenance) | [agents-comparison/maintenance/README.md](agents-comparison/maintenance/README.md) | 2 |
 | agents-comparison (ship-easy) | [agents-comparison/ship-easy/README.md](agents-comparison/ship-easy/README.md) | 1 |
 | agents-comparison (ship-medium) | [agents-comparison/ship-medium/README.md](agents-comparison/ship-medium/README.md) | 1 |
 | agents-comparison (ship-hard) | [agents-comparison/ship-hard/README.md](agents-comparison/ship-hard/README.md) | 1 |
-| **Total** |  | **55** |
+| **Total** |  | **57** |
 
 ## License
 

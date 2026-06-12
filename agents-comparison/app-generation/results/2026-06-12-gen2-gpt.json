@@ -1,0 +1,29 @@
+{
+  "date": "2026-06-12",
+  "brief": "BRIEF.md (gen2)",
+  "cli": "codex exec",
+  "cells": {
+    "gpt-5.5-medium": {
+      "cost_usd": 1.91,
+      "source_files": 11,
+      "desktop_window": true
+    },
+    "gpt-5.5-high": {
+      "cost_usd": 1.83,
+      "source_files": 8,
+      "desktop_window": true,
+      "checks": "lint+typecheck+tests pass"
+    },
+    "gpt-5.5-xhigh": {
+      "cost_usd": 5.83,
+      "source_files": 9,
+      "desktop_window": true
+    }
+  },
+  "rates_per_mtok": {
+    "input": 5,
+    "cached_input": 0.5,
+    "output": 30
+  },
+  "note": "Static verification only (window mechanism, tests, README coverage); no live feature audit. Builds are ~an order of magnitude smaller than claude cells."
+}

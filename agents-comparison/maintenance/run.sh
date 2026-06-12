@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-# Autonomous maintenance experiment: one detached `claude -p` session per
-# model×effort cell, each running a PINNED maintenance workflow (snapshot in
-# ./skill/, NOT the live plugin skill) on a FIXED commit of korchasa/flowai,
-# writing findings to a report file. Sessions run with --safe-mode so user
-# plugins/skills/hooks/CLAUDE.md cannot influence the benchmark.
+# Autonomous maintenance experiment: one detached headless session per
+# model×effort cell (`claude -p` for opus/fable, `codex exec` for gpt-*), each
+# running a PINNED maintenance workflow (snapshot in ./skill/, NOT the live
+# plugin skill) on a FIXED commit of korchasa/flowai, writing findings to a
+# report file. User config is isolated (claude --safe-mode / codex
+# --ignore-user-config) so plugins/skills/hooks cannot influence the benchmark.
 #
 # Result cache: each cell's MAINTENANCE_REPORT.md is stored under
 # ./cache/<cell>-<inputs-hash>/. Unchanged pins → re-run restores the report
@@ -13,7 +14,7 @@
 #   ./run.sh <out-root> [cells...]            # default 5-cell matrix
 #   ./run.sh ~/tmp/maint-run1 fable:medium    # single cell
 #
-# Cell format: <model>:<effort>. Requires: authenticated claude CLI.
+# Cell format: <model>:<effort>. Requires: authenticated claude + codex CLIs.
 # WARNING: spawns autonomous agents with --permission-mode bypassPermissions.
 set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -27,7 +28,7 @@ mkdir -p "$OUT/logs" "$CACHE_ROOT"
 : > "$OUT/pids.txt"
 
 CELLS=("$@")
-[ ${#CELLS[@]} -eq 0 ] && CELLS=(opus:high opus:medium fable:high fable:medium opus:xhigh)
+[ ${#CELLS[@]} -eq 0 ] && CELLS=(opus:high opus:medium fable:high fable:medium opus:xhigh gpt-5.5:medium gpt-5.5:high gpt-5.5:xhigh)
 
 export BENCH_PROMPT="Perform a project maintenance audit of the repository in the current directory by following the PINNED workflow instructions below — do NOT use any installed skill or plugin for this.
 
@@ -43,9 +44,13 @@ Execution mode — FULLY AUTOMATIC, NON-INTERACTIVE, SCAN-ONLY:
 
 Work autonomously to completion. Chat output MUST be in English and ultra-concise, overriding any global instruction to use another language."
 
-# Pinned-input hash: full skill snapshot + this launcher + target commit.
-CK_EXTRA="$COMMIT"
-KEY_BASE=$(ck_key "$HERE/skill/SKILL.md" "$HERE"/skill/references/*.md "$HERE"/skill/agents/*.md "$HERE/run.sh")
+# Pinned-input hash: full skill snapshot + target commit + the exact agent
+# prompt. Launcher mechanics deliberately excluded (harness fixes must not
+# invalidate cached results).
+CK_EXTRA="$COMMIT:$BENCH_PROMPT"
+KEY_BASE=$(ck_key "$HERE/skill/SKILL.md" "$HERE"/skill/references/*.md "$HERE"/skill/agents/*.md)
+# KEY_ONLY=1: print the cache key and exit (cache migration / debugging).
+[ "${KEY_ONLY:-}" = "1" ] && { echo "$KEY_BASE"; exit 0; }
 
 launched=0 cached=0
 for cell in "${CELLS[@]}"; do
@@ -63,16 +68,28 @@ for cell in "${CELLS[@]}"; do
     continue
   fi
 
+  rm -rf "$dir"
   git clone -q "$SRC_REPO" "$dir" && git -C "$dir" checkout -q "$COMMIT" || { echo "clone failed for $name"; continue; }
-  # Detached subshell: run claude, then harvest the report into the cache.
+  # Detached subshell: run the cell agent, then harvest the report into the cache.
   export model effort
   (cd "$dir" && nohup bash -c '
-      claude -p "$BENCH_PROMPT" \
-        --model "$model" --effort "$effort" \
-        --safe-mode \
-        --permission-mode bypassPermissions \
-        --add-dir "$0" \
-        >"$1/logs/$2.log" 2>"$1/logs/$2.err"
+      case "$model" in
+        gpt*)
+          codex exec "$BENCH_PROMPT" \
+            --model "$model" -c model_reasoning_effort="$effort" \
+            --ignore-user-config \
+            --dangerously-bypass-approvals-and-sandbox \
+            --color never >"$1/logs/$2.log" 2>"$1/logs/$2.err"
+          ;;
+        *)
+          claude -p "$BENCH_PROMPT" \
+            --model "$model" --effort "$effort" \
+            --safe-mode \
+            --permission-mode bypassPermissions \
+            --add-dir "$0" \
+            >"$1/logs/$2.log" 2>"$1/logs/$2.err"
+          ;;
+      esac
       rc=$?
       if [ -f MAINTENANCE_REPORT.md ]; then
         mkdir -p "$3"

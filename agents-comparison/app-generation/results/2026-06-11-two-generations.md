@@ -4,17 +4,17 @@ Task: desktop analyzer for `~/.claude/` Claude Code sessions (see ../BRIEF.md). 
 
 ## Per-build data
 
-Source: each build's own session transcript in `~/.claude/projects/` (usage-derived cost, timestamp-derived duration) + live verification of the artifacts.
+Source: each build's own session transcript in `~/.claude/projects/` (usage-derived cost at official API rates (opus 5/25, fable 10/50 per Mtok + cache rates), timestamp-derived duration) + live verification of the artifacts.
 
 ### Gen1 (permissive brief: "choose a stack, prefer minimal setup")
 
 | Cell | Cost | Time | Tool calls | Stack | Tests | Verified live |
 |------|-----:|-----:|-----------:|-------|------:|---------------|
-| opus-high | $36.79 | 18m | 66 | npm+Vite+Express SPA | 18/18 | UI 200, 1164 sessions indexed, dashboard $14.9k total cost |
-| opus-medium | $42.62 | 20m | 84 | npm+Vite client/server | 15/15 | 4771-event session parsed; block-level search w/ snippets |
-| fable-high | $18.39 | 26m | 95 | **Deno**, chromeless window | 15/15 | richest behavior dashboard (stopReasons/interrupts/askUser/toolProfile/primitives) |
-| fable-medium | $12.49 | 21m | 80 | npm, `open` URL | 13/13 | parseHealth, danglingToolUseIds, md-export |
-| opus-xhigh | $97.35 | 37m | 129 | npm | 28/28 | dual-source subagents, 84% agentId join, virtualization |
+| opus-high | \$12.26 | 18m | 66 | npm+Vite+Express SPA | 18/18 | UI 200, 1164 sessions indexed, dashboard \$14.9k total cost |
+| opus-medium | \$14.21 | 20m | 84 | npm+Vite client/server | 15/15 | 4771-event session parsed; block-level search w/ snippets |
+| fable-high | \$36.79 | 26m | 95 | **Deno**, chromeless window | 15/15 | richest behavior dashboard (stopReasons/interrupts/askUser/toolProfile/primitives) |
+| fable-medium | \$24.99 | 21m | 80 | npm, `open` URL | 13/13 | parseHealth, danglingToolUseIds, md-export |
+| opus-xhigh | \$32.45 | 37m | 129 | npm | 28/28 | dual-source subagents, 84% agentId join, virtualization |
 
 Gen1 deviation: "desktop app" requirement degraded to localhost web servers in 4/5 cells (only fable-high opened a chromeless window). Root cause: brief listed "local web app launched as desktop" as acceptable and pushed "minimal setup".
 
@@ -22,18 +22,18 @@ Gen1 deviation: "desktop app" requirement degraded to localhost web servers in 4
 
 | Cell | Cost | Time | Tool calls | Stack | Tests | Notable |
 |------|-----:|-----:|-----------:|-------|------:|---------|
-| opus-high | $43.16 | 18m | 63 | Deno | ✓ | incremental index reuses 1159/1165 entries on restart |
-| opus-medium | $34.06 | 15m | 52 | Deno | ✓ | multi-root support (`roots[]`); cheapest opus cell |
-| fable-high | $15.27 | 27m | 56 | Deno | 14/14 | all 14 patterns explicitly reported; 432 dangling tool_use detected |
-| fable-medium | $11.42 | 18m | 60 | Deno, zero-dependency | 12/12 | cheapest cell overall |
-| opus-xhigh | $103.26 | 39m | 134 | Deno | 20/20 | 100% subagent link rate; hand-written variable-height virtualizer over 17.6 MB session; consent-gated LLM scoring verified (400 without consent) |
+| opus-high | \$14.39 | 18m | 63 | Deno | ✓ | incremental index reuses 1159/1165 entries on restart |
+| opus-medium | \$11.35 | 15m | 52 | Deno | ✓ | multi-root support (`roots[]`); cheapest opus cell |
+| fable-high | \$30.55 | 27m | 56 | Deno | 14/14 | all 14 patterns explicitly reported; 432 dangling tool_use detected |
+| fable-medium | \$22.84 | 18m | 60 | Deno, zero-dependency | 12/12 | smallest footprint (zero deps) |
+| opus-xhigh | \$34.42 | 39m | 134 | Deno | 20/20 | 100% subagent link rate; hand-written variable-height virtualizer over 17.6 MB session; consent-gated LLM scoring verified (400 without consent) |
 
 All 5 gen2 cells opened real chromeless desktop windows (verified by process list: `Chrome --app=http://127.0.0.1:<port>`); Tauri correctly skipped per fallback rule (rustc 1.69 too old).
 
 ## Totals
 
-- Gen1: $207.6; Gen2: $207.2. Equal cost despite gen2's stricter, larger requirement set.
-- Fable cells: $11.4–18.4; Opus cells: $34.1–43.2; xhigh: $97.4–103.3.
+- Gen1: \$120.70; Gen2: \$113.55. Equal cost despite gen2's stricter, larger requirement set.
+- Opus medium/high cells: \$11.4–14.4 (cheapest); fable cells: \$22.8–36.8; opus-xhigh: \$32.5–34.4.
 
 ## Conclusions
 

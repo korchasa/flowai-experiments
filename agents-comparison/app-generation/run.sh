@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Autonomous app-generation experiment: one detached `claude -p "/goal ..."` build
-# per model×effort cell, each in its own work dir.
+# Autonomous app-generation experiment: one detached headless build per
+# model×effort cell, each in its own work dir (`claude -p "/goal ..."` for
+# opus/fable, `codex exec` with the same brief for gpt-*).
 #
 # Result cache: app builds are too large to copy, so the cache stores a POINTER
 # to the completed build dir, keyed by a hash of the brief + this launcher.
@@ -13,7 +14,7 @@
 #   ./run.sh ~/tmp/appgen-run1                # default 5-cell matrix
 #   ./run.sh ~/tmp/appgen-run2 opus:high:4711 fable:medium:4714
 #
-# Cell format: <model>:<effort>:<port>. Requires: claude CLI authenticated.
+# Cell format: <model>:<effort>:<port>. Requires: authenticated claude + codex CLIs.
 # WARNING: spawns fully autonomous agents with --permission-mode bypassPermissions.
 set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -25,11 +26,15 @@ mkdir -p "$OUT/logs" "$CACHE_ROOT"
 : > "$OUT/logs/pids.txt"
 
 CELLS=("$@")
-[ ${#CELLS[@]} -eq 0 ] && CELLS=(opus:high:4711 opus:medium:4712 fable:high:4713 fable:medium:4714 opus:xhigh:4715)
+[ ${#CELLS[@]} -eq 0 ] && CELLS=(opus:high:4711 opus:medium:4712 fable:high:4713 fable:medium:4714 opus:xhigh:4715 gpt-5.5:medium:4716 gpt-5.5:high:4717 gpt-5.5:xhigh:4718)
 
 GOAL_TPL='/goal Build ONE complete version of the desktop app in the current directory. FIRST read %BRIEF% in full, then implement per that brief. Your assigned default port is %PORT%. The goal is met ONLY when the Definition of Done in the brief holds — including the HARD requirement that the app opens as a standalone desktop window (chromeless app window or Tauri), NOT a browser tab, and all mandatory patterns are implemented. Work autonomously to completion; never stop to ask questions. Chat output MUST be in English and ultra-concise, overriding any global instruction to use another language.'
 
-KEY_BASE=$(ck_key "$HERE/BRIEF.md" "$HERE/run.sh")
+# Pinned-input hash: brief + goal template. Launcher mechanics excluded.
+CK_EXTRA="$GOAL_TPL"
+KEY_BASE=$(ck_key "$HERE/BRIEF.md")
+# KEY_ONLY=1: print the cache key and exit (cache migration / debugging).
+[ "${KEY_ONLY:-}" = "1" ] && { echo "$KEY_BASE"; exit 0; }
 
 launched=0 cached=0
 for cell in "${CELLS[@]}"; do
@@ -55,11 +60,23 @@ for cell in "${CELLS[@]}"; do
   export model effort
   export BENCH_GOAL="$goal"
   (cd "$dir" && nohup bash -c '
-      claude -p "$BENCH_GOAL" \
-        --model "$model" --effort "$effort" \
-        --permission-mode bypassPermissions \
-        --add-dir "$0" --add-dir "$HOME/.claude" \
-        >"$1/logs/$2.log" 2>"$1/logs/$2.err"
+      case "$model" in
+        gpt*)
+          # codex has no /goal command — strip the slash-command prefix.
+          codex exec "${BENCH_GOAL#/goal }" \
+            --model "$model" -c model_reasoning_effort="$effort" \
+            --ignore-user-config \
+            --dangerously-bypass-approvals-and-sandbox \
+            --color never >"$1/logs/$2.log" 2>"$1/logs/$2.err"
+          ;;
+        *)
+          claude -p "$BENCH_GOAL" \
+            --model "$model" --effort "$effort" \
+            --permission-mode bypassPermissions \
+            --add-dir "$0" --add-dir "$HOME/.claude" \
+            >"$1/logs/$2.log" 2>"$1/logs/$2.err"
+          ;;
+      esac
       rc=$?
       if [ -f README.md ]; then
         mkdir -p "$3"

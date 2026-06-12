@@ -1,0 +1,2459 @@
+{
+ "reference": "/Users/korchasa/tmp/maint-gpt-20260612/fable-high",
+ "pooledValidTotal": 137,
+ "pooledTotalIncludingInvalid": 139,
+ "invalidPooled": [
+  "P74",
+  "P75"
+ ],
+ "scores": {
+  "fable-high": {
+   "validFindings": 94,
+   "invalidFindings": 0,
+   "missedValidFindings": 43,
+   "completeness": 0.686,
+   "precision": 1.0,
+   "errors": [],
+   "missed_ids": [
+    "P11",
+    "P12",
+    "P13",
+    "P30",
+    "P34",
+    "P36",
+    "P37",
+    "P49",
+    "P50",
+    "P51",
+    "P52",
+    "P53",
+    "P54",
+    "P55",
+    "P56",
+    "P63",
+    "P73",
+    "P77",
+    "P81",
+    "P86",
+    "P87",
+    "P88",
+    "P89",
+    "P90",
+    "P96",
+    "P97",
+    "P98",
+    "P99",
+    "P108",
+    "P109",
+    "P110",
+    "P122",
+    "P125",
+    "P126",
+    "P133",
+    "P136",
+    "P137",
+    "P138",
+    "P139",
+    "P140",
+    "P141",
+    "P145",
+    "P146"
+   ]
+  },
+  "fable-medium": {
+   "validFindings": 67,
+   "invalidFindings": 0,
+   "missedValidFindings": 70,
+   "completeness": 0.489,
+   "precision": 1.0,
+   "errors": [],
+   "missed_ids": [
+    "P3",
+    "P4",
+    "P5",
+    "P6",
+    "P7",
+    "P11",
+    "P12",
+    "P13",
+    "P15",
+    "P17",
+    "P18",
+    "P24",
+    "P28",
+    "P29",
+    "P34",
+    "P35",
+    "P36",
+    "P37",
+    "P_AT",
+    "P42",
+    "P43",
+    "P46",
+    "P48",
+    "P49",
+    "P50",
+    "P53",
+    "P54",
+    "P55",
+    "P56",
+    "P58",
+    "P61",
+    "P62",
+    "P63",
+    "P67",
+    "P68",
+    "P73",
+    "P77",
+    "P79",
+    "P80",
+    "P83",
+    "P84",
+    "P85",
+    "P87",
+    "P88",
+    "P89",
+    "P98",
+    "P99",
+    "P100",
+    "P101",
+    "P105",
+    "P106",
+    "P110",
+    "P112",
+    "P114",
+    "P118",
+    "P120",
+    "P121",
+    "P122",
+    "P125",
+    "P126",
+    "P128",
+    "P130",
+    "P131",
+    "P135",
+    "P137",
+    "P138",
+    "P139",
+    "P140",
+    "P141",
+    "P146"
+   ]
+  },
+  "gpt-5.5-high": {
+   "validFindings": 44,
+   "invalidFindings": 1,
+   "missedValidFindings": 92,
+   "completeness": 0.321,
+   "precision": 0.978,
+   "errors": [
+    {
+     "id": "P122",
+     "type": "severity-inflation",
+     "detail": "git-diff '(git diff failed)' sentinel graded Critical; degraded-evidence (other evidence sections remain), non-fatal -> Critical contradicted; appropriate Med/Low. Repo otherwise 0 Critical."
+    }
+   ],
+   "missed_ids": [
+    "P1",
+    "P2",
+    "P3",
+    "P4",
+    "P5",
+    "P6",
+    "P7",
+    "P8",
+    "P10",
+    "P11",
+    "P12",
+    "P13",
+    "P15",
+    "P18",
+    "P19",
+    "P21",
+    "P23",
+    "P24",
+    "P25",
+    "P28",
+    "P29",
+    "P31",
+    "P32",
+    "P33",
+    "P34",
+    "P35",
+    "P40",
+    "P42",
+    "P43",
+    "P44",
+    "P46",
+    "P47",
+    "P48",
+    "P50",
+    "P53",
+    "P54",
+    "P59",
+    "P61",
+    "P62",
+    "P64",
+    "P65",
+    "P66",
+    "P67",
+    "P68",
+    "P71",
+    "P73",
+    "P79",
+    "P80",
+    "P81",
+    "P83",
+    "P84",
+    "P85",
+    "P86",
+    "P87",
+    "P88",
+    "P90",
+    "P91",
+    "P95",
+    "P96",
+    "P97",
+    "P98",
+    "P100",
+    "P101",
+    "P105",
+    "P106",
+    "P107",
+    "P108",
+    "P109",
+    "P111",
+    "P112",
+    "P113",
+    "P114",
+    "P115",
+    "P117",
+    "P118",
+    "P119",
+    "P120",
+    "P121",
+    "P125",
+    "P126",
+    "P127",
+    "P128",
+    "P130",
+    "P131",
+    "P132",
+    "P135",
+    "P136",
+    "P137",
+    "P141",
+    "P143",
+    "P144",
+    "P145"
+   ]
+  },
+  "gpt-5.5-medium": {
+   "validFindings": 11,
+   "invalidFindings": 0,
+   "missedValidFindings": 126,
+   "completeness": 0.08,
+   "precision": 1.0,
+   "errors": [],
+   "missed_ids": [
+    "P1",
+    "P2",
+    "P3",
+    "P4",
+    "P5",
+    "P6",
+    "P7",
+    "P8",
+    "P10",
+    "P11",
+    "P12",
+    "P13",
+    "P15",
+    "P16",
+    "P18",
+    "P19",
+    "P21",
+    "P22",
+    "P23",
+    "P24",
+    "P25",
+    "P28",
+    "P29",
+    "P30",
+    "P31",
+    "P32",
+    "P33",
+    "P34",
+    "P35",
+    "P36",
+    "P37",
+    "P_AT",
+    "P40",
+    "P42",
+    "P43",
+    "P44",
+    "P46",
+    "P47",
+    "P48",
+    "P49",
+    "P50",
+    "P51",
+    "P52",
+    "P53",
+    "P54",
+    "P55",
+    "P56",
+    "P58",
+    "P59",
+    "P60",
+    "P61",
+    "P62",
+    "P63",
+    "P64",
+    "P65",
+    "P66",
+    "P67",
+    "P68",
+    "P69",
+    "P71",
+    "P73",
+    "P77",
+    "P78",
+    "P79",
+    "P80",
+    "P81",
+    "P82",
+    "P83",
+    "P84",
+    "P85",
+    "P86",
+    "P87",
+    "P88",
+    "P89",
+    "P90",
+    "P91",
+    "P92",
+    "P93",
+    "P95",
+    "P96",
+    "P97",
+    "P98",
+    "P99",
+    "P100",
+    "P101",
+    "P102",
+    "P103",
+    "P104",
+    "P105",
+    "P106",
+    "P107",
+    "P108",
+    "P109",
+    "P110",
+    "P111",
+    "P112",
+    "P113",
+    "P114",
+    "P115",
+    "P116",
+    "P117",
+    "P118",
+    "P119",
+    "P120",
+    "P121",
+    "P122",
+    "P125",
+    "P126",
+    "P127",
+    "P128",
+    "P129",
+    "P130",
+    "P131",
+    "P132",
+    "P133",
+    "P135",
+    "P136",
+    "P137",
+    "P138",
+    "P139",
+    "P140",
+    "P142",
+    "P143",
+    "P144",
+    "P145",
+    "P146"
+   ]
+  },
+  "gpt-5.5-xhigh": {
+   "validFindings": 12,
+   "invalidFindings": 0,
+   "missedValidFindings": 125,
+   "completeness": 0.088,
+   "precision": 1.0,
+   "errors": [],
+   "missed_ids": [
+    "P1",
+    "P2",
+    "P3",
+    "P4",
+    "P5",
+    "P6",
+    "P7",
+    "P8",
+    "P9",
+    "P10",
+    "P11",
+    "P12",
+    "P13",
+    "P15",
+    "P17",
+    "P18",
+    "P19",
+    "P21",
+    "P22",
+    "P23",
+    "P24",
+    "P25",
+    "P26",
+    "P28",
+    "P29",
+    "P30",
+    "P31",
+    "P32",
+    "P33",
+    "P34",
+    "P35",
+    "P36",
+    "P37",
+    "P_AT",
+    "P40",
+    "P42",
+    "P43",
+    "P46",
+    "P47",
+    "P48",
+    "P49",
+    "P50",
+    "P51",
+    "P52",
+    "P53",
+    "P54",
+    "P55",
+    "P56",
+    "P58",
+    "P59",
+    "P60",
+    "P61",
+    "P62",
+    "P63",
+    "P64",
+    "P65",
+    "P66",
+    "P67",
+    "P68",
+    "P69",
+    "P71",
+    "P73",
+    "P77",
+    "P78",
+    "P79",
+    "P80",
+    "P81",
+    "P82",
+    "P83",
+    "P84",
+    "P85",
+    "P86",
+    "P87",
+    "P88",
+    "P89",
+    "P90",
+    "P91",
+    "P92",
+    "P93",
+    "P95",
+    "P96",
+    "P97",
+    "P98",
+    "P99",
+    "P100",
+    "P101",
+    "P104",
+    "P105",
+    "P106",
+    "P107",
+    "P108",
+    "P109",
+    "P110",
+    "P111",
+    "P112",
+    "P113",
+    "P114",
+    "P115",
+    "P116",
+    "P117",
+    "P118",
+    "P119",
+    "P120",
+    "P121",
+    "P122",
+    "P125",
+    "P126",
+    "P127",
+    "P128",
+    "P129",
+    "P130",
+    "P131",
+    "P132",
+    "P135",
+    "P136",
+    "P137",
+    "P138",
+    "P139",
+    "P140",
+    "P141",
+    "P142",
+    "P143",
+    "P144",
+    "P145",
+    "P146"
+   ]
+  },
+  "opus-high": {
+   "validFindings": 31,
+   "invalidFindings": 0,
+   "missedValidFindings": 106,
+   "completeness": 0.226,
+   "precision": 1.0,
+   "errors": [],
+   "missed_ids": [
+    "P1",
+    "P2",
+    "P3",
+    "P5",
+    "P6",
+    "P7",
+    "P8",
+    "P9",
+    "P13",
+    "P15",
+    "P17",
+    "P18",
+    "P19",
+    "P21",
+    "P22",
+    "P23",
+    "P24",
+    "P25",
+    "P26",
+    "P28",
+    "P29",
+    "P31",
+    "P32",
+    "P33",
+    "P34",
+    "P35",
+    "P36",
+    "P37",
+    "P_AT",
+    "P40",
+    "P42",
+    "P43",
+    "P44",
+    "P46",
+    "P47",
+    "P48",
+    "P51",
+    "P52",
+    "P53",
+    "P54",
+    "P55",
+    "P56",
+    "P59",
+    "P60",
+    "P61",
+    "P62",
+    "P63",
+    "P65",
+    "P66",
+    "P67",
+    "P68",
+    "P69",
+    "P71",
+    "P73",
+    "P77",
+    "P79",
+    "P80",
+    "P81",
+    "P82",
+    "P83",
+    "P84",
+    "P85",
+    "P87",
+    "P88",
+    "P89",
+    "P90",
+    "P92",
+    "P96",
+    "P97",
+    "P98",
+    "P99",
+    "P100",
+    "P103",
+    "P105",
+    "P106",
+    "P107",
+    "P108",
+    "P111",
+    "P112",
+    "P113",
+    "P114",
+    "P115",
+    "P116",
+    "P117",
+    "P118",
+    "P119",
+    "P120",
+    "P121",
+    "P122",
+    "P125",
+    "P126",
+    "P127",
+    "P128",
+    "P129",
+    "P130",
+    "P132",
+    "P135",
+    "P136",
+    "P137",
+    "P138",
+    "P139",
+    "P140",
+    "P141",
+    "P143",
+    "P145",
+    "P146"
+   ]
+  },
+  "opus-medium": {
+   "validFindings": 36,
+   "invalidFindings": 2,
+   "missedValidFindings": 101,
+   "completeness": 0.263,
+   "precision": 0.947,
+   "errors": [
+    {
+     "id": "P74",
+     "type": "wrong-claim",
+     "detail": "index.md:72 FR-MAINT row ('deno task check' maintenance) AGREES with SRS FR-MAINT block; claimed disagreement is false (confused with FR-MAINT-SCAN audit skill)."
+    },
+    {
+     "id": "P75",
+     "type": "non-issue",
+     "detail": "orphan [x] md-skill FRs missing code marker: AGENTS.md:133-134 explicitly permits non-code/acceptance evidence for such FRs -> policy-compliant, not a defect."
+    }
+   ],
+   "missed_ids": [
+    "P1",
+    "P2",
+    "P3",
+    "P4",
+    "P5",
+    "P6",
+    "P7",
+    "P8",
+    "P15",
+    "P17",
+    "P18",
+    "P19",
+    "P21",
+    "P22",
+    "P23",
+    "P24",
+    "P25",
+    "P26",
+    "P28",
+    "P29",
+    "P30",
+    "P31",
+    "P32",
+    "P33",
+    "P36",
+    "P37",
+    "P_AT",
+    "P43",
+    "P44",
+    "P46",
+    "P47",
+    "P48",
+    "P50",
+    "P51",
+    "P52",
+    "P54",
+    "P55",
+    "P56",
+    "P60",
+    "P61",
+    "P62",
+    "P63",
+    "P64",
+    "P65",
+    "P66",
+    "P67",
+    "P68",
+    "P69",
+    "P71",
+    "P73",
+    "P77",
+    "P78",
+    "P79",
+    "P80",
+    "P81",
+    "P82",
+    "P83",
+    "P84",
+    "P85",
+    "P86",
+    "P89",
+    "P90",
+    "P91",
+    "P92",
+    "P95",
+    "P96",
+    "P97",
+    "P101",
+    "P103",
+    "P105",
+    "P106",
+    "P107",
+    "P108",
+    "P109",
+    "P110",
+    "P111",
+    "P112",
+    "P113",
+    "P114",
+    "P115",
+    "P116",
+    "P117",
+    "P118",
+    "P119",
+    "P120",
+    "P121",
+    "P122",
+    "P127",
+    "P128",
+    "P130",
+    "P131",
+    "P132",
+    "P135",
+    "P136",
+    "P137",
+    "P139",
+    "P140",
+    "P141",
+    "P143",
+    "P145",
+    "P146"
+   ]
+  },
+  "opus-xhigh": {
+   "validFindings": 28,
+   "invalidFindings": 0,
+   "missedValidFindings": 109,
+   "completeness": 0.204,
+   "precision": 1.0,
+   "errors": [],
+   "missed_ids": [
+    "P1",
+    "P2",
+    "P3",
+    "P4",
+    "P5",
+    "P6",
+    "P7",
+    "P8",
+    "P10",
+    "P11",
+    "P12",
+    "P15",
+    "P17",
+    "P18",
+    "P19",
+    "P21",
+    "P22",
+    "P23",
+    "P24",
+    "P26",
+    "P28",
+    "P29",
+    "P33",
+    "P34",
+    "P35",
+    "P36",
+    "P37",
+    "P_AT",
+    "P40",
+    "P41",
+    "P42",
+    "P43",
+    "P46",
+    "P47",
+    "P48",
+    "P49",
+    "P50",
+    "P51",
+    "P52",
+    "P53",
+    "P55",
+    "P56",
+    "P58",
+    "P59",
+    "P61",
+    "P62",
+    "P63",
+    "P65",
+    "P66",
+    "P67",
+    "P68",
+    "P69",
+    "P71",
+    "P77",
+    "P79",
+    "P80",
+    "P81",
+    "P83",
+    "P84",
+    "P85",
+    "P86",
+    "P87",
+    "P88",
+    "P89",
+    "P90",
+    "P91",
+    "P92",
+    "P95",
+    "P96",
+    "P97",
+    "P98",
+    "P99",
+    "P100",
+    "P101",
+    "P105",
+    "P106",
+    "P107",
+    "P108",
+    "P109",
+    "P110",
+    "P111",
+    "P112",
+    "P113",
+    "P114",
+    "P115",
+    "P117",
+    "P118",
+    "P119",
+    "P120",
+    "P121",
+    "P122",
+    "P125",
+    "P126",
+    "P127",
+    "P129",
+    "P130",
+    "P131",
+    "P132",
+    "P133",
+    "P135",
+    "P136",
+    "P138",
+    "P139",
+    "P140",
+    "P141",
+    "P143",
+    "P144",
+    "P145",
+    "P146"
+   ]
+  }
+ },
+ "pooledFindings": [
+  {
+   "id": "P1",
+   "category": 1,
+   "severity": "Low",
+   "valid": true,
+   "label": "acceptance-tests/lib mixes snake_case & kebab-case module names",
+   "present_in": [
+    "fable-high",
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P2",
+   "category": 1,
+   "severity": "Low",
+   "valid": true,
+   "label": "scripts/maintenance_scan_buckets_test.ts lone snake_case at scripts/ root",
+   "present_in": [
+    "fable-high",
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P3",
+   "category": 1,
+   "severity": "Low",
+   "valid": true,
+   "label": "config_test.ts misnamed; tests llm.ts, no config.ts",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P4",
+   "category": 1,
+   "severity": "Low",
+   "valid": true,
+   "label": "generate_agents.test.ts uses .test.ts vs _test.ts convention",
+   "present_in": [
+    "fable-high",
+    "opus-high"
+   ]
+  },
+  {
+   "id": "P5",
+   "category": 1,
+   "severity": "Low",
+   "valid": true,
+   "label": "scripts/detect-ide-env.sh orphan diagnostic, zero refs",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P6",
+   "category": 1,
+   "severity": "Low",
+   "valid": true,
+   "label": "deno.json lint.exclude vs fmt.exclude asymmetry (scenarios fmt'd not linted)",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P10",
+   "category": 2,
+   "severity": "Low",
+   "valid": true,
+   "label": "salp-anchor-map extractFrAnchors/extractSdsAnchors over-exported (internal only)",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "opus-high",
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P11",
+   "category": 2,
+   "severity": "Low",
+   "valid": true,
+   "label": "salp.ts serializeAnchor/serializeRef exported test-only",
+   "present_in": [
+    "opus-high",
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P12",
+   "category": 2,
+   "severity": "Low",
+   "valid": true,
+   "label": "composite-list.ts compositeNames exported test-only",
+   "present_in": [
+    "opus-high",
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P13",
+   "category": 2,
+   "severity": "Low",
+   "valid": true,
+   "label": "spawned_agent.ts parsedSubtype assigned never read",
+   "present_in": [
+    "opus-medium",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P7",
+   "category": 2,
+   "severity": "High",
+   "valid": true,
+   "label": "spawned_agent_test.ts:250 zero-assertion test",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P8",
+   "category": 2,
+   "severity": "Medium",
+   "valid": true,
+   "label": "utils.ts:195 moveFileWithCleanup unused export",
+   "present_in": [
+    "fable-high",
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P9",
+   "category": 2,
+   "severity": "Low",
+   "valid": true,
+   "label": "build-claude-plugins.ts/validate-claude-plugins.ts + buildClaudePlugins dead wrappers",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-high",
+    "gpt-5.5-medium",
+    "opus-medium",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P14",
+   "category": 3,
+   "severity": "Medium",
+   "valid": true,
+   "label": "7 source files over 500-line bucket (build-plugins 897 ...)",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-high",
+    "gpt-5.5-medium",
+    "gpt-5.5-xhigh",
+    "opus-high",
+    "opus-medium",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P15",
+   "category": 3,
+   "severity": "High",
+   "valid": true,
+   "label": "build-plugins_test.ts 1205 LOC (2.4x bucket)",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P16",
+   "category": 3,
+   "severity": "Medium",
+   "valid": true,
+   "label": "functions over 50-line threshold (buildPack, parseAtomSource, ...)",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-high",
+    "gpt-5.5-xhigh",
+    "opus-high",
+    "opus-medium",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P17",
+   "category": 3,
+   "severity": "Medium",
+   "valid": true,
+   "label": "trace-styles.ts getCSS 319-line static-asset function",
+   "present_in": [
+    "fable-high",
+    "gpt-5.5-high",
+    "gpt-5.5-medium"
+   ]
+  },
+  {
+   "id": "P18",
+   "category": 3,
+   "severity": "High",
+   "valid": true,
+   "label": "build-plugins.ts god module (~8 concerns)",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P19",
+   "category": 3,
+   "severity": "High",
+   "valid": true,
+   "label": "sync-plugins-local.ts mixed concerns (dotenv/toml/exec/sync/cli)",
+   "present_in": [
+    "fable-high",
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P20",
+   "category": 4,
+   "severity": "Low",
+   "valid": true,
+   "label": "codex.ts:247 TODO(codex-usage), calculateUsage returns null",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-high",
+    "gpt-5.5-medium",
+    "gpt-5.5-xhigh",
+    "opus-high",
+    "opus-medium",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P21",
+   "category": 5,
+   "severity": "High",
+   "valid": true,
+   "label": "cache.ts hashes scripts/task-bench.ts (renamed); silently dropped from cache key",
+   "present_in": [
+    "fable-high",
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P22",
+   "category": 5,
+   "severity": "High",
+   "valid": true,
+   "label": "FR-DEV-SYNC/SDS dev-sync mechanism (sync-local task, SessionStart hook, gitignored .claude) doesn't exist",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-high"
+   ]
+  },
+  {
+   "id": "P23",
+   "category": 5,
+   "severity": "High",
+   "valid": true,
+   "label": "'deno task bench'/task-bench.ts rename drift across docs+CLI help",
+   "present_in": [
+    "fable-high",
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P24",
+   "category": 5,
+   "severity": "Medium",
+   "valid": true,
+   "label": "FR-ACCEPT-CACHE/SDS cache key cites cli/src/*.ts; no cli/ dir",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P25",
+   "category": 5,
+   "severity": "Medium",
+   "valid": true,
+   "label": "FR-MEMEX memex- prefix path drift + audit_test count (6 vs 8)",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P26",
+   "category": 5,
+   "severity": "Medium",
+   "valid": true,
+   "label": "README \u00a7Packs/Project-tree omits memex/ide-bridge/beta",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-high",
+    "gpt-5.5-medium"
+   ]
+  },
+  {
+   "id": "P28",
+   "category": 5,
+   "severity": "Low",
+   "valid": true,
+   "label": "design.md stale 'benchmarks/' directory token",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P29",
+   "category": 5,
+   "severity": "Low",
+   "valid": true,
+   "label": "design.md:135 pack-structure says run.sh; hooks use run.ts",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P30",
+   "category": 5,
+   "severity": "Medium",
+   "valid": true,
+   "label": "README:179 + FR-PACKS.STRUCT SUBAGENT.md layout; actual flat <name>.md",
+   "present_in": [
+    "fable-medium",
+    "gpt-5.5-high",
+    "opus-high",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P31",
+   "category": 5,
+   "severity": "Medium",
+   "valid": true,
+   "label": "FR-COMPONENT stale counts 39/5 vs 43/7 + malformed find command",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P32",
+   "category": 5,
+   "severity": "High",
+   "valid": true,
+   "label": "design.md \u00a73.5 cli/ monorepo + JSR + '1 hook' stale (3 hooks)",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P33",
+   "category": 5,
+   "severity": "Medium",
+   "valid": true,
+   "label": "line cap 500 in docs vs SKILL_MAX_LINES=700",
+   "present_in": [
+    "fable-high",
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P34",
+   "category": 5,
+   "severity": "Low",
+   "valid": true,
+   "label": "README 'Requires Deno v2.x' but no engine constraint",
+   "present_in": [
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P35",
+   "category": 5,
+   "severity": "Low",
+   "valid": true,
+   "label": "check-fr-coverage maintained/tested but not in task-check plan",
+   "present_in": [
+    "fable-high",
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P36",
+   "category": 5,
+   "severity": "High",
+   "valid": true,
+   "label": "memex assets AGENTS.md section source-summary but type:source; mod.ts expects source-summary",
+   "present_in": [
+    "gpt-5.5-high"
+   ]
+  },
+  {
+   "id": "P_AT",
+   "category": 5,
+   "severity": "Medium",
+   "valid": true,
+   "label": "acceptance-testing.md stale (task-bench, adapter list omits codex, frozen results table)",
+   "present_in": [
+    "fable-high",
+    "gpt-5.5-high"
+   ]
+  },
+  {
+   "id": "P38",
+   "category": 6,
+   "severity": "Low",
+   "valid": true,
+   "label": "many exported symbols lack JSDoc (build-plugins, validate-plugins, etc.)",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-high",
+    "gpt-5.5-medium",
+    "gpt-5.5-xhigh",
+    "opus-high",
+    "opus-medium",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P40",
+   "category": 7,
+   "severity": "High",
+   "valid": true,
+   "label": "AGENTS.md/SDS mandate legacy // FR-<ID> comments that check-traceability errors on",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P41",
+   "category": 7,
+   "severity": "High",
+   "valid": true,
+   "label": "framework/AGENTS.md flowai-* naming vs root no-prefix + check-naming-prefix",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-high",
+    "gpt-5.5-medium",
+    "gpt-5.5-xhigh",
+    "opus-high",
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P42",
+   "category": 7,
+   "severity": "High",
+   "valid": true,
+   "label": "AGENTS.md run-ALL-acceptance-tests vs defer-full-sweep-to-user contradiction",
+   "present_in": [
+    "fable-high",
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P43",
+   "category": 7,
+   "severity": "Medium",
+   "valid": true,
+   "label": "AGENTS.md 2-level FR rule vs 3-level FR-DIST.BUNDLE.PIN",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P44",
+   "category": 7,
+   "severity": "Medium",
+   "valid": true,
+   "label": "design.md \u00a73.0 Commands 9 vs 8 / generated paths 7 vs 8 self-contradiction",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-xhigh",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P46",
+   "category": 7,
+   "severity": "Medium",
+   "valid": true,
+   "label": "Documentation Hierarchy diverged AGENTS.md vs design.md",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P47",
+   "category": 7,
+   "severity": "Low",
+   "valid": true,
+   "label": "framework/AGENTS.md \u00a7Packs omits ide-bridge",
+   "present_in": [
+    "fable-high",
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P48",
+   "category": 7,
+   "severity": "Low",
+   "valid": true,
+   "label": "AGENTS.md READ-ONLY claim vs maintained sections ambiguous",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P49",
+   "category": 7,
+   "severity": "Medium",
+   "valid": true,
+   "label": "Tasks: AGENTS.md flat+gitignored vs nested committed reality/SRS",
+   "present_in": [
+    "gpt-5.5-high",
+    "opus-high",
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P50",
+   "category": 7,
+   "severity": "Medium",
+   "valid": true,
+   "label": "GODS frontmatter template shows only implements:, missing date/status/tags",
+   "present_in": [
+    "opus-high"
+   ]
+  },
+  {
+   "id": "P51",
+   "category": 7,
+   "severity": "Medium",
+   "valid": true,
+   "label": "Supported-IDE set stated 3 (Cursor/Claude/OpenCode) vs 4 incl Codex",
+   "present_in": [
+    "fable-medium",
+    "gpt-5.5-high"
+   ]
+  },
+  {
+   "id": "P52",
+   "category": 7,
+   "severity": "High",
+   "valid": true,
+   "label": "FR-DOC-LINT + scan-buckets define doc-health in deprecated GFM grammar",
+   "present_in": [
+    "fable-medium",
+    "gpt-5.5-high"
+   ]
+  },
+  {
+   "id": "P53",
+   "category": 7,
+   "severity": "Low",
+   "valid": true,
+   "label": "AGENTS.md vague 'etc.'/unquantifiable cost-vs-defect phrases",
+   "present_in": [
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P54",
+   "category": 7,
+   "severity": "Medium",
+   "valid": true,
+   "label": "CI-await SRS/SDS fixed 30x60 vs config-driven push.md",
+   "present_in": [
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P55",
+   "category": 7,
+   "severity": "High",
+   "valid": true,
+   "label": "README 'seven packs' overstates Codex availability (hook-only beta inert)",
+   "present_in": [
+    "gpt-5.5-high"
+   ]
+  },
+  {
+   "id": "P56",
+   "category": 7,
+   "severity": "High",
+   "valid": true,
+   "label": "Codex hook flag naming codex_hooks vs plugin_hooks/hooks drift",
+   "present_in": [
+    "gpt-5.5-high"
+   ]
+  },
+  {
+   "id": "P57",
+   "category": 8,
+   "severity": "High",
+   "valid": true,
+   "label": "hook path .claude/scripts/flowai-skill-structure-validate/run.ts doesn't exist",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-high",
+    "gpt-5.5-medium",
+    "gpt-5.5-xhigh",
+    "opus-high",
+    "opus-medium",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P58",
+   "category": 8,
+   "severity": "Low",
+   "valid": true,
+   "label": "acceptance-test-runner agent references stale benchmarks/ + flow-* ids",
+   "present_in": [
+    "fable-high",
+    "gpt-5.5-high",
+    "opus-high",
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P59",
+   "category": 8,
+   "severity": "Low",
+   "valid": true,
+   "label": "cross-IDE dev-tooling parity gaps (session-error-analyzer/-history-analyzer)",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P60",
+   "category": 8,
+   "severity": "Low",
+   "valid": true,
+   "label": "list_sessions.py python dep vs declared TS/Deno stack",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-high",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P61",
+   "category": 8,
+   "severity": "Low",
+   "valid": true,
+   "label": "devcontainer installs OpenCode but no opencode adapter",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P62",
+   "category": 8,
+   "severity": "Low",
+   "valid": true,
+   "label": ".mcp.json empty placeholder",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P63",
+   "category": 8,
+   "severity": "Medium",
+   "valid": true,
+   "label": "acceptance-tests-all SKILL.md discovers only skills, omits command/pack scenarios",
+   "present_in": [
+    "gpt-5.5-high"
+   ]
+  },
+  {
+   "id": "P37",
+   "category": 9,
+   "severity": "Low",
+   "valid": true,
+   "label": "generate-skill-composites.ts header docs obsolete --check behavior",
+   "present_in": [
+    "gpt-5.5-high"
+   ]
+  },
+  {
+   "id": "P64",
+   "category": 9,
+   "severity": "High",
+   "valid": true,
+   "label": "FR-UNIVERSAL.QA-FORMAT [x] cites flowai-conduct-qa-session (fixture-only)",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "opus-high",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P65",
+   "category": 9,
+   "severity": "High",
+   "valid": true,
+   "label": "FR-DIST.MARKETPLACE 'Six packs' vs seven (build-plugins/README)",
+   "present_in": [
+    "fable-high",
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P66",
+   "category": 9,
+   "severity": "Medium",
+   "valid": true,
+   "label": "FR-ONBOARD [x] maintenance-schedule criterion unsatisfied",
+   "present_in": [
+    "fable-high",
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P67",
+   "category": 9,
+   "severity": "Medium",
+   "valid": true,
+   "label": "Implementation-Order roadmap stale + dangling FR-INIT.RERUN/ACCEPT.COLOC/INIT.IDEMPOTENT",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P68",
+   "category": 9,
+   "severity": "Medium",
+   "valid": true,
+   "label": "Dangling FR refs FR-HOOK-DOCS, FR-IDE-SCOPE (no SRS section)",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P69",
+   "category": 9,
+   "severity": "Medium",
+   "valid": true,
+   "label": "FR-DOC-INDEX row format GFM vs SALP actual index.md",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-high"
+   ]
+  },
+  {
+   "id": "P70",
+   "category": 9,
+   "severity": "Low",
+   "valid": true,
+   "label": "index.md status drift + 4-5 missing FR rows",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-high",
+    "gpt-5.5-medium",
+    "gpt-5.5-xhigh",
+    "opus-high",
+    "opus-medium",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P71",
+   "category": 9,
+   "severity": "Low",
+   "valid": true,
+   "label": "design.md 'Key Agents (7)' lists 6, omits ide-bridge worker.md",
+   "present_in": [
+    "fable-high",
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P73",
+   "category": 9,
+   "severity": "High",
+   "valid": true,
+   "label": "FR-MEMEX SRS wikilink vs SDS SALP-only contradiction",
+   "present_in": [
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P74",
+   "category": 9,
+   "severity": "Low",
+   "valid": false,
+   "label": "index FR-MAINT row 'disagrees' with SRS",
+   "present_in": [
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P75",
+   "category": 9,
+   "severity": "Low",
+   "valid": false,
+   "label": "orphan [x] md-skill FRs missing code marker",
+   "present_in": [
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P77",
+   "category": 9,
+   "severity": "Medium",
+   "valid": true,
+   "label": "requirements.md:1202 wikilink grep guard fails on fixtures",
+   "present_in": [
+    "gpt-5.5-high"
+   ]
+  },
+  {
+   "id": "P78",
+   "category": 10,
+   "severity": "Medium",
+   "valid": true,
+   "label": "salp-anchor-map.ts imports computeAutoSlug from check-traceability.ts (reverse dep)",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-high",
+    "opus-high",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P79",
+   "category": 10,
+   "severity": "Medium",
+   "valid": true,
+   "label": "core<->adapter bidirectional dir coupling (AgentAdapter in adapters/types)",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P80",
+   "category": 10,
+   "severity": "Low",
+   "valid": true,
+   "label": "framework mod.ts import dev-harness via @acceptance-tests/ alias inverts direction",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P81",
+   "category": 10,
+   "severity": "Medium",
+   "valid": true,
+   "label": "acceptance-tests/lib files reach up to scripts/utils.ts for ansi",
+   "present_in": [
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P82",
+   "category": 11,
+   "severity": "High",
+   "valid": true,
+   "label": "model-tier map+agent transform duplicated build-plugins vs cli-internals (divergent default)",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-high",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P83",
+   "category": 11,
+   "severity": "Medium",
+   "valid": true,
+   "label": "FR-ID regex duplicated across 6 files",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P84",
+   "category": 11,
+   "severity": "Low",
+   "valid": true,
+   "label": "AcceptanceTestScenario vs AcceptanceTestAgentScenario near-duplicate",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P85",
+   "category": 11,
+   "severity": "Low",
+   "valid": true,
+   "label": "migrate-to-salp hand-rolls REF building vs lib/salp serializers",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P86",
+   "category": 11,
+   "severity": "Medium",
+   "valid": true,
+   "label": "parseFrontmatter reimplemented 3x (resource-types/validate-plugins/cli-internals)",
+   "present_in": [
+    "fable-medium",
+    "opus-high"
+   ]
+  },
+  {
+   "id": "P87",
+   "category": 11,
+   "severity": "Medium",
+   "valid": true,
+   "label": "setupMocks scaffold coded 3x across adapters",
+   "present_in": [
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P88",
+   "category": 11,
+   "severity": "Medium",
+   "valid": true,
+   "label": "parseOutput NDJSON loop duplicated 3x",
+   "present_in": [
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P89",
+   "category": 11,
+   "severity": "Medium",
+   "valid": true,
+   "label": "SALP context stripping dup check-salp vs doc-anchors-validate hook",
+   "present_in": [
+    "gpt-5.5-high"
+   ]
+  },
+  {
+   "id": "P90",
+   "category": 11,
+   "severity": "Medium",
+   "valid": true,
+   "label": "two IDE rosters drifted (SUPPORTED_IDES vs cli-internals incl opencode)",
+   "present_in": [
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P100",
+   "category": 12,
+   "severity": "Low",
+   "valid": true,
+   "label": "usage.ts model field hardcoded 'estimated (gemini-3-flash-preview baseline)'",
+   "present_in": [
+    "fable-high",
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P91",
+   "category": 12,
+   "severity": "High",
+   "valid": true,
+   "label": "BenchmarkResult required-number tokensUsed/totalCost/toolCallsCount sentinel conflation",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "opus-high"
+   ]
+  },
+  {
+   "id": "P92",
+   "category": 12,
+   "severity": "Medium",
+   "valid": true,
+   "label": "stepTimeoutMs three contradictory defaults (none/300000/60000)",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-high"
+   ]
+  },
+  {
+   "id": "P93",
+   "category": 12,
+   "severity": "High",
+   "valid": true,
+   "label": "usage.ts:29 hardcoded /Users/korchasa/.cursor/projects",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-high",
+    "opus-high",
+    "opus-medium",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P94",
+   "category": 12,
+   "severity": "Low",
+   "valid": true,
+   "label": "adapters/types.ts opencode dead union member",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-high",
+    "gpt-5.5-medium",
+    "gpt-5.5-xhigh",
+    "opus-high",
+    "opus-medium",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P95",
+   "category": 12,
+   "severity": "Low",
+   "valid": true,
+   "label": "dead vocab input_required subtype + WAIT sentinel unreachable",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "opus-high"
+   ]
+  },
+  {
+   "id": "P96",
+   "category": 12,
+   "severity": "High",
+   "valid": true,
+   "label": "ModelConfig temperature/provider ignored by cliChatCompletion; usage never populated",
+   "present_in": [
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P97",
+   "category": 12,
+   "severity": "Medium",
+   "valid": true,
+   "label": "buildSkippedResult reports skipped scenario as perfect pass",
+   "present_in": [
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P98",
+   "category": 12,
+   "severity": "Medium",
+   "valid": true,
+   "label": "codex outputFormat 'stream-json' overloads Claude literal",
+   "present_in": [
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P99",
+   "category": 12,
+   "severity": "Low",
+   "valid": true,
+   "label": "version.ts cliVersion returns '' in-band sentinel",
+   "present_in": [
+    "gpt-5.5-high",
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P101",
+   "category": 13,
+   "severity": "High",
+   "valid": true,
+   "label": "cursor.ts parseOutput never populates assistantText (degrades emulator context)",
+   "present_in": [
+    "fable-high",
+    "opus-high"
+   ]
+  },
+  {
+   "id": "P102",
+   "category": 13,
+   "severity": "Medium",
+   "valid": true,
+   "label": "mock matcher divergence: claude broad Bash vs codex Bash(${tool}:*)",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-high",
+    "gpt-5.5-xhigh",
+    "opus-high",
+    "opus-medium",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P103",
+   "category": 13,
+   "severity": "Medium",
+   "valid": true,
+   "label": "codex setupMocks requires --enable codex_hooks never passed (inert)",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-high",
+    "gpt-5.5-xhigh",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P104",
+   "category": 13,
+   "severity": "High",
+   "valid": true,
+   "label": "calculateUsage parity drift + codex comment falsely claims Claude returns real numbers",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-high",
+    "opus-high",
+    "opus-medium",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P105",
+   "category": 13,
+   "severity": "Low",
+   "valid": true,
+   "label": "ParsedAgentOutput.raw: cursor overwrites last vs full array",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P106",
+   "category": 13,
+   "severity": "Low",
+   "valid": true,
+   "label": "buildArgs name option handled 3 ways",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P107",
+   "category": 13,
+   "severity": "Low",
+   "valid": true,
+   "label": "codex resume argv omits --cd workspace",
+   "present_in": [
+    "fable-high",
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P108",
+   "category": 13,
+   "severity": "Medium",
+   "valid": true,
+   "label": "runner skipDirs hardcodes only .claude (not .cursor/.codex)",
+   "present_in": [
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P109",
+   "category": 13,
+   "severity": "Medium",
+   "valid": true,
+   "label": "ParsedAgentOutput subtype vocab honored only by Claude",
+   "present_in": [
+    "fable-medium",
+    "opus-high"
+   ]
+  },
+  {
+   "id": "P110",
+   "category": 13,
+   "severity": "High",
+   "valid": true,
+   "label": "per-line JSON.parse parse errors silently skipped, no warning channel",
+   "present_in": [
+    "gpt-5.5-high",
+    "opus-high"
+   ]
+  },
+  {
+   "id": "P111",
+   "category": 14,
+   "severity": "High",
+   "valid": true,
+   "label": "judge.ts fabricates pass:false on judge-infra failure",
+   "present_in": [
+    "fable-high",
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P112",
+   "category": 14,
+   "severity": "High",
+   "valid": true,
+   "label": "acceptance_runtime executeTask catch console.error only; crashed scenario omitted",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P113",
+   "category": 14,
+   "severity": "Medium",
+   "valid": true,
+   "label": "runner non-NotFound framework-copy failures downgraded to warn",
+   "present_in": [
+    "fable-high",
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P114",
+   "category": 14,
+   "severity": "Medium",
+   "valid": true,
+   "label": "runner CLAUDE.md symlink catch swallows AlreadyExists",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P115",
+   "category": 14,
+   "severity": "Medium",
+   "valid": true,
+   "label": "runner readTaskFiles catch-all collapses errors to '(no task files found)'",
+   "present_in": [
+    "fable-high",
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P116",
+   "category": 14,
+   "severity": "Medium",
+   "valid": true,
+   "label": "maxSteps||10/stepTimeout||60000 boolean coercion vs ?? sibling",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-high",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P117",
+   "category": 14,
+   "severity": "Medium",
+   "valid": true,
+   "label": "process_watchdog runCmd catch '' guard fails open",
+   "present_in": [
+    "fable-high",
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P118",
+   "category": 14,
+   "severity": "Medium",
+   "valid": true,
+   "label": "cursor parseOutput brace scanner ignores braces in strings",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P119",
+   "category": 14,
+   "severity": "Low",
+   "valid": true,
+   "label": "system_health sh() catch '' -> false 'unhealthy'",
+   "present_in": [
+    "fable-high",
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P120",
+   "category": 14,
+   "severity": "Low",
+   "valid": true,
+   "label": "acceptance_runtime updateLatestSymlink bare catch swallows all",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P121",
+   "category": 14,
+   "severity": "Low",
+   "valid": true,
+   "label": "types.ts targetAgentPath statSync try/catch branching + silent legacy fallback",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P122",
+   "category": 14,
+   "severity": "Critical",
+   "valid": true,
+   "label": "runner git diff failure -> '(git diff failed)' sentinel in judge evidence",
+   "present_in": [
+    "gpt-5.5-high"
+   ]
+  },
+  {
+   "id": "P125",
+   "category": 14,
+   "severity": "Medium",
+   "valid": true,
+   "label": "llm.ts catch branches on JSON.parse throw (exception-as-control-flow)",
+   "present_in": [
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P126",
+   "category": 14,
+   "severity": "Low",
+   "valid": true,
+   "label": "cache.ts readCache collapses missing/corrupt/schema to null",
+   "present_in": [
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P127",
+   "category": 15,
+   "severity": "High",
+   "valid": true,
+   "label": "AgentAdapter integration_test --ignored in CI; real-binary path never runs",
+   "present_in": [
+    "fable-high",
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P128",
+   "category": 15,
+   "severity": "Medium",
+   "valid": true,
+   "label": "SUPPORTED_IDES / ide-union / config no cross-reference test",
+   "present_in": [
+    "fable-high",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P129",
+   "category": 15,
+   "severity": "Medium",
+   "valid": true,
+   "label": "DEFAULT_PACKS omits ide-bridge; no parity test",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-high",
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P130",
+   "category": 15,
+   "severity": "Medium",
+   "valid": true,
+   "label": "CLAUDE_AGENT_KEY_ORDER/SKILL_KEY_ORDER no schema test",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P131",
+   "category": 15,
+   "severity": "Medium",
+   "valid": true,
+   "label": "composite canon clauses (c)(d)(e) untested",
+   "present_in": [
+    "fable-high",
+    "opus-high"
+   ]
+  },
+  {
+   "id": "P132",
+   "category": 15,
+   "severity": "Medium",
+   "valid": true,
+   "label": "design.md 'Run:' header MUST unenforced",
+   "present_in": [
+    "fable-high",
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P133",
+   "category": 15,
+   "severity": "Medium",
+   "valid": true,
+   "label": "-beta 60-day lifecycle invariant unautomated",
+   "present_in": [
+    "fable-medium",
+    "gpt-5.5-high",
+    "gpt-5.5-xhigh",
+    "opus-high",
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P135",
+   "category": 15,
+   "severity": "Low",
+   "valid": true,
+   "label": "no version_test.ts for adapters/version.ts",
+   "present_in": [
+    "fable-high"
+   ]
+  },
+  {
+   "id": "P136",
+   "category": 15,
+   "severity": "Low",
+   "valid": true,
+   "label": "TRIGGER_TYPES/TRIGGER_INDEXES no stability test",
+   "present_in": [
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P137",
+   "category": 15,
+   "severity": "Medium",
+   "valid": true,
+   "label": "resolveModelTier enum exhaustiveness untested (default passthrough)",
+   "present_in": [
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P138",
+   "category": 15,
+   "severity": "Medium",
+   "valid": true,
+   "label": "push-stops-on-ci-timeout scenario deferred/absent",
+   "present_in": [
+    "gpt-5.5-high",
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P139",
+   "category": 15,
+   "severity": "High",
+   "valid": true,
+   "label": "flowai-cli cross-IDE hook install acceptance manual-gated",
+   "present_in": [
+    "gpt-5.5-high"
+   ]
+  },
+  {
+   "id": "P140",
+   "category": 15,
+   "severity": "High",
+   "valid": true,
+   "label": "17-script contract invariant no inventory test",
+   "present_in": [
+    "gpt-5.5-high"
+   ]
+  },
+  {
+   "id": "P141",
+   "category": 15,
+   "severity": "High",
+   "valid": true,
+   "label": "deno.json lint/fmt/task-check exclude parity invariant untested+drifting",
+   "present_in": [
+    "gpt-5.5-medium"
+   ]
+  },
+  {
+   "id": "P142",
+   "category": 16,
+   "severity": "Medium",
+   "valid": true,
+   "label": "adapters/mod.ts barrel re-exports adapter classes zero external consumers",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "gpt-5.5-high",
+    "opus-high",
+    "opus-medium",
+    "opus-xhigh"
+   ]
+  },
+  {
+   "id": "P143",
+   "category": 16,
+   "severity": "Medium",
+   "valid": true,
+   "label": "Benchmark*/AcceptanceTest* dual vocabulary",
+   "present_in": [
+    "fable-high",
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P144",
+   "category": 16,
+   "severity": "Medium",
+   "valid": true,
+   "label": "check-skills/check-agents re-export parseFrontmatter test-only",
+   "present_in": [
+    "fable-high",
+    "fable-medium",
+    "opus-high",
+    "opus-medium"
+   ]
+  },
+  {
+   "id": "P145",
+   "category": 16,
+   "severity": "Medium",
+   "valid": true,
+   "label": "deno.json build-plugins/validate-plugins tasks byte-identical",
+   "present_in": [
+    "fable-medium"
+   ]
+  },
+  {
+   "id": "P146",
+   "category": 16,
+   "severity": "Medium",
+   "valid": true,
+   "label": "check-salp/migrate-to-salp silently ignore unknown --flags",
+   "present_in": [
+    "gpt-5.5-high"
+   ]
+  }
+ ]
+}

@@ -1,6 +1,14 @@
-# Autonomous — model × effort benchmarks for unattended agent work
+# Agents comparison — model × effort benchmarks for unattended agent work
 
-An empirical study of how model family and reasoning effort affect **fully autonomous** software-engineering agents across three work regimes: greenfield construction, detection/audit breadth, and disciplined delivery into a mature codebase. Six benchmarks, one method, 26 judged cells, every verdict backed by mechanical verification and retained evidence.
+An empirical study of how model family and reasoning effort affect **fully autonomous** software-engineering agents across three work regimes: greenfield construction, detection/audit breadth, and disciplined delivery into a mature codebase. Six benchmarks, one method, a full 8-cell matrix on every benchmark, every verdict backed by mechanical verification and retained evidence — plus an aggregate workload cost model (§3.6).
+
+> **Disclaimer — read before citing any number.**
+>
+> - **One run per cell.** Every benchmark×cell pair was executed exactly once; run-to-run variance is unmeasured. Ranks within one defect of each other should be read as ties.
+> - **flowai instructions in the loop.** All agents worked under the [flowai](https://github.com/korchasa/flowai) framework's skills and project instructions (pinned `/ship` workflow, maintenance skill, `/goal`). Results measure model×effort *inside this harness*, not bare-model capability.
+> - **Very small task set.** Five tasks total (three delivery, one audit, one greenfield), all in one codebase family (Deno/TypeScript, strict SRS/SDS conventions). Generalization to other tasks and stacks is untested.
+> - **Single LLM judge** (opus:high). Mechanical checks anchor the big calls, but qualitative ranks inherit one judge's taste; the spec-ambiguity episode (§4, finding 5) shows how fragile judge calibration is without a mechanical anchor.
+> - **Dollar figures are normalized API-rate estimates** over subscription-billed runs; relative comparisons are sound, absolute values are not invoices.
 
 **Headline result:** no single model×effort cell wins everywhere. Quality leadership flips with the work regime — detection breadth belongs to fable, hard construction to opus-xhigh, cost-efficiency to gpt-5.5 — and the gap between "all checklist items met" and "the feature's purpose achieved" is where expensive depth earns its price.
 
@@ -20,7 +28,7 @@ The three `ship-*` benchmarks form a difficulty ladder calibrated on every axis 
 
 ### 2.1 Matrix
 
-8 cells per benchmark (5 for the two pre-gpt benchmarks):
+8 cells per benchmark:
 
 - `opus-4.8 × {medium, high, xhigh}` and `fable-5 × {medium, high}` — detached headless `claude -p`, `--permission-mode bypassPermissions`, `--safe-mode` (no plugins/skills/hooks/CLAUDE.md — full isolation from the developer's environment).
 - `gpt-5.5 × {medium, high, xhigh}` — detached `codex exec`, `--dangerously-bypass-approvals-and-sandbox`, `--ignore-user-config` (the codex equivalent of the same isolation).
@@ -93,7 +101,7 @@ xychart-beta
   bar [36.79, 40.47, 69.98, 81.43, 99.99, 10.14, 8.58, 11.48]
 ```
 
-gpt-5.5 holds $7–11 at every difficulty (≈96% cache-read input, 10–30× smaller output volume) and finishes in 13–20 min vs 25–65 min for claude cells. Cost scales with difficulty only for claude.
+gpt-5.5 holds \$7–11 at every difficulty (≈96% cache-read input, 10–30× smaller output volume) and finishes in 13–20 min vs 25–65 min for claude cells. Cost scales with difficulty only for claude.
 
 ### 3.3 The ladder's central finding: where depth starts paying
 
@@ -101,37 +109,71 @@ gpt-5.5 holds $7–11 at every difficulty (≈96% cache-read input, 10–30× sm
 - **medium** — depth starts to matter: rank turned on a subtly-tautological spec item (the replayer *derives* the total the spec asks to cross-check) that demanded inventing a genuine independent check. opus-xhigh first; the only real defect came from gpt-5.5-medium (a dead-code check).
 - **hard** — depth is decisive: the premise ("journal grows without bound") had to be *understood*, not just item-matched. Two gpt cells embedded the full event history inside each snapshot, so "compaction" **grows** the file (judge-verified live: 1500→2027 bytes) while nominally meeting all 15 items; gpt-5.5-high also auto-triggered a full replay per node completion (O(n²) — the exact cost the feature must bound). opus-xhigh was flawless: exact 5-step crash-safe protocol, fault hooks at every boundary, dual-review documentation.
 
-### 3.4 Maintenance — detection breadth (5 cells, pre-gpt)
+### 3.4 Maintenance — detection breadth (8 cells)
 
-Pooled union: 124 findings across 5 reports, 120 verified valid. Completeness (bars) against cost (line, USD÷100):
+Pooled union (2026-06-12 judge): 139 findings across 8 reports, 137 verified valid. Completeness (bars) against cost (line, USD÷100):
 
 ```mermaid
 xychart-beta
   title "Maintenance: completeness (bars) vs cost USD/100 (line)"
-  x-axis ["fable-high", "fable-med", "opus-high", "opus-med", "opus-xhigh"]
+  x-axis ["fable-high", "fable-med", "gpt5.5-high", "opus-med", "opus-high", "opus-xhigh", "gpt5.5-xhigh", "gpt5.5-med"]
   y-axis "completeness / USD÷100" 0 --> 1
-  bar [0.808, 0.600, 0.325, 0.283, 0.275]
-  line [0.79, 0.47, 0.22, 0.18, 0.46]
+  bar [0.686, 0.489, 0.321, 0.263, 0.226, 0.204, 0.088, 0.080]
+  line [0.79, 0.47, 0.11, 0.18, 0.22, 0.46, 0.04, 0.04]
 ```
 
 | Cell | Valid | Invalid | Completeness | Precision | Cost | Time |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| fable-high | **97** | 0 | **0.808** | 1.000 | $79.01 | 41m |
-| fable-medium | 72 | 0 | 0.600 | 1.000 | $47.06 | 23m |
-| opus-high | 39 | **4** | 0.325 | 0.907 | $22.31 | 21m |
-| opus-medium | 34 | 0 | 0.283 | 1.000 | $17.53 | 17m |
-| opus-xhigh | 33 | 0 | 0.275 | 1.000 | $45.57 | 36m |
+| fable-high | **94** | 0 | **0.686** | 1.000 | \$79.01 | 41m |
+| fable-medium | 67 | 0 | 0.489 | 1.000 | \$47.06 | 23m |
+| gpt-5.5-high | 44 | 1 | 0.321 | 0.978 | \$11.20 | ~18m |
+| opus-medium | 36 | 2 | 0.263 | 0.947 | \$17.53 | 17m |
+| opus-high | 31 | 0 | 0.226 | 1.000 | \$22.31 | 21m |
+| opus-xhigh | 28 | 0 | 0.204 | 1.000 | \$45.57 | 36m |
+| gpt-5.5-xhigh | 12 | 0 | 0.088 | 1.000 | \$4.24 | ~15m |
+| gpt-5.5-medium | 11 | 0 | 0.080 | 1.000 | \$3.81 | ~13m |
 
-Full inversion versus construction: fable-high found 2.5× more verified issues than the best opus cell with zero false positives (at 3.5× its cost). xhigh effort bought *nothing* in breadth-of-scan — the most expensive opus cell was the least complete.
+Fable dominates breadth (2.1× the best non-fable cell, zero false positives, at 3.5× opus-high's cost). gpt-5.5 forks on effort unusually: the high cell fanned out codex sub-sessions and placed 3rd; medium/xhigh scanned single-threaded and produced near-empty reports (0.08–0.09). xhigh effort bought nothing in breadth-of-scan in either family. Detail: [maintenance/README.md](maintenance/README.md).
 
-### 3.5 App-generation — greenfield construction (5 cells, qualitative)
+### 3.5 App-generation — greenfield construction (8 cells)
 
-Two generations of a desktop session-analyzer app from the same requirements: gen1 with a free-form brief, gen2 with a prescriptive brief distilled from gen1's best patterns. opus-xhigh built the deepest app (list virtualization, self-measured feature accuracy, most tests); the gen2 prescriptive brief delivered strictly more than gen1 at the same total cost; without a hard DoD requirement, "desktop app" degraded to a browser tab in 4/5 gen1 cells. Detail: [app-generation/README.md](app-generation/README.md).
+Two generations of a desktop session-analyzer app from the same requirements: gen1 with a free-form brief, gen2 with a prescriptive brief distilled from gen1's best patterns; gpt-5.5 cells ran the gen2 brief via codex. opus-xhigh built the deepest app (list virtualization, self-measured feature accuracy, most tests); the gen2 prescriptive brief delivered strictly more than gen1 at the same total cost (claude matrix: gen1 \$120.70, gen2 \$113.55); without a hard DoD requirement, "desktop app" degraded to a browser tab in 4/5 gen1 cells. The gpt-5.5 cells honored the desktop-window requirement at \$1.83–5.83 — but their builds are ~10× smaller (8–11 source files vs 50+), so the cost advantage buys the checklist, not the depth. Detail: [app-generation/README.md](app-generation/README.md).
+
+### 3.6 Aggregate workload cost model
+
+A single benchmark cost is not how teams buy agents. The model below prices a *workload mix* per cell — one greenfield feature, a delivery ladder skewed toward small tasks, periodic audits — plus the rework the cell's own defects caused:
+
+```
+total = gen2 + 3 × hard + 9 × medium + 27 × easy + 5 × maintenance + fixes
+```
+
+Fix accounting (assumptions fixed before computing): only **real/major judged defects** require a fix task (cosmetic/low defects and scope creep do not); **one fix task per defect**; a fix for a hard-task defect costs that cell's **medium** run, a medium-task defect its **easy** run, an easy-task defect its **easy** run.
+
+| Cell | gen2 | 3×hard | 9×medium | 27×easy | 5×maint | fixes | **Total** |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| gpt-5.5-medium | \$1.91 | \$30.42 | \$61.20 | \$186.30 | \$19.05 | \$6.90 | **\$305.78** |
+| gpt-5.5-xhigh | \$5.83 | \$34.44 | \$70.02 | \$206.28 | \$21.20 | \$7.78 | **\$345.55** |
+| gpt-5.5-high | \$1.83 | \$25.74 | \$62.37 | \$206.01 | \$56.00 | \$13.86 | **\$365.81** |
+| opus-medium | \$11.35 | \$110.37 | \$164.88 | \$778.95 | \$87.65 | \$0.00 | **\$1153.20** |
+| opus-high | \$14.39 | \$121.41 | \$270.27 | \$874.26 | \$111.55 | \$0.00 | **\$1391.88** |
+| fable-medium | \$22.84 | \$244.29 | \$303.66 | \$767.07 | \$235.30 | \$0.00 | **\$1573.16** |
+| opus-xhigh | \$34.42 | \$209.94 | \$378.54 | \$1115.10 | \$227.85 | \$41.30 | **\$2007.15** |
+| fable-high | \$30.55 | \$299.97 | \$547.83 | \$1760.13 | \$395.05 | \$0.00 | **\$3033.53** |
+
+```mermaid
+xychart-beta
+  title "Aggregate workload cost per cell, USD"
+  x-axis ["gpt5.5-med", "gpt5.5-xhigh", "gpt5.5-high", "opus-med", "opus-high", "fable-med", "opus-xhigh", "fable-high"]
+  y-axis "USD" 0 --> 3100
+  bar [305.78, 345.55, 365.81, 1153.20, 1391.88, 1573.16, 2007.15, 3033.53]
+```
+
+Reading it honestly: the 27×easy term dominates every claude total (small tasks are where per-run cost hurts most); the fix terms barely move totals — defect *rework* is cheap, while defect *risk* (a prune that over-deletes, a compaction that grows files) is the real price and is not in the formula; and the gpt totals assume its maintenance breadth (0.08–0.32 completeness) and build depth are acceptable for the mix. Quality columns from §3.1–3.5 must be read next to this table.
 
 ## 4. Cross-benchmark findings
 
-1. **Regime beats model tier.** Detection breadth: fable dominates. Hard construction: opus-xhigh dominates. Cost-bounded delivery: gpt-5.5 dominates. Buying "the best model" without naming the regime is underspecified.
-2. **Effort pays only above a complexity threshold, and only in construction.** xhigh was last on ship-easy (with the run's only bug), first on medium and hard, and bottom-tier on maintenance breadth at 2.6× the price of the winner.
+1. **Regime beats model tier.** Detection breadth: fable dominates (0.686 vs ≤0.321 for everyone else). Hard construction: opus-xhigh dominates. Cost: gpt-5.5 dominates (\$306–366 for the whole workload mix vs \$1153+ for claude). Buying "the best model" without naming the regime is underspecified.
+2. **Effort pays only above a complexity threshold, and only in construction.** xhigh was last on ship-easy (with the run's only bug), first on medium and hard, and bottom-tier on maintenance breadth in both families (opus-xhigh 0.204, gpt-5.5-xhigh 0.088). The one maintenance exception proves a different rule: gpt-5.5-high won its family by fanning out sub-sessions — parallelism, not effort, bought breadth.
 3. **Checklist coverage ≠ purpose achievement.** Ship-hard's two "15/15" gpt cells defeated the feature's purpose (compaction that grows the file). Judges must verify the *premise* mechanically (does the file actually shrink?), not just the items.
 4. **Failure modes are model-family-stable.** Three claude cells independently produced the same out-of-scope doc refactor on ship-easy; gpt cells never scope-creeped but twice shipped design-comprehension defects. Discipline and depth fail differently.
 5. **Spec ambiguity measures the judge, not the cells.** A factual error in the original easy task (naming a state file the engine never writes) produced two opposite rankings from the same judge, depending on which side it took as ground truth. After the spec was fixed so exactly one variant is correct, ranking became stable. Verify every factual claim in a task spec against the pinned codebase before benchmarking.
@@ -164,8 +206,4 @@ Requires locally authenticated `claude` and `codex` CLIs. Live progress: transcr
 
 ## 7. Limitations
 
-- **One trial per cell.** Run-to-run variance is unmeasured; ranks within one defect of each other should be read as ties.
-- **Single LLM judge** (opus:high). Mechanical checks anchor the big calls, but qualitative ranks inherit one judge's taste; the spec-ambiguity episode (finding 5) shows how fragile judge calibration is without a mechanical anchor.
-- **Dollar figures are normalized API-rate estimates** over subscription-billed runs; relative comparisons are sound, absolute values are not invoices.
-- **gpt-5.5 joined at the ship family**; maintenance and app-generation predate it (5 cells).
-- Tasks target one codebase family (Deno/TypeScript, strict SRS/SDS conventions); generalization to other stacks is untested.
+See the disclaimer at the top of this document.

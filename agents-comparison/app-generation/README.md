@@ -18,21 +18,33 @@ flowai assumes agents can carry a whole feature autonomously. Open questions: ho
 
 See [results/2026-06-11-two-generations.md](results/2026-06-11-two-generations.md) for the full run report.
 
-Cost / wall time / tool calls per cell (cost estimated from `message.usage` at standard Anthropic rates):
+Cost / wall time / tool calls per cell (cost from `message.usage` at official API rates: opus 5/25, fable 10/50 per Mtok + cache rates):
 
 | Cell | Gen1 cost | Gen1 time | Gen1 calls | Gen2 cost | Gen2 time | Gen2 calls | Gen2 tests |
 |------|----------:|----------:|-----------:|----------:|----------:|-----------:|-----------:|
-| opus-high | $36.79 | 18m | 66 | $43.16 | 18m | 63 | ✓ |
-| opus-medium | $42.62 | 20m | 84 | $34.06 | 15m | 52 | ✓ |
-| fable-high | $18.39 | 26m | 95 | $15.27 | 27m | 56 | 14/14 |
-| fable-medium | $12.49 | 21m | 80 | $11.42 | 18m | 60 | 12/12 |
-| opus-xhigh | $97.35 | 37m | 129 | $103.26 | 39m | 134 | 20/20 |
-| **Total** | **$207.6** | | | **$207.2** | | | |
+| opus-high | \$12.26 | 18m | 66 | \$14.39 | 18m | 63 | ✓ |
+| opus-medium | \$14.21 | 20m | 84 | \$11.35 | 15m | 52 | ✓ |
+| fable-high | \$36.79 | 26m | 95 | \$30.55 | 27m | 56 | 14/14 |
+| fable-medium | \$24.99 | 21m | 80 | \$22.84 | 18m | 60 | 12/12 |
+| opus-xhigh | \$32.45 | 37m | 129 | \$34.42 | 39m | 134 | 20/20 |
+| **Total** | **\$120.70** | | | **\$113.55** | | | |
+
+### Gen2 addendum: gpt-5.5 cells (2026-06-12, codex CLI)
+
+The same gen2 brief was later run through `codex exec` (`--ignore-user-config`, `--dangerously-bypass-approvals-and-sandbox`), ports 4716–4718:
+
+| Cell | Cost | Time | Source files | Desktop window | Note |
+|------|-----:|-----:|-------------:|:--:|------|
+| gpt-5.5-medium | \$1.91 | ~15m | 11 | ✅ chromeless Chrome | smallest build |
+| gpt-5.5-high | \$1.83 | ~15m | 8 | ✅ chromeless Chrome | lint+typecheck+tests pass |
+| gpt-5.5-xhigh | \$5.83 | ~18m | 9 | ✅ chromeless Chrome | left the app running on exit |
+
+All three honored the hard desktop-window requirement (the gen1 trap), at 1/6–1/18 the cost of claude cells — but the builds are an order of magnitude smaller (8–11 source files vs 50+ for claude cells), so cost parity claims need a depth-per-dollar caveat: cheap cells build the checklist, not the product depth. Verified statically (window mechanism, tests, README coverage matrix); not feature-audited live.
 
 Key findings:
 
 - **Fable 5 is 3–4× cheaper than Opus 4.8** at equal effort on this task, with comparable gate results (all cells shipped green lint/typecheck/tests).
-- **xhigh costs ~2.5× high** and buys real depth, not just tokens: only xhigh implemented dual-source subagent parsing with a measured join rate (gen1: 84% via `agentId`; gen2: 100%), wrote the most tests (20/20), and hand-built a variable-height virtualizer that renders a 17.6 MB session smoothly.
+- **xhigh costs ~2.6× high (opus)** and buys real depth, not just tokens: only xhigh implemented dual-source subagent parsing with a measured join rate (gen1: 84% via `agentId`; gen2: 100%), wrote the most tests (20/20), and hand-built a variable-height virtualizer that renders a 17.6 MB session smoothly.
 - **Brief quality dominates model choice.** Gen1's permissive brief produced 5 localhost web apps despite the word "desktop" (the "minimal setup" hint won); gen2's hard requirement produced 5 real chromeless desktop windows at the SAME total cost and slightly less wall time. Prescriptive pattern lists do not make builds more expensive — they remove exploration waste.
 - **Stack convergence under a strict brief**: gen1 chose 4× npm/Vite + 1× Deno; gen2 — 5× Deno (its `--allow-write=./data` flags structurally enforce the read-only constraint, which the brief rewarded).
 - **Effort shows where verification depth matters**: medium cells verified via API probes; high cells added headless-Chrome screenshot verification; xhigh measured its own feature accuracy (subagent link rate) and iterated until 100%.
@@ -46,7 +58,7 @@ Key findings:
 ## Reproduction
 
 ```bash
-# full 5-cell matrix into a scratch dir (WARNING: ~$200 and ~40 min per generation)
+# full matrix into a scratch dir (WARNING: ~$120+ and ~40 min per generation)
 ./run.sh ~/tmp/appgen-$(date +%Y%m%d)
 
 # a single cheap cell
