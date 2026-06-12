@@ -86,7 +86,7 @@ The scores compress at the top — **ranks and defects separate the field, not f
 > - **Asymmetric labels equalized on ship-medium.** fable-medium prints the same unrounded float charged to gpt-5.5-xhigh as cosmetic; gpt-5.5-xhigh omits `repairs[]` from `--json` exactly as gpt-5.5-medium does (minor). gpt-5.5-medium's "unrelated doc churn" is withdrawn — its FR-E47 compression was forced by the same docs size gate (the design file had 3 bytes of headroom and the in-scope FR-E83 section had to fit).
 > - **ship-hard additions.** gpt-5.5-xhigh's auto-trigger re-parses the whole journal on every node completion — the same O(n²) class the judge charged only to gpt-5.5-high (lighter constant: one parse, no replay). opus-high's auto-trigger test gap is narrower than the judge's summary stated (Engine.run() tests exist; only the mid-node exclusion and the verbose line are unasserted).
 >
-> All load-bearing defect facts survived the audit and were reproduced live: the two growing compactions, the O(n²) trigger, the dead-code cost check, the keep-window divergence. Aggregate cost totals (§3.6) are unchanged — every charged fix corresponds to a defect that survived.
+> All load-bearing defect facts survived the audit and were reproduced live: the two growing compactions, the O(n²) trigger, the dead-code cost check, the keep-window divergence. The fix charges in §3.6 are unchanged — every charged fix corresponds to a defect that survived. (§3.6 totals later grew via the feature-completion term — a formula extension, not an audit correction.)
 
 | Cell | easy: rank (defect) | medium: rank (defect) | hard: rank (defect) |
 | --- | --- | --- | --- |
@@ -179,35 +179,37 @@ opus-xhigh built the deepest app (hand-built list virtualization, self-measured 
 A single benchmark cost is not how teams buy agents. The model below prices a *workload mix* per cell — one greenfield feature, a delivery ladder skewed toward small tasks, periodic audits — plus the rework the cell's own defects caused:
 
 ```
-total = gen2 + 3 × hard + 9 × medium + 27 × easy + 5 × maintenance + fixes
+total = gen2 + 3 × hard + 9 × medium + 27 × easy + 5 × maintenance + fixes + feature-completion
 ```
 
 Fix accounting (assumptions fixed before computing): only **real/major judged defects** require a fix task (cosmetic/low defects and scope creep do not); **one fix task per defect**; a fix for a hard-task defect costs that cell's **medium** run, a medium-task defect its **easy** run, an easy-task defect its **easy** run.
 
-| Cell | gen2 | 3×hard | 9×medium | 27×easy | 5×maint | fixes | **Total** |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| gpt-5.5-medium | \$1.91 | \$30.42 | \$61.20 | \$186.30 | \$19.05 | \$6.90 | **\$305.78** |
-| gpt-5.5-xhigh | \$5.83 | \$34.44 | \$70.02 | \$206.28 | \$21.20 | \$7.78 | **\$345.55** |
-| gpt-5.5-high | \$1.83 | \$25.74 | \$62.37 | \$206.01 | \$56.00 | \$13.86 | **\$365.81** |
-| opus-medium | \$11.35 | \$110.37 | \$164.88 | \$778.95 | \$87.65 | \$0.00 | **\$1153.20** |
-| opus-high | \$14.39 | \$121.41 | \$270.27 | \$874.26 | \$111.55 | \$0.00 | **\$1391.88** |
-| fable-medium | \$22.84 | \$244.29 | \$303.66 | \$767.07 | \$235.30 | \$0.00 | **\$1573.16** |
-| opus-xhigh | \$34.42 | \$209.94 | \$378.54 | \$1115.10 | \$227.85 | \$41.30 | **\$2007.15** |
-| fable-high | \$30.55 | \$299.97 | \$547.83 | \$1760.13 | \$395.05 | \$0.00 | **\$3033.53** |
+Feature-completion accounting: each of the 21 audited gen2 features (§3.5) the cell did not fully deliver must be finished — an absent feature (—) counts as 1 completion task, a partial one (◐) as 0.5; one completion task costs the average of that cell's **easy** and **medium** runs (finishing a product feature sits between the two benchmark sizes). Completion units per cell: opus-medium 3.5, opus-high 3.0, opus-xhigh 3.0, fable-medium 4.5, fable-high 3.0, gpt-5.5-medium 11.5, gpt-5.5-high 7.5, gpt-5.5-xhigh 5.0.
+
+| Cell | gen2 | 3×hard | 9×medium | 27×easy | 5×maint | fixes | feat-completion | **Total** |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| gpt-5.5-xhigh | \$5.83 | \$34.44 | \$70.02 | \$206.28 | \$21.20 | \$7.78 | \$38.55 | **\$384.10** |
+| gpt-5.5-medium | \$1.91 | \$30.42 | \$61.20 | \$186.30 | \$19.05 | \$6.90 | \$78.78 | **\$384.56** |
+| gpt-5.5-high | \$1.83 | \$25.74 | \$62.37 | \$206.01 | \$56.00 | \$13.86 | \$54.60 | **\$420.41** |
+| opus-medium | \$11.35 | \$110.37 | \$164.88 | \$778.95 | \$87.65 | \$0.00 | \$82.55 | **\$1235.75** |
+| opus-high | \$14.39 | \$121.41 | \$270.27 | \$874.26 | \$111.55 | \$0.00 | \$93.62 | **\$1485.50** |
+| fable-medium | \$22.84 | \$244.29 | \$303.66 | \$767.07 | \$235.30 | \$0.00 | \$139.84 | **\$1713.00** |
+| opus-xhigh | \$34.42 | \$209.94 | \$378.54 | \$1115.10 | \$227.85 | \$41.30 | \$125.04 | **\$2132.19** |
+| fable-high | \$30.55 | \$299.97 | \$547.83 | \$1760.13 | \$395.05 | \$0.00 | \$189.09 | **\$3222.62** |
 
 ```mermaid
 xychart-beta
   title "Aggregate workload cost per cell, USD"
-  x-axis ["gpt5.5-med", "gpt5.5-xhigh", "gpt5.5-high", "opus-med", "opus-high", "fable-med", "opus-xhigh", "fable-high"]
-  y-axis "USD" 0 --> 3100
-  bar [305.78, 345.55, 365.81, 1153.20, 1391.88, 1573.16, 2007.15, 3033.53]
+  x-axis ["gpt5.5-xhigh", "gpt5.5-med", "gpt5.5-high", "opus-med", "opus-high", "fable-med", "opus-xhigh", "fable-high"]
+  y-axis "USD" 0 --> 3300
+  bar [384.10, 384.56, 420.41, 1235.75, 1485.50, 1713.00, 2132.19, 3222.62]
 ```
 
-Reading it honestly: the 27×easy term dominates every claude total (small tasks are where per-run cost hurts most); the fix terms barely move totals — defect *rework* is cheap, while defect *risk* (a prune with divergent retention semantics, a compaction that grows files) is the real price and is not in the formula; and the gpt totals assume its maintenance breadth (0.08–0.32 completeness) and build depth are acceptable for the mix. Quality columns from §3.1–3.5 must be read next to this table.
+Reading it honestly: the 27×easy term dominates every claude total (small tasks are where per-run cost hurts most); the fix terms barely move totals — defect *rework* is cheap, while defect *risk* (a prune with divergent retention semantics, a compaction that grows files) is the real price and is not in the formula. The feature-completion term is the first place gpt's thinness costs money: gpt-5.5-medium pays \$78.78 to finish its 4/21 skeleton — 41× its build cost — and loses the family lead to gpt-5.5-xhigh, whose richer build makes its completion bill the smallest in the run (\$38.55). The claude order is unchanged (completion adds 6–8% to each total). Remaining caveat: the gpt totals still assume its maintenance breadth (0.08–0.32 completeness) is acceptable for the mix. Quality columns from §3.1–3.5 must be read next to this table.
 
 ## 4. Cross-benchmark findings
 
-1. **Regime beats model tier.** Detection breadth: fable dominates (0.686 vs ≤0.321 for everyone else). Hard construction: opus-xhigh dominates. Cost: gpt-5.5 dominates (\$306–366 for the whole workload mix vs \$1153+ for claude). Buying "the best model" without naming the regime is underspecified.
+1. **Regime beats model tier.** Detection breadth: fable dominates (0.686 vs ≤0.321 for everyone else). Hard construction: opus-xhigh dominates. Cost: gpt-5.5 dominates (\$384–420 for the whole workload mix, feature-completion included, vs \$1236+ for claude). Buying "the best model" without naming the regime is underspecified.
 2. **Effort pays only above a complexity threshold, and only in construction.** xhigh was last on ship-easy (with the run's only behavioral divergence), first on medium and hard, and bottom-tier on maintenance breadth in both families (opus-xhigh 0.204, gpt-5.5-xhigh 0.088). The one maintenance exception proves a different rule: gpt-5.5-high won its family by fanning out sub-sessions — parallelism, not effort, bought breadth.
 3. **Checklist coverage ≠ purpose achievement.** Ship-hard's two "15/15" gpt cells defeated the feature's purpose (compaction that grows the file). Judges must verify the *premise* mechanically (does the file actually shrink?), not just the items.
 4. **Before reading a repeated failure as a model trait, check whether the harness forces it.** The original run's headline cluster — "three claude cells scope-creeped the same doc split" — dissolved under audit: the split was prescribed by the target repo's own docs size gate. What survives as genuinely family-stable: two gpt cells independently shipped the same design-comprehension defect class on ship-hard (history-embedding snapshots), and no claude cell did.
