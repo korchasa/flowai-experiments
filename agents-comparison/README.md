@@ -159,18 +159,20 @@ xychart-beta
   bar [1.83, 1.91, 5.83, 11.35, 14.39, 22.84, 30.55, 34.42]
 ```
 
-| Cell | Cost | Time | Build size | Desktop window | Verification depth |
-| --- | ---: | ---: | --- | :-: | --- |
-| gpt-5.5-high | \$1.83 | ~15m | 8 source files | ✅ | lint + typecheck + tests green |
-| gpt-5.5-medium | \$1.91 | ~15m | 11 source files | ✅ | static checks only |
-| gpt-5.5-xhigh | \$5.83 | ~18m | 9 source files | ✅ | static checks only; left the app running on exit |
-| opus-medium | \$11.35 | 15m | 3.5–4.8k LOC class | ✅ | API probes on real data |
-| opus-high | \$14.39 | 18m | 3.5–4.8k LOC class | ✅ | headless-Chrome screenshot verification |
-| fable-medium | \$22.84 | 18m | 3.5–4.8k LOC class, 12/12 tests | ✅ | API probes on real data |
-| fable-high | \$30.55 | 27m | 3.5–4.8k LOC class, 14/14 tests | ✅ | headless-Chrome screenshot verification |
-| opus-xhigh | \$34.42 | 39m | 3.5–4.8k LOC class, 20/20 tests | ✅ | self-measured feature accuracy, iterated to 100% |
+| Cell | Cost | Time | LOC | Tests | Features (of 21) | Desktop window | Verification depth |
+| --- | ---: | ---: | ---: | ---: | ---: | :-: | --- |
+| gpt-5.5-high | \$1.83 | ~15m | 1,210 | 3 | 10 | ✅ | lint + typecheck + tests green |
+| gpt-5.5-medium | \$1.91 | ~15m | 1,264 | 6 | 4 | ✅ | static checks only |
+| gpt-5.5-xhigh | \$5.83 | ~18m | 3,237 | 3 | 15 | ✅ | static checks only; left the app running on exit |
+| opus-medium | \$11.35 | 15m | 3,172 | 10 | 17 | ✅ | API probes on real data |
+| opus-high | \$14.39 | 18m | 3,206 | 13 | 16 | ✅ | headless-Chrome screenshot verification |
+| fable-medium | \$22.84 | 18m | 3,877 | 12 | 15 | ✅ | API probes on real data |
+| fable-high | \$30.55 | 27m | 4,287 | 14 | 17 | ✅ | headless-Chrome screenshot verification |
+| opus-xhigh | \$34.42 | 39m | 7,672 | 20 | 17 | ✅ | self-measured feature accuracy, iterated to 100% |
 
-opus-xhigh built the deepest app (hand-built list virtualization, self-measured subagent-join accuracy, most tests); the gen2 prescriptive brief delivered strictly more than gen1 at the same total cost (claude matrix: gen1 \$120.70, gen2 \$113.55); without a hard DoD requirement, "desktop app" degraded to a browser tab in 4/5 gen1 cells. The gpt-5.5 cells honored the desktop-window requirement at \$1.83–5.83 — but their builds are an order of magnitude smaller (8–11 source files vs ~3.5–4.8k LOC), so the cost advantage buys the checklist, not the depth. Detail: [app-generation/README.md](app-generation/README.md).
+"Features (of 21)" = full implementations among 21 brief features in a static audit of every build (matrix with per-cell evidence: [app-generation/README.md §Gen2 feature audit](app-generation/README.md#gen2-feature-audit-2026-06-12-static)). The audit makes the shapes visible: claude cells cluster at 15–17/21 differing in *shape* (opus-medium breadth, fable-high analytic depth per LOC, opus-xhigh scale and architecture — 2× anyone's LOC, modular core, the run's only hand-rolled virtualizer); gpt forks hard on effort — medium ships a 4/21 skeleton with a dead command palette, xhigh reaches fable-medium's breadth (15/21) at ~1/4 the cost and ~40% of the LOC. Universal gaps across all 8: live watch, conversation-tree visualization, time-series trends.
+
+opus-xhigh built the deepest app (hand-built list virtualization, self-measured subagent-join accuracy, most tests); the gen2 prescriptive brief delivered strictly more than gen1 at the same total cost (claude matrix: gen1 \$120.70, gen2 \$113.55); without a hard DoD requirement, "desktop app" degraded to a browser tab in 4/5 gen1 cells. The gpt-5.5 cells honored the desktop-window requirement at \$1.83–5.83 — but their builds are 1.2–3.2k LOC vs 3.2–7.7k for claude, and behind equal checkmarks the implementations are shallower (per-query corpus re-parse instead of an index, API-only features without UI), so the cost advantage buys the checklist, not the depth. Detail: [app-generation/README.md](app-generation/README.md).
 
 ### 3.6 Aggregate workload cost model
 

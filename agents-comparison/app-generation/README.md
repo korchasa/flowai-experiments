@@ -41,6 +41,50 @@ The same gen2 brief was later run through `codex exec` (`--ignore-user-config`, 
 
 All three honored the hard desktop-window requirement (the gen1 trap), at 1/6–1/18 the cost of claude cells — but the builds are an order of magnitude smaller (8–11 source files vs 50+ for claude cells), so cost parity claims need a depth-per-dollar caveat: cheap cells build the checklist, not the product depth. Verified statically (window mechanism, tests, README coverage matrix); not feature-audited live.
 
+## Gen2 feature audit (2026-06-12, static)
+
+What the 8 builds actually contain, audited statically against BRIEF.md (route/function evidence per cell; no servers started). Legend: ✅ full / ◐ partial / — absent. Columns: opus-medium, opus-high, opus-xhigh, fable-medium, fable-high, gpt-5.5-medium, gpt-5.5-high, gpt-5.5-xhigh.
+
+| Feature (brief ref) | o-med | o-high | o-xhigh | f-med | f-high | g-med | g-high | g-xhigh |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| Sessions list sort/filter (VIEW-1) | ✅ | ✅ | ✅ | ✅ | ✅ | ◐ | ✅ | ✅ |
+| Timeline + thinking toggle + raw JSON (VIEW-2/3/7) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Tool-specific renderers incl. Edit diff (VIEW-4/6, P8) | ✅ | ✅ | ✅ | ✅ | ✅ | ◐ | ◐ | ✅ |
+| Conversation tree / branch view (VIEW-5) | ◐ | ◐ | ◐ | ◐ | ◐ | — | — | — |
+| Subagent dual-source merge + link rate (P2) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ◐ | ✅ |
+| Search query language (SEARCH-1..4, P5) | ✅ | ✅ | ✅ | ✅ | ✅ | ◐ | ◐ | ✅ |
+| Saved queries (SEARCH-5) | ✅ | ✅ | ✅ | ✅ | ✅ | ◐ | ◐ | ✅ |
+| Price table + cost analytics (COST-1/2, P12) | ✅ | ✅ | ✅ | ✅ | ✅ | ◐ | ◐ | ✅ |
+| Cache efficiency (COST-3) | ✅ | ✅ | ✅ | ✅ | ✅ | ◐ | ✅ | ✅ |
+| Behavior dashboard (P4) | ✅ | ✅ | ✅ | ✅ | ✅ | ◐ | ✅ | ✅ |
+| Per-project dashboard (DASH-2) | ✅ | ◐ | ✅ | ✅ | ✅ | — | ✅ | ◐ |
+| Session compare (DASH-3) | — | ✅ | ✅ | — | ✅ | — | — | — |
+| Loop/repeat detection (BEHAV-4) | — | ✅ | — | — | — | — | — | — |
+| Annotations + collections (OUT-1/2) | ✅ | ◐ | ✅ | ✅ | ✅ | ◐ | ◐ | ✅ |
+| Exports MD + CSV/JSON (OUT-3, P11) | ✅ | ✅ | ✅ | ✅ | ✅ | ◐ | ✅ | ✅ |
+| Secret redaction, UI + pre-LLM (PRIV-2, P14) | ✅ | ✅ | ✅ | ✅ | ✅ | ◐ | ✅ | ✅ |
+| LLM scoring: consent + hash cache (QUAL-4..6) | ✅ | ✅ | ✅ | ✅ | ✅ | ◐ | ◐ | ◐ |
+| Virtualized timeline (P6) | ✅ | ✅ | ✅ | ◐ | ✅ | ✅ | ✅ | ✅ |
+| Incremental indexing (ING-8, P13) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Multi-root (ING-1) | ✅ | ◐ | ◐ | ◐ | ◐ | — | ✅ | ✅ |
+| Live watch (ING-9) | — | — | — | — | — | — | — | — |
+| **Full-feature count (of 21)** | **17** | **16** | **17** | **15** | **17** | **4** | **10** | **15** |
+
+Scale and what makes each build different:
+
+| Build | Files | LOC | Tests | Views | Distinctive |
+|---|---:|---:|---:|---:|---|
+| opus-medium | 20 | 3,172 | 10 | 10 | only true multi-root (`claudeRoots()`); widest nav (8 tabs); breadth over depth |
+| opus-high | 19 | 3,206 | 13 | 7 | only loop/repeat detection; compare view; annotations server-side only |
+| opus-xhigh | 38 | 7,672 | 20 | 8 | 2× anyone's scale, modular `src/core/` (15 modules), hand-rolled virtualizer, blind-edit detection, dedicated primitives view |
+| fable-medium | 17 | 3,877 | 12 | 6 | complete middle; virtualization is shallow CSS `content-visibility`; compare/loops explicitly deferred |
+| fable-high | 17 | 4,287 | 14 | 8 | richest query language (`branch:`/`stop:`/`after:`/`tokens>`), dedicated subagent timeline route, active-vs-wall time; most analytic depth per LOC |
+| gpt-5.5-medium | 13 | 1,264 | 6 | ~2 | thinnest: search re-parses corpus per query, ⌘K palette is a dead stub, deep links don't survive reload, annotations API-only |
+| gpt-5.5-high | 10 | 1,210 | 3 | 4 | most app-shaped gpt UI (4 tabs, working ⌘K, project panel); subagents NOT merged into parent timeline (aux sessions) |
+| gpt-5.5-xhigh | 11 | 3,237 | 3 | 1 | functionally richest gpt: full subagent merge w/ provenance, 7-key query language, live price-table editor, only build meeting QUAL-6 scoring cache; read-only enforced via Deno flags |
+
+Reading: claude cells cluster at 15–17/21 with different *shapes* (opus-medium breadth, fable-high analytic depth, opus-xhigh scale+architecture); gpt forks hard on effort — medium ships a 4/21 skeleton, xhigh reaches fable-medium's breadth (15/21) at ~1/4 the cost and ~40% of the LOC, with shallower depth behind the same checkmarks. Universal gaps across all 8: live watch, real conversation-tree visualization, time-series trends (gpt also lacks compare and behavior analytics BEHAV-2..4).
+
 Key findings:
 
 - **Fable 5 is 3–4× cheaper than Opus 4.8** at equal effort on this task, with comparable gate results (all cells shipped green lint/typecheck/tests).
