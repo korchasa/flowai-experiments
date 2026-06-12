@@ -5,11 +5,11 @@
  * three planted anomalies and reports them as structured JSON.
  *
  * Anomalies in fixtures/corrupted/:
- *   1. duplicate_anchor — [ANC:db:user-schema] declared in both
+ *   1. duplicate_anchor — `[ANC:db:user-schema]` declared in both
  *      session_store.py and auth.md.
- *   2. orphaned_ref     — [REF:api:oauth-callback] in oauth.md has no
+ *   2. orphaned_ref     — `[REF:api:oauth-callback]` in oauth.md has no
  *      corresponding anchor anywhere in the project.
- *   3. shadowed_anchor  — [ANC:legacy:md5-hash] inside a commented-out
+ *   3. shadowed_anchor  — `[ANC:legacy:md5-hash]` inside a commented-out
  *      block in password.md (unreachable anchor).
  *
  * Each system receives its own syntax-specific corrupted fixture set so the
