@@ -149,7 +149,28 @@ Fable dominates breadth (2.1× the best non-fable cell, zero false positives, at
 
 ### 3.5 App-generation — greenfield construction (8 cells)
 
-Two generations of a desktop session-analyzer app from the same requirements: gen1 with a free-form brief, gen2 with a prescriptive brief distilled from gen1's best patterns; gpt-5.5 cells ran the gen2 brief via codex. opus-xhigh built the deepest app (list virtualization, self-measured feature accuracy, most tests); the gen2 prescriptive brief delivered strictly more than gen1 at the same total cost (claude matrix: gen1 \$120.70, gen2 \$113.55); without a hard DoD requirement, "desktop app" degraded to a browser tab in 4/5 gen1 cells. The gpt-5.5 cells honored the desktop-window requirement at \$1.83–5.83 — but their builds are ~10× smaller (8–11 source files vs 50+), so the cost advantage buys the checklist, not the depth. Detail: [app-generation/README.md](app-generation/README.md).
+Two generations of a desktop session-analyzer app from the same requirements: gen1 with a free-form brief, gen2 with a prescriptive brief distilled from gen1's best patterns; gpt-5.5 cells ran the gen2 brief via codex. Gen2 matrix:
+
+```mermaid
+xychart-beta
+  title "App-generation (gen2): cost per cell, USD"
+  x-axis ["gpt5.5-high", "gpt5.5-med", "gpt5.5-xhigh", "opus-med", "opus-high", "fable-med", "fable-high", "opus-xhigh"]
+  y-axis "USD" 0 --> 40
+  bar [1.83, 1.91, 5.83, 11.35, 14.39, 22.84, 30.55, 34.42]
+```
+
+| Cell | Cost | Time | Build size | Desktop window | Verification depth |
+| --- | ---: | ---: | --- | :-: | --- |
+| gpt-5.5-high | \$1.83 | ~15m | 8 source files | ✅ | lint + typecheck + tests green |
+| gpt-5.5-medium | \$1.91 | ~15m | 11 source files | ✅ | static checks only |
+| gpt-5.5-xhigh | \$5.83 | ~18m | 9 source files | ✅ | static checks only; left the app running on exit |
+| opus-medium | \$11.35 | 15m | 3.5–4.8k LOC class | ✅ | API probes on real data |
+| opus-high | \$14.39 | 18m | 3.5–4.8k LOC class | ✅ | headless-Chrome screenshot verification |
+| fable-medium | \$22.84 | 18m | 3.5–4.8k LOC class, 12/12 tests | ✅ | API probes on real data |
+| fable-high | \$30.55 | 27m | 3.5–4.8k LOC class, 14/14 tests | ✅ | headless-Chrome screenshot verification |
+| opus-xhigh | \$34.42 | 39m | 3.5–4.8k LOC class, 20/20 tests | ✅ | self-measured feature accuracy, iterated to 100% |
+
+opus-xhigh built the deepest app (hand-built list virtualization, self-measured subagent-join accuracy, most tests); the gen2 prescriptive brief delivered strictly more than gen1 at the same total cost (claude matrix: gen1 \$120.70, gen2 \$113.55); without a hard DoD requirement, "desktop app" degraded to a browser tab in 4/5 gen1 cells. The gpt-5.5 cells honored the desktop-window requirement at \$1.83–5.83 — but their builds are an order of magnitude smaller (8–11 source files vs ~3.5–4.8k LOC), so the cost advantage buys the checklist, not the depth. Detail: [app-generation/README.md](app-generation/README.md).
 
 ### 3.6 Aggregate workload cost model
 
