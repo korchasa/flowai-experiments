@@ -1,0 +1,14 @@
+# doc-anchors-validate (.salpignore) — anchor-systems benchmark fixtures.
+#
+# These directories hold INTENTIONAL SALP test inputs, not real cross-references.
+# The turn-end SALP hook must not flag them as repo defects.
+#
+# salp-short/ — system under test: namespace-free [ANC:id] / [REF:id] form
+#   (README "salp-short"); rejected by the grammar by design, so every token
+#   here is reported as "malformed" unless skipped.
+salp-short/
+#
+# corrupted/ — deliberately planted graph anomalies for the `linting` variant
+#   (dead ref [REF:api:oauth-callback], duplicate anchors). It is a corrupted
+#   COPY of salp/, so its anchors also collide with salp/'s as "duplicates".
+corrupted/
