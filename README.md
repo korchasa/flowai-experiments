@@ -31,7 +31,7 @@ config.json                     IDE defaults (agent_model, judge model)
 
 ## Running locally
 
-**Agent-spawning experiments** (via `@korchasa/ai-ide-cli`; selected runtime auth required):
+**Agent-spawning experiments** (legacy CLI adapters via `@korchasa/ai-ide-cli`; new `ai-ide` adapters use ACP — see SDS §3.7; selected runtime auth required):
 
 ```bash
 # dry run

@@ -90,13 +90,14 @@
 
 ### 3.8 FR-EXP-ADAPTERS
 
-- **Desc:** Pluggable agent adapters. Current set: `claude`, `cursor`, and `opencode`.
-- **Scenario:** Runner selects adapter from CLI `--ide <id>`. Adapter handles memory-file placement, CLI spawning, env isolation.
+- **Desc:** Pluggable agent adapters. Legacy CLI set (`claude`, `cursor`, `opencode`) spawns agents through `@korchasa/ai-ide-cli`. New `ai-ide` adapters MUST drive agents over ACP (Agent Client Protocol — JSON-RPC over stdio), not `@korchasa/ai-ide-cli`; the CLI set is frozen — kept for committed experiments, not extended to new IDEs.
+- **Scenario:** Runner selects adapter from CLI `--ide <id>`. Adapter handles memory-file placement, agent spawning (CLI for the legacy set, ACP for new adapters), env isolation.
 - **Acceptance:**
   - [x] `claude` adapter supports Claude memory placement. Evidence: `shared/adapters/claude.ts`, `shared/adapters/claude_test.ts`.
   - [x] `cursor` adapter supports single-file variant. Evidence: `shared/adapters/cursor.ts`, `shared/adapters/cursor_test.ts`.
   - [x] `opencode` adapter is available and spawned through `@korchasa/ai-ide-cli`. Evidence: `shared/adapters/opencode.ts`, `shared/runner.ts`.
   - [x] Adapter registry `mod.ts` exposes the set. Evidence: `shared/adapters/mod.ts`.
+  - [ ] New `ai-ide` adapters drive agents over ACP (Agent Client Protocol) instead of `@korchasa/ai-ide-cli`; legacy CLI adapters frozen, not extended.
 
 ### 3.9 FR-EXP.TOKENIZERS
 
@@ -178,7 +179,7 @@
 - **CLI:** `deno task experiment <name> --variant <v> [--model <m>] [--ide <id>] [--reps <n>] [--axis <name>=<csv>]… [--seed <n>] [--dry-run]`. `--axis` is the sole axis-override mechanism: repeatable, accepts any axis declared by the variant, rejects unknown names. No axis-specific flag (e.g. `--sizes`, `--rules`) is hard-coded at the engine level.
 - **Config:** `config.json` — IDE defaults (`default_agent_model_provider`, `default_agent_model`, `judge.runtime`, `judge.model_provider`, `judge.model`). Resolved CWD-relative.
 - **Memory files:** adapters write per-trial `CLAUDE.md` / `AGENTS.md` (claude) or `.cursorrules` (cursor) into the sandbox.
-- **Env isolation:** runtime calls go through `@korchasa/ai-ide-cli`. Claude calls use `--strict-mcp-config --disable-slash-commands` where applicable; OpenCode calls receive `<provider>/<model>` as the runtime model reference. Runtime-level global memory may still affect experiments that measure memory injection and must be accounted for explicitly.
+- **Env isolation:** legacy CLI adapters route runtime calls through `@korchasa/ai-ide-cli` (Claude calls use `--strict-mcp-config --disable-slash-commands` where applicable; OpenCode calls receive `<provider>/<model>` as the runtime model reference); new `ai-ide` adapters drive agents over ACP instead (see FR-EXP-ADAPTERS). Runtime-level global memory may still affect experiments that measure memory injection and must be accounted for explicitly.
 - **Experiment extension point:** `shared/types.ts` exports the `Experiment` interface — new experiments implement `{id, name, description, axes, defaults, setupCell, query, judgePrompt, headline}` plus optional `renderCustom?(report)` for experiments whose payload is not pass/fail adherence (e.g. metric tables extracted from raw agent output — see FR-EXP.CONTEXT-ANATOMY).
 - **Env (OpenRouter-based experiments):** `OPENROUTER_API_KEY` — required for `experiment:tokenizers` and `experiment:images-hard`. See `.env.example`. Not used by agent-spawning experiments.
 

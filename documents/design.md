@@ -90,9 +90,10 @@ flowchart LR
 - **Interfaces:** `AgentAdapter` (see `adapters/types.ts`): `name`, `writeMemory(sandbox, files)`, `spawn(sandbox, query): Promise<{output, exitCode, durationMs, tokensUsed?}>`.
 - **Deps:** `shared/spawned_agent.ts`, `shared/llm.ts`, `shared/usage.ts`.
 - **Registry:** `adapters/mod.ts` exposes `{claude, cursor, opencode}`.
-- **Claude adapter:** places memory files for Claude-compatible runs. Runtime invocation goes through `@korchasa/ai-ide-cli` rather than direct `Deno.Command("claude")`.
-- **OpenCode adapter:** writes root `AGENTS.md` and runs through `@korchasa/ai-ide-cli` `invokeOpenCodeCli`. Model provider and model are combined as `<provider>/<model>` for OpenCode runtime calls.
-- **Cursor adapter:** writes `.cursorrules` at sandbox root. Does not support hierarchical memory — `tree-sum` variant is Claude-only.
+- **Transport (decision):** the `{claude, cursor, opencode}` adapters are the **legacy CLI set** — spawning goes through `@korchasa/ai-ide-cli` (per-CLI arg-building + stdout parsing). New `ai-ide` adapters MUST instead drive agents over **ACP** (Agent Client Protocol — JSON-RPC over stdio): one protocol across ACP-capable agents, uniform session/turn/tool-call events. The CLI set is frozen: kept for committed experiments, not extended to new IDEs. See FR-EXP-ADAPTERS.
+- **Claude adapter (legacy):** places memory files for Claude-compatible runs. Runtime invocation goes through `@korchasa/ai-ide-cli` rather than direct `Deno.Command("claude")`.
+- **OpenCode adapter (legacy):** writes root `AGENTS.md` and runs through `@korchasa/ai-ide-cli` `invokeOpenCodeCli`. Model provider and model are combined as `<provider>/<model>` for OpenCode runtime calls.
+- **Cursor adapter (legacy):** writes `.cursorrules` at sandbox root. Does not support hierarchical memory — `tree-sum` variant is Claude-only.
 
 ### 3.8 Experiment Variants
 
@@ -161,6 +162,7 @@ flowchart LR
   - **Rule position** is fixed at 50%. Position sweep is a separate experiment.
   - **Reps** = 5 → ~30% confidence interval on single-cell adherence. Accept for first-pass signal; increase for publication.
   - **IDE coverage:** `cursor` adapter supports single-file variant only. `tree-sum` is Claude-only.
+  - **ACP adapter is deferred.** No ACP-based adapter exists yet; the `{claude, cursor, opencode}` CLI set (via `@korchasa/ai-ide-cli`) still backs all committed experiments. The ACP transport is the mandated direction for the *next* `ai-ide` adapter (FR-EXP-ADAPTERS); the CLI set is frozen, not migrated retroactively.
   - **`shared/` naming** intentionally groups the runner, judge, report, adapters, LLM client, spawned-agent helper, usage, and common utilities in one root-level runtime package.
   - **No CI experiment runs.** Experiments require a live, externally-authorized Claude CLI (`claude login` → `~/.claude/.credentials.json`) — run manually on dev machines (macOS or Linux devcontainer).
   - **CLI-intrinsic baseline is NOT subtracted.** Every trial carries ~26k tokens of built-in system prompt + tool/skill/agent descriptors (embedded in the `claude` binary) plus dynamic sections injected by the CLI at startup. FR-EXP.CONTEXT-ANATOMY quantifies this floor; FR-EXP.MEMORY-LENGTH headline numbers are explicitly relative to it. Rationale: the experiments measure what a user experiences in the real operating environment, not in an idealized vacuum.

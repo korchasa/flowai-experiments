@@ -49,6 +49,7 @@ Sister repository: [`flow`](https://github.com/korchasa/flow) holds the AssistFl
 - **Language-leakage evidence**: `chat-leakage-from-reasoning-lang` and `chat-leakage-from-project-lang` split visible final-chat leakage into two hypotheses: instructed reasoning-language pressure and project-context-language pressure. They do not measure hidden chain-of-thought language directly. Their result Markdown reports controlled input-context sizes by language and excludes the judged final answer from those context metrics.
 - **Clean-slate copy from flow**: history not preserved. Blame traversal across the split requires checking out `flow@f311142`.
 - **CI scope**: CI runs `deno task check` only. Experiments need live `claude` CLI + macOS keychain auth (not runnable in CI).
+- **Agent transport — ACP for new ai-ide tests**: New `ai-ide` experiments MUST drive agents over ACP (Agent Client Protocol — JSON-RPC over stdio) instead of `@korchasa/ai-ide-cli`. ACP gives one protocol across ACP-capable agents — uniform session/turn/tool-call events instead of per-CLI argument building and stdout parsing. The CLI adapters (`shared/adapters/{claude,cursor,opencode}.ts` over `@korchasa/ai-ide-cli`) are legacy: keep them only for already-committed experiments; do not extend them for new IDEs or new experiments.
 
 ## Documentation Hierarchy
 
